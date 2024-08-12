@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: font-sentinent-light;
+}
+
+@font-face {
+    font-family: 'sentinent-bold';
+    src: local('sentinent-bold'),
+         url('../public/fonts/Sentient-Bold.woff') format('woff'),
+         url('../public/fonts/Sentient-Bold.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'sentinent-light';
+    src: local('sentinent-light'),
+         url('../public/fonts/Sentient-Light.woff') format('woff'),
+         url('../public/fonts/Sentient-Light.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'sentinent-medium';
+    src: local('sentinent-medium'),
+         url('../public/fonts/Sentient-Medium.woff') format('woff'),
+         url('../public/fonts/Sentient-Medium.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'sentinent-medium-italic';
+    src: local('sentinent-medium-italic'),
+         url('../public/fonts/Sentient-MediumItalic.woff') format('woff'),
+         url('../public/fonts/Sentient-MediumItalic.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'sentinent-extralight-italic';
+    src: local('sentinent-extralight-italic'),
+         url('../public/fonts/Sentient-ExtralightItalic.woff') format('woff'),
+         url('../public/fonts/Sentient-ExtralightItalic.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'sentinent-extralight';
+    src: local('sentinent-extralight'),
+         url('../public/fonts/Sentient-Extralight.woff') format('woff'),
+         url('../public/fonts/Sentient-Extralight.woff2') format('woff2');
+}

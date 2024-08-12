@@ -1,0 +1,38 @@
+.errormessage {
+    font-size: 13px;
+    padding: 3px;
+    font-family: 'Times New Roman', Times, serif;
+    line-height: 10px;
+    font-style: italic;
+    color: rgb(243, 77, 77);
+    max-width: 156px;
+    text-align: left;
+}
+
+@media (min-width: 992px) {
+  .item {
+    width: 47%;
+  }
+}
+
+.confirmbutton {
+  background-color: white;
+  border: 2px solid #8965e4;
+  color: black;
+}
+
+.cancelbutton {
+  background-color: white;
+  border: 2px solid black;
+  color: black;
+}
+
+.confirmbutton:hover {
+  color: white;
+  background-color: #8965e4;
+}
+
+.cancelbutton:hover {
+  color: white;
+  background-color: black;
+}
