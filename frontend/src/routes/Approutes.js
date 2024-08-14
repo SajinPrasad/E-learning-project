@@ -10,17 +10,20 @@ import {
   StudentRegister,
 } from "../pages/Auth";
 import { MentorDashBoard } from "../pages/Mentor";
+import ProtectedRoutes from "./ProtectedRoutes";
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/register" Component={StudentRegister} />
-      <Route path="/login" Component={StudentLogin} />
-      <Route path="/mentor-register" Component={MentorRegister} />
-      <Route path="/mentor-login" Component={MentorLogin} />
-      <Route path="/verification" Component={OTPVerificationForm} />
-      <Route path="/" Component={Home} />
-      <Route path="/mentor" Component={MentorDashBoard} />
+      <Route path="/register" element={<StudentRegister />} />
+      <Route path="/login" element={<StudentLogin />} />
+      <Route path="/mentor-register" element={<MentorRegister />} />
+      <Route path="/mentor-login" element={<MentorLogin />} />
+      <Route path="/verification" element={<OTPVerificationForm />} />
+      <Route path="/" element={<Home />} />
+      <Route element={<ProtectedRoutes />}>
+        <Route path="/mentor" element={<MentorDashBoard />} />
+      </Route>
     </Routes>
   );
 };
