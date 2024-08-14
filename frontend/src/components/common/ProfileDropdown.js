@@ -1,7 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { IconProfile, Logout, Settings } from "./Icons";
-import { logout } from "../../features/tempUser/authSlice";
 import { clearUserInfo } from "../../features/tempUser/userSlice";
 
 /**
@@ -13,9 +12,6 @@ const ProfileDropdown = () => {
 
   // Function to handle logout.
   const handleLogout = () => {
-    // Clearing the tokens from state.
-    dispatch(logout());
-
     // Clearing the user information from state.
     dispatch(clearUserInfo());
   };

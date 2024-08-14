@@ -1,11 +1,11 @@
-from django.shortcuts import render
-from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework import generics
+from django.conf import settings
+from django.middleware import csrf
 
 from .serializer import OTPResendSerializer, UserRegistrationResponseSerializer, UserRegistrationSerializer, UserLoginSerializer
 from .serializer import OTPVerificationSerializer
@@ -48,9 +48,25 @@ class UserLoginview(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
-            # Directly return the validated data
-            return Response(serializer.validated_data, status=status.HTTP_200_OK)
-        print(serializer.errors)
+            data = serializer.validated_data
+            response = Response(data, status=status.HTTP_200_OK)
+            response.set_cookie(
+                key=settings.SIMPLE_JWT['AUTH_COOKIE'],  # Cookie name
+                value=data['access'],  # Access token value
+                expires=settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],  # Expiry time
+                httponly=True,  # HTTP-only flag
+                secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],  # Secure flag (use True in production)
+                samesite='Lax',  # SameSite attribute
+            )
+            response.set_cookie(
+                key='refresh_token',
+                value=data['refresh'],
+                httponly=True,
+                secure=settings.SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                samesite='Lax',
+            )
+            csrf.get_token(request)  # Generate and attach CSRF token
+            return response
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

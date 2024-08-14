@@ -7,14 +7,14 @@ import { useNavigate } from "react-router-dom";
  * Renders the home page.
  */
 const Home = () => {
-  const { accessToken } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!accessToken) {
+    if (!isAuthenticated) {
       navigate("/");
     }
-  }, [accessToken]);
+  }, [isAuthenticated]);
   return (
     <>
       <Header />

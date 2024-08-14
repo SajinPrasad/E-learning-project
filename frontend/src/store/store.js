@@ -11,7 +11,7 @@ import {
   REGISTER,
 } from "redux-persist/es/constants";
 
-import { authReducer, tempUserReducer, userReducer } from "../features";
+import { tempUserReducer, userReducer } from "../features";
 
 // Configuration for tempUserReducer
 const tempUserPersistConfig = {
@@ -25,12 +25,6 @@ const userPersistConfig = {
   storage,
 };
 
-// Configuration for auth reducer
-const authPersistConfig = {
-  key: "auth",
-  storage,
-};
-
 // Persisted reducer for tempUserReducer
 const persistedTempUserReducer = persistReducer(
   tempUserPersistConfig,
@@ -40,14 +34,10 @@ const persistedTempUserReducer = persistReducer(
 // Persisted reducer for userReducer
 const persistedUserReducer = persistReducer(userPersistConfig, userReducer);
 
-// Persisted reducer for authReducer
-const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
-
 // Combine your reducers
 const rootReducer = combineReducers({
   tempUser: persistedTempUserReducer,
   user: persistedUserReducer,
-  auth: persistedAuthReducer,
 });
 
 // Configure store with reducers and middleware

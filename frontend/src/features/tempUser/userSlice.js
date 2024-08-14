@@ -6,9 +6,10 @@ const initialState = {
   lastName: "",
   role: "",
   email: "",
+  isAuthenticated: false,
 };
 /**
- * Slice for managing user related data including tokens after authentication.
+ * Slice for managing user related data including authentication status.
  */
 const userSlice = createSlice({
   name: "user",
@@ -19,12 +20,14 @@ const userSlice = createSlice({
       state.lastName = action.payload.lastName;
       state.role = action.payload.role;
       state.email = action.payload.email;
+      state.isAuthenticated = action.payload.isAuthenticated;
     },
     clearUserInfo(state) {
       state.firstName = "";
       state.lastName = "";
       state.role = "";
       state.email = "";
+      state.isAuthenticated = false;
     },
   },
 });

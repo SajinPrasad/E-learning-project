@@ -9,8 +9,9 @@ import ProfileDropdown from "./ProfileDropdown";
  */
 const Header = () => {
   const navigate = useNavigate();
-  const { accessToken } = useSelector((state) => state.auth);
-  const { firstName, lastName } = useSelector((state) => state.user);
+  const { isAuthenticated, firstName, lastName } = useSelector(
+    (state) => state.user,
+  );
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -88,7 +89,7 @@ const Header = () => {
             </nav>
           </div>
 
-          {accessToken ? (
+          {isAuthenticated ? (
             <div
               ref={dropdownRef}
               className={`relative ml-auto flex w-1/6 flex-col items-center justify-center`}
