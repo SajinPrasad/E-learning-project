@@ -8,7 +8,6 @@ import Swal from "sweetalert2";
 import { loginService } from "../../../services/authService";
 import styles from "./Form.module.css";
 import { setUserInfo } from "../../../features/tempUser/userSlice";
-import { setToken } from "../../../features/tempUser/authSlice";
 import { Loading } from "../../common";
 
 // Validation schema for Formik
@@ -61,20 +60,14 @@ const LoginForm = ({ role }) => {
   const [loading, setLoading] = useState(false);
 
   // Function to set user state and tokens
-  const handleSetUserState = (user, accessToken, refreshToken) => {
+  const handleSetUserState = (user) => {
     dispatch(
       setUserInfo({
         firstName: user.first_name,
         lastName: user.last_name,
         email: user.email,
         role: user.role,
-      }),
-    );
-
-    dispatch(
-      setToken({
-        accessToken,
-        refreshToken,
+        isAuthenticated: true,
       }),
     );
   };
@@ -95,19 +88,11 @@ const LoginForm = ({ role }) => {
             try {
               const response = await loginService(values);
               if (response.user.role === "student" && role === "student") {
-                handleSetUserState(
-                  response.user,
-                  response.access,
-                  response.refresh,
-                );
+                handleSetUserState(response.user);
                 setLoading(false);
                 navigate("/");
               } else if (response.user.role === "mentor" && role === "mentor") {
-                handleSetUserState(
-                  response.user,
-                  response.access,
-                  response.refresh,
-                );
+                handleSetUserState(response.user);
                 setLoading(false);
                 navigate("/mentor");
               } else if (

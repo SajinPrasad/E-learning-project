@@ -4,14 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const MentorDashBoard = () => {
-  const { accessToken } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!accessToken) {
+    if (!isAuthenticated) {
       navigate("/");
     }
-  }, [accessToken]);
+  }, [isAuthenticated]);
 
   return (
     <div>

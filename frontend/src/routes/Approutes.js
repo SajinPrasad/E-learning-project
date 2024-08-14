@@ -1,15 +1,15 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 
-import { OTPVerificationForm } from "./components/Auth/Register";
-import Home from "./pages/Home/Home";
+import { OTPVerificationForm } from "../components/Auth/Register";
+import Home from "../pages/Home/Home";
 import {
   MentorLogin,
   MentorRegister,
   StudentLogin,
   StudentRegister,
-} from "./pages/Auth";
-import { MentorDashBoard } from "./pages/Mentor";
+} from "../pages/Auth";
+import { MentorDashBoard } from "../pages/Mentor";
 
 const AppRoutes = () => {
   return (
