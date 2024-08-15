@@ -2,3 +2,15 @@ section {
   z-index: 50;
 }
 
+/* Common.module.css */
+.iconContainer:hover .iconRect {
+  fill: #fff; /* Change fill color to white on hover */
+}
+
+.iconRect {
+  fill: #8965e4; /* Default color */
+}
+
+.iconRectSelected {
+  fill: #ffffff; /* Color when selected */
+}
