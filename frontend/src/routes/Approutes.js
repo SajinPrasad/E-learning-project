@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import { OTPVerificationForm } from "../components/Auth/Register";
 import Home from "../pages/Home/Home";
 import {
+  AdminLogin,
   MentorLogin,
   MentorRegister,
   StudentLogin,
@@ -11,6 +12,7 @@ import {
 } from "../pages/Auth";
 import { MentorDashBoard } from "../pages/Mentor";
 import ProtectedRoutes from "./ProtectedRoutes";
+import { AdminDashBoard } from "../pages/Adimin";
 
 const AppRoutes = () => {
   return (
@@ -21,8 +23,10 @@ const AppRoutes = () => {
       <Route path="/mentor-login" element={<MentorLogin />} />
       <Route path="/verification" element={<OTPVerificationForm />} />
       <Route path="/" element={<Home />} />
+      <Route path="/admin" element={<AdminLogin />} />
       <Route element={<ProtectedRoutes />}>
         <Route path="/mentor" element={<MentorDashBoard />} />
+        <Route path="/admin-dashboard" element={<AdminDashBoard />} />
       </Route>
     </Routes>
   );

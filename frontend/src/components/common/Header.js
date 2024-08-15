@@ -92,7 +92,7 @@ const Header = () => {
           {isAuthenticated ? (
             <div
               ref={dropdownRef}
-              className={`relative ml-auto flex w-1/6 flex-col items-center justify-center`}
+              className={`relative flex w-1/6 flex-col items-center justify-center`}
             >
               <div
                 className={`flex aspect-square w-8 cursor-pointer items-center justify-center rounded-full bg-theme-primary text-white hover:border hover:border-theme-primary hover:bg-white hover:text-black`}

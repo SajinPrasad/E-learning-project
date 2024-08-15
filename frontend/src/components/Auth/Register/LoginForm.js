@@ -95,6 +95,10 @@ const LoginForm = ({ role }) => {
                 handleSetUserState(response.user);
                 setLoading(false);
                 navigate("/mentor");
+              } else if (response.user.role === "admin" && role === "admin") {
+                handleSetUserState(response.user);
+                setLoading(false);
+                navigate("/admin-dashboard");
               } else if (
                 response.user.role === "student" &&
                 role === "mentor"
@@ -104,6 +108,12 @@ const LoginForm = ({ role }) => {
               } else if (
                 response.user.role === "mentor" &&
                 role === "student"
+              ) {
+                setLoading(false);
+                showUnauthorizedAlert(navigate, response.user.role);
+              } else if (
+                response.user.role === "student" ||
+                (response.user.role === "mentor" && role === "admin")
               ) {
                 setLoading(false);
                 showUnauthorizedAlert(navigate, response.user.role);
@@ -124,7 +134,7 @@ const LoginForm = ({ role }) => {
                   type="email"
                   name="email"
                   placeholder="Email"
-                  className={`font-sentinent-extralight-italic peer mt-4 h-8 w-full transform rounded border border-gray-400 p-1 text-sm italic drop-shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none lg:h-9`}
+                  className={`font-sentinent-extralight-italic peer mt-4 h-8 w-full rounded border p-1 px-3 text-sm text-gray-700 shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none lg:h-9 dark:border-gray-600`}
                 />
                 <ErrorMessage
                   name="email"
@@ -139,7 +149,7 @@ const LoginForm = ({ role }) => {
                   type="password"
                   name="password"
                   placeholder="Password"
-                  className={`font-sentinent-extralight-italic peer mt-4 h-8 w-full transform rounded border border-gray-400 p-1 text-sm italic drop-shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none lg:h-9`}
+                  className={`font-sentinent-extralight-italic peer mt-4 h-8 w-full rounded border p-1 px-3 text-sm text-gray-700 shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none lg:h-9 dark:border-gray-600`}
                 />
                 <ErrorMessage
                   name="password"
@@ -152,7 +162,7 @@ const LoginForm = ({ role }) => {
                 {/* Submit button */}
                 <button
                   type="submit"
-                  className={`mt-3 h-7 w-24 rounded border border-gray-400 text-sm drop-shadow hover:border-theme-primary hover:bg-theme-primary hover:text-white`}
+                  className={`mt-3 h-7 w-24 rounded border border-gray-600 text-sm drop-shadow hover:border-theme-primary hover:bg-theme-primary hover:text-white`}
                   disabled={isSubmitting}
                 >
                   Sign In

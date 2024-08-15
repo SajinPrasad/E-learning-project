@@ -1,13 +1,12 @@
 import React from "react";
 import { Header } from "../../components/common";
-import MentorStats from "./MentorStats";
-const MentorDashBoard = () => {
+
+const AdminDashBoard = () => {
   return (
     <div>
       <Header />
-      <MentorStats />
     </div>
   );
 };
 
-export default MentorDashBoard;
+export default AdminDashBoard;

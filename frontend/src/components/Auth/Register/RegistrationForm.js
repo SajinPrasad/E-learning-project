@@ -83,7 +83,7 @@ const RegistrationForm = ({ role }) => {
                   type="text"
                   name="firstName"
                   placeholder="First Name"
-                  className={`font-sentinent-extralight-italic peer mt-4 h-9 w-full transform rounded border border-gray-400 p-1 text-sm italic drop-shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none`}
+                  className={`font-sentinent-extralight-italic peer mt-4 h-8 w-full rounded border p-1 px-3 text-sm text-gray-700 shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none lg:h-9 dark:border-gray-600`}
                 />
                 <ErrorMessage
                   name="firstName"
@@ -97,7 +97,7 @@ const RegistrationForm = ({ role }) => {
                   type="text"
                   name="lastName"
                   placeholder="Last Name"
-                  className={`font-sentinent-extralight-italic peer mt-4 h-8 w-full transform rounded border border-gray-400 p-1 text-sm italic drop-shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none lg:h-9`}
+                  className={`font-sentinent-extralight-italic peer mt-4 h-8 w-full rounded border p-1 px-3 text-sm text-gray-700 shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none lg:h-9 dark:border-gray-600`}
                 />
                 <ErrorMessage
                   name="lastName"
@@ -111,7 +111,7 @@ const RegistrationForm = ({ role }) => {
                   type="email"
                   name="email"
                   placeholder="Email"
-                  className={`font-sentinent-extralight-italic peer mt-4 h-8 w-full transform rounded border border-gray-400 p-1 text-sm italic drop-shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none lg:h-9`}
+                  className={`font-sentinent-extralight-italic peer mt-4 h-8 w-full transform rounded border border-gray-700 p-1 text-sm drop-shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none lg:h-9`}
                 />
                 <ErrorMessage
                   name="email"
@@ -125,7 +125,7 @@ const RegistrationForm = ({ role }) => {
                   type="password"
                   name="password"
                   placeholder="Password"
-                  className={`font-sentinent-extralight-italic peer mt-4 h-8 w-full transform rounded border border-gray-400 p-1 text-sm italic drop-shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none lg:h-9`}
+                  className={`font-sentinent-extralight-italic peer mt-4 h-8 w-full rounded border p-1 px-3 text-sm text-gray-700 shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none lg:h-9 dark:border-gray-600`}
                 />
                 <ErrorMessage
                   name="password"
@@ -139,7 +139,7 @@ const RegistrationForm = ({ role }) => {
                   type="password"
                   name="confirmPassword"
                   placeholder="Repeat Password"
-                  className={`font-sentinent-extralight-italic peer mt-4 h-8 w-full transform rounded border border-gray-400 p-1 text-sm italic drop-shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none lg:h-9`}
+                  className={`font-sentinent-extralight-italic peer mt-4 h-8 w-full rounded border p-1 px-3 text-sm text-gray-700 shadow transition-transform duration-300 hover:scale-105 hover:border-theme-primary focus:border-blue-500 focus:outline-none lg:h-9 dark:border-gray-600`}
                 />
                 <ErrorMessage
                   name="confirmPassword"
@@ -151,7 +151,7 @@ const RegistrationForm = ({ role }) => {
                 {/* Submit button */}
                 <button
                   type="submit"
-                  className={`mt-3 h-7 w-24 rounded border border-gray-400 text-sm drop-shadow hover:border-theme-primary hover:bg-theme-primary hover:text-white`}
+                  className={`mt-3 h-7 w-24 rounded border border-gray-600 text-sm drop-shadow hover:border-theme-primary hover:bg-theme-primary hover:text-white`}
                   disabled={isSubmitting}
                 >
                   Sign Up
