@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 
 // Styles imported from icons module for hovering effect for SVGs.
-import { styles } from "../../components/common";
+import { styles } from "../../../components/common";
 import {
   CoursesIcon,
   DashboardIcon,
   HamBurger,
-} from "../../components/common/Icons";
+} from "../../../components/common/Icons";
 import { useNavigate } from "react-router-dom";
 
 const MentorSidebar = () => {

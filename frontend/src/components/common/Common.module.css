@@ -14,3 +14,11 @@ section {
 .iconRectSelected {
   fill: #ffffff; /* Color when selected */
 }
+
+.black {
+  fill: #000;
+}
+
+.gray {
+  fill: rgb(106, 104, 104);
+}

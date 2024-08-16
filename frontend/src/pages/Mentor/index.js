@@ -1,3 +1,4 @@
-export { default as MentorDashBoard } from "./MentorDashBoard";
-export { default as MentorStats } from "./MentorStats";
-export { default as MentorSidebar } from "./MentorSidebar";
+export { default as MentorDashBoard } from "./MentorDashBoard/MentorDashBoard";
+export { default as MentorStats } from "./MentorDashBoard/MentorStats";
+export { default as MentorSidebar } from "./MentorDashBoard/MentorSidebar";
+export { default as MentorProfileForm } from "./MentorProfile/MentorProfileForm";

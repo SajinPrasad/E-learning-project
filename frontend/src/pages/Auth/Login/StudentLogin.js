@@ -1,14 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { LoginForm } from "../../../components/Auth/Register";
 import { useNavigate } from "react-router-dom";
-
-import logo from "../../../assets/logo.png";
+import { useSelector } from "react-redux";
 
 /**
  * Login page student.
  */
 const StudentLogin = () => {
+  const { isAuthenticated, role } = useSelector((state) => state.user);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    //Redirecting authenticated user to home if trying to access the login page again.
+    if (isAuthenticated) {
+      if (role === "student") {
+        navigate("/");
+      }
+    }
+  }, []);
 
   return (
     <div

@@ -1,10 +1,27 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
-import { Header } from "../../components/common";
+import { Header } from "../../../components/common";
 import MentorSidebar from "./MentorSidebar";
 import MentorStats from "./MentorStats";
+import { useNavigate } from "react-router-dom";
 
 const MentorDashBoard = () => {
+  const { role } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    //Redirecting non mentor users
+    if (role != "mentor") {
+      toast.warning("Your are not authorized to visit this page!");
+      if (role === "admin") {
+        navigate("/admin");
+      } else if (role === "student") {
+        navigate("/");
+      }
+    }
+  }, []);
   return (
     <div className="flex h-screen flex-col">
       {/* Header with higher z-index */}

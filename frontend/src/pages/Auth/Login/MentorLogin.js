@@ -1,12 +1,24 @@
-import React from "react";
-import { LoginForm } from "../../../components/Auth/Register";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+import { LoginForm } from "../../../components/Auth/Register";
 
 /**
  * Login page Mentor
  */
 const MentorLogin = () => {
+  const { isAuthenticated, role } = useSelector((state) => state.user);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    //Redirecting authenticated mentor to dashboard if trying to access the login page again.
+    if (isAuthenticated) {
+      if (role === "mentor") {
+        navigate("/mentor");
+      }
+    }
+  }, []);
 
   return (
     <div
@@ -16,7 +28,7 @@ const MentorLogin = () => {
         className={`flex w-7/12 flex-col-reverse items-center justify-center rounded bg-white p-4 drop-shadow-xl lg:flex-row-reverse`}
       >
         <div
-          className={`bg-theme-primary mb-3 basis-2/5 rounded p-4 text-center text-white lg:mb-0`}
+          className={`mb-3 basis-2/5 rounded bg-theme-primary p-4 text-center text-white lg:mb-0`}
         >
           <h1 className={`font-sentinent-bold text-xl`}>Welcome, mentors!</h1>
           <p className={`font-sentinent-light font-normal`}>
@@ -38,7 +50,7 @@ const MentorLogin = () => {
         </div>
         <div className={`basis-3/5 text-center text-sm`}>
           <div
-            className={`text-theme-primary m-auto w-6/12 font-sentinent-bold text-xl font-bold md:text-3xl`}
+            className={`m-auto w-6/12 font-sentinent-bold text-xl font-bold text-theme-primary md:text-3xl`}
           >
             BrainBridge
           </div>

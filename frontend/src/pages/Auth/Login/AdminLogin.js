@@ -1,7 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
+
 import { LoginForm } from "../../../components/Auth/Register";
+import { useNavigate } from "react-router-dom";
 
 const AdminLogin = () => {
+  const { isAuthenticated, role } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    //Redirecting authenticated admin to dashboard if trying to access the login page again.
+    if (isAuthenticated) {
+      if (role === "admin") {
+        navigate("/admin/dashboard");
+      }
+    }
+  }, []);
   return (
     <div>
       <div

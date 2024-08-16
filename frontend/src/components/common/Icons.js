@@ -209,15 +209,96 @@ const DashboardIcon = ({ isSelected }) => {
 const CoursesIcon = ({ isSelected }) => {
   return (
     <svg
-      width="27"
-      height="27"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className="size-6"
+    >
+      <path
+        className={isSelected ? styles.iconRectSelected : styles.iconRect}
+        d="M11.644 1.59a.75.75 0 0 1 .712 0l9.75 5.25a.75.75 0 0 1 0 1.32l-9.75 5.25a.75.75 0 0 1-.712 0l-9.75-5.25a.75.75 0 0 1 0-1.32l9.75-5.25Z"
+      />
+      <path
+        className={isSelected ? styles.iconRectSelected : styles.iconRect}
+        d="m3.265 10.602 7.668 4.129a2.25 2.25 0 0 0 2.134 0l7.668-4.13 1.37.739a.75.75 0 0 1 0 1.32l-9.75 5.25a.75.75 0 0 1-.71 0l-9.75-5.25a.75.75 0 0 1 0-1.32l1.37-.738Z"
+      />
+      <path
+        className={isSelected ? styles.iconRectSelected : styles.iconRect}
+        d="m10.933 19.231-7.668-4.13-1.37.739a.75.75 0 0 0 0 1.32l9.75 5.25c.221.12.489.12.71 0l9.75-5.25a.75.75 0 0 0 0-1.32l-1.37-.738-7.668 4.13a2.25 2.25 0 0 1-2.134-.001Z"
+      />
+    </svg>
+  );
+};
+
+const BookIcon = ({
+  isSelected,
+  black = false,
+  gray = false,
+  h = 27,
+  w = 27,
+}) => {
+  return (
+    <svg
+      width={w}
+      height={h}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
         d="M11.25 4.533A9.707 9.707 0 0 0 6 3a9.735 9.735 0 0 0-3.25.555.75.75 0 0 0-.5.707v14.25a.75.75 0 0 0 1 .707A8.237 8.237 0 0 1 6 18.75c1.995 0 3.823.707 5.25 1.886V4.533ZM12.75 20.636A8.214 8.214 0 0 1 18 18.75c.966 0 1.89.166 2.75.47a.75.75 0 0 0 1-.708V4.262a.75.75 0 0 0-.5-.707A9.735 9.735 0 0 0 18 3a9.707 9.707 0 0 0-5.25 1.533v16.103Z"
+        className={`${isSelected ? "iconRectSelected" : "iconRect"} ${black ? styles.black : ""} ${gray ? styles.gray : ""}`}
+      />
+    </svg>
+  );
+};
+
+const DropDownArrow = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className="size-4"
+    >
+      <path
+        fillRule="evenodd"
+        d="M12.53 16.28a.75.75 0 0 1-1.06 0l-7.5-7.5a.75.75 0 0 1 1.06-1.06L12 14.69l6.97-6.97a.75.75 0 1 1 1.06 1.06l-7.5 7.5Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+};
+
+const CategoryIcon = ({ black = false, gray = false }) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      className="size-4"
+    >
+      <path
+        fillRule="evenodd"
+        d="M4.5 2A2.5 2.5 0 0 0 2 4.5v3.879a2.5 2.5 0 0 0 .732 1.767l7.5 7.5a2.5 2.5 0 0 0 3.536 0l3.878-3.878a2.5 2.5 0 0 0 0-3.536l-7.5-7.5A2.5 2.5 0 0 0 8.38 2H4.5ZM5 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+        clipRule="evenodd"
+        className={`${black ? styles.black : ""} ${gray ? styles.gray : ""}`}
+      />
+    </svg>
+  );
+};
+
+const UsersIcon = ({ isSelected }) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      className="size-6"
+    >
+      <path
         className={isSelected ? styles.iconRectSelected : styles.iconRect}
+        d="M7 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM14.5 9a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM1.615 16.428a1.224 1.224 0 0 1-.569-1.175 6.002 6.002 0 0 1 11.908 0c.058.467-.172.92-.57 1.174A9.953 9.953 0 0 1 7 18a9.953 9.953 0 0 1-5.385-1.572ZM14.5 16h-.106c.07-.297.088-.611.048-.933a7.47 7.47 0 0 0-1.588-3.755 4.502 4.502 0 0 1 5.874 2.636.818.818 0 0 1-.36.98A7.465 7.465 0 0 1 14.5 16Z"
       />
     </svg>
   );
@@ -234,4 +315,8 @@ export {
   HamBurger,
   DashboardIcon,
   CoursesIcon,
+  BookIcon,
+  DropDownArrow,
+  CategoryIcon,
+  UsersIcon,
 };

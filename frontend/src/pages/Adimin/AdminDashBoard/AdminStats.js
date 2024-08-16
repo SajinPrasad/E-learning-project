@@ -1,7 +1,7 @@
 import React from "react";
-import { DownwardArrow, UpwardArrow } from "../../components/common/Icons";
+import { DownwardArrow, UpwardArrow } from "../../../components/common/Icons";
 
-const MentorStats = () => {
+const AdminStats = () => {
   return (
     <div
       className={`mt-6 flex flex-col justify-evenly gap-1 p-4 sm:flex-row sm:flex-wrap sm:justify-start md:grid md:grid-cols-2 lg:grid-cols-4`}
@@ -78,4 +78,4 @@ const MentorStats = () => {
   );
 };
 
-export default MentorStats;
+export default AdminStats;

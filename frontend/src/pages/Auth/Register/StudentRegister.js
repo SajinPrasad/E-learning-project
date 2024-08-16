@@ -1,15 +1,24 @@
-import React from "react";
-import { RegistrationForm } from "../../../components/Auth/Register";
-
-import logo from "../../../assets/logo.png";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+import { RegistrationForm } from "../../../components/Auth/Register";
 
 /**
  * User registration page Students.
  */
 const StudentRegister = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, role } = useSelector((state) => state.user);
 
+  useEffect(() => {
+    //Redirecting authenticated user to home if trying to access the registration page again.
+    if (isAuthenticated) {
+      if (role === "student") {
+        navigate("/");
+      }
+    }
+  }, []);
   return (
     <div
       className={`flex min-h-screen content-center items-center justify-center bg-gray-50`}
@@ -41,7 +50,7 @@ const StudentRegister = () => {
         <div className={`basis-3/5 text-sm`}>
           <div className={`basis-3/5 text-center text-sm`}>
             <div
-              className={`text-theme-primary m-auto w-6/12 font-sentinent-bold text-xl md:text-3xl font-bold`}
+              className={`m-auto w-6/12 font-sentinent-bold text-xl font-bold text-theme-primary md:text-3xl`}
             >
               BrainBridge
             </div>
