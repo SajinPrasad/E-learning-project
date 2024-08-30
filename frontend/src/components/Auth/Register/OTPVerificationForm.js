@@ -58,12 +58,12 @@ const OTPVerificationForm = () => {
       if (response) {
         // If the service returns a successful result
         setLoading(false);
-        dispatch(clearTempUser());
         if (role === "student") {
           navigate("/login");
-        } else if (role === "student") {
+        } else if (role === "mentor") {
           navigate("/mentor-login");
         }
+        dispatch(clearTempUser());
       }
     } catch (error) {
       setLoading(false);

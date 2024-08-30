@@ -1,10 +1,10 @@
 import { toast } from "react-toastify";
-import { axiosInstance } from "../../api/axiosInstance";
+import { privateAxiosInstance } from "../../api/axiosInstance";
 
 const createCourse = async (courseData) => {
   console.log("Course data", courseData);
   try {
-    const response = await axiosInstance.post("/courses/", {
+    const response = await privateAxiosInstance.post("/courses/", {
       title: courseData.courseTitle,
       description: courseData.courseDescription,
       category: courseData.courseCategory, // Assuming this is a slug or ID that matches the category in the backend
@@ -29,7 +29,7 @@ const createCourse = async (courseData) => {
 
 const getCourses = async () => {
   try {
-    const response = await axiosInstance.get("/courses/");
+    const response = await privateAxiosInstance.get("/courses/");
     if (response.status >= 200 && response.status < 300) {
       return response.data;
     } else {

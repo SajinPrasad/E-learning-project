@@ -10,8 +10,8 @@ const tempUserSlice = createSlice({
   reducers: {
     // Action to set the email address for OTP verification
     setTempUser(state, action) {
-      state.email = action.payload;
-      state.role = action.role;
+      state.email = action.payload.email;
+      state.role = action.payload.role;
     },
 
     // Action to clear the email address (after OTP verification)

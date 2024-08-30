@@ -1,75 +1,87 @@
 import axios from "axios";
+import { store } from "../store/store";
+import { clearToken, setToken } from "../features/auth/authSlice";
 
 // Base URL for the API
 const API_URL = "http://127.0.0.1:8000/";
 
-// Create an Axios instance for general API requests
-export const axiosInstance = axios.create({
+// Public Axios Instance (No Authentication)
+export const publicAxiosInstance = axios.create({
   baseURL: API_URL,
-  withCredentials: true,
   timeout: 50000,
   headers: {
     "Content-Type": "application/json",
   },
-  xsrfCookieName: "csrftoken",
-  xsrfHeaderName: "X-CSRFToken",
 });
 
-let isRefreshing = false;
-let failedQueue = [];
+// Private Axios Instance (Requires Authentication)
+export const privateAxiosInstance = axios.create({
+  baseURL: API_URL,
+  timeout: 50000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
+// Add a request interceptor to the private instance to include JWT token
+privateAxiosInstance.interceptors.request.use(
+  (config) => {
+    const state = store.getState();
+    const token = state.auth.accessToken; // Fetching the access token from state.
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
-  });
-  
-  failedQueue = [];
-};
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
 
-axiosInstance.interceptors.response.use(
+// Response interceptor to handle token expiration and refresh
+privateAxiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({resolve, reject});
-        }).then(token => {
-          return axiosInstance(originalRequest);
-        }).catch(err => {
-          return Promise.reject(err);
-        });
-      }
-
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
-      isRefreshing = true;
 
       try {
-        const refreshResponse = await axiosInstance.post('/token/refresh/');
-        console.log(refreshResponse)
-        isRefreshing = false;
-        processQueue(null, refreshResponse.data.access);
-        
-        // Assuming the new access token is returned in the response
-        // You might need to adjust this based on your backend response
-        axiosInstance.defaults.headers['Authorization'] = 'Bearer ' + refreshResponse.data.access;
-        originalRequest.headers['Authorization'] = 'Bearer ' + refreshResponse.data.access;
-        
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        isRefreshing = false;
-        processQueue(refreshError, null);
-        // Handle refresh token failure (e.g., redirect to login)
-        // You might want to clear stored tokens and redirect to login page here
-        return Promise.reject(refreshError);
+        const state = store.getState();
+        const refreshToken = state.auth.refreshToken; // Fetching the refresh token from state.
+        const response = await axios.post(`${API_URL}/token/refresh/`, {
+          refresh: refreshToken,
+        });
+
+        // Update the token in Redux store
+        store.dispatch(
+          setToken({
+            accessToken: response.data.access,
+            refreshToken: response.data.refresh,
+          }),
+        );
+
+        // Update the token in the request header
+        privateAxiosInstance.defaults.headers["Authorization"] =
+          `Bearer ${response.data.access}`;
+        originalRequest.headers["Authorization"] =
+          `Bearer ${response.data.access}`;
+
+        return privateAxiosInstance(originalRequest);
+      } catch (err) {
+        console.error("Error refreshing token:", err.response || err.message);
+        store.dispatch(clearToken());
+        window.location.href = "/login";
+        return Promise.reject(err);
       }
     }
 
+    console.error("Request failed:", error.response || error.message);
     return Promise.reject(error);
-  }
+  },
 );
+
+export default privateAxiosInstance;

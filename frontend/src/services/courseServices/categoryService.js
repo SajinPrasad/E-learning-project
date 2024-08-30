@@ -1,9 +1,9 @@
 import { toast } from "react-toastify";
-import { axiosInstance } from "../../api/axiosInstance";
+import privateAxiosInstance from "../../api/axiosInstance";
 
 const createCategory = async (name, description) => {
   try {
-    const response = await axiosInstance.post("/categories/", {
+    const response = await privateAxiosInstance.post("/categories/", {
       name,
       description,
     });
@@ -36,7 +36,7 @@ const createCategory = async (name, description) => {
 
 const createSubCategory = async (name, description, parentCategoryID) => {
   try {
-    const response = await axiosInstance.post("/subcategories/", {
+    const response = await privateAxiosInstance.post("/subcategories/", {
       name,
       description,
       parent: parentCategoryID,
@@ -70,7 +70,7 @@ const createSubCategory = async (name, description, parentCategoryID) => {
 
 const getCategories = async () => {
   try {
-    const response = await axiosInstance.get("/categories/");
+    const response = await privateAxiosInstance.get("/categories/");
     if (response.status >= 200 && response.status < 300) {
       return response.data;
     } else {
@@ -101,7 +101,7 @@ const getCategories = async () => {
 const deleteCategory = async (categoryID) => {
   try {
     // Make a DELETE request to the endpoint with the category ID
-    const response = await axiosInstance.delete(`/categories/${categoryID}/`);
+    const response = await privateAxiosInstance.delete(`/categories/${categoryID}/`);
 
     // Check if the response status indicates success
     if (response.status >= 200 && response.status < 300) {

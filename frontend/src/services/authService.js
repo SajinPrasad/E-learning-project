@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import { axiosInstance } from "../api/axiosInstance";
+import { publicAxiosInstance } from "../api/axiosInstance";
 
 /**
  * Registers a new user by sending the registration data to the server.
@@ -32,7 +32,7 @@ const registerService = async (formData) => {
     formData;
 
   try {
-    const response = await axiosInstance.post("/register/", {
+    const response = await publicAxiosInstance.post("/register/", {
       first_name: firstName,
       last_name: lastName,
       email,
@@ -88,7 +88,7 @@ const registerService = async (formData) => {
 const otpVerificationService = async (otpCode, email) => {
   try {
     // Send a POST request to the OTP verification endpoint with the email and OTP code
-    const response = await axiosInstance.post("/otp/verify/", {
+    const response = await publicAxiosInstance.post("/otp/verify/", {
       email,
       otp_code: otpCode,
     });
@@ -145,11 +145,11 @@ const loginService = async (formData) => {
 
   try {
     // Send a POST request to the login endpoint with the user's email and password
-    const response = await axiosInstance.post("/login/", {
+    const response = await publicAxiosInstance.post("/login/", {
       email,
       password,
     });
-    console.log(response)
+    console.log("Response: ", response)
     // Check if the response indicates a successful login
     if (response.status >= 200 && response.status < 300) {
       return response.data; // Return the response data including tokens and user information
@@ -193,7 +193,7 @@ const loginService = async (formData) => {
 const otpResendService = async (email) => {
   try {
     // Send a POST request to the OTP resend endpoint with the user's email
-    const response = await axiosInstance.post("/otp/resend/", { email });
+    const response = await publicAxiosInstance.post("/otp/resend/", { email });
 
     // Check if the response indicates a successful OTP resend
     if (response.status >= 200 && response.status < 300) {

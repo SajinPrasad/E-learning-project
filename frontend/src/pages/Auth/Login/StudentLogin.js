@@ -15,6 +15,8 @@ const StudentLogin = () => {
     if (isAuthenticated) {
       if (role === "student") {
         navigate("/");
+      } else if (role === "mentor") {
+        navigate("/mentor");
       }
     }
   }, []);

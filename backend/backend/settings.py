@@ -163,7 +163,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True  # For development only, don't use in production
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_HEADERS = [
+    "content-type",
+    "authorization",
+    "x-csrftoken",
+]
 
 PHONENUMBER_DEFAULT_REGION = "IN"
 

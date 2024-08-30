@@ -9,6 +9,7 @@ import { loginService } from "../../../services/authService";
 import styles from "./Form.module.css";
 import { setUserInfo } from "../../../features/tempUser/userSlice";
 import { Loading } from "../../common";
+import { setToken } from "../../../features/auth/authSlice";
 
 // Validation schema for Formik
 const LoginSchema = Yup.object().shape({
@@ -60,14 +61,21 @@ const LoginForm = ({ role }) => {
   const [loading, setLoading] = useState(false);
 
   // Function to set user state and tokens
-  const handleSetUserState = (user) => {
+  const handleSetUserState = (response) => {
     dispatch(
       setUserInfo({
-        firstName: user.first_name,
-        lastName: user.last_name,
-        email: user.email,
-        role: user.role,
+        firstName: response.user.first_name,
+        lastName: response.user.last_name,
+        email: response.user.email,
+        role: response.user.role,
         isAuthenticated: true,
+      }),
+    );
+
+    dispatch(
+      setToken({
+        accessToken: response.access,
+        refreshToken: response.refresh,
       }),
     );
   };
@@ -87,16 +95,17 @@ const LoginForm = ({ role }) => {
             setLoading(true);
             try {
               const response = await loginService(values);
+
               if (response.user.role === "student" && role === "student") {
-                handleSetUserState(response.user);
+                handleSetUserState(response);
                 setLoading(false);
                 navigate("/");
               } else if (response.user.role === "mentor" && role === "mentor") {
-                handleSetUserState(response.user);
+                handleSetUserState(response);
                 setLoading(false);
                 navigate("/mentor");
               } else if (response.user.role === "admin" && role === "admin") {
-                handleSetUserState(response.user);
+                handleSetUserState(response);
                 setLoading(false);
                 navigate("/admin/dashboard");
               } else if (

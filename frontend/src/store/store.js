@@ -12,6 +12,7 @@ import {
 } from "redux-persist/es/constants";
 
 import {
+  authReducer,
   courseCategoryReducer,
   courseReducer,
   tempUserReducer,
@@ -39,6 +40,16 @@ const userPersistConfig = {
 // Persisted reducer for userReducer
 const persistedUserReducer = persistReducer(userPersistConfig, userReducer);
 
+// Configuration for auth reducer
+const authPersistConfig = {
+  key: "auth",
+  storage,
+};
+
+// Persisted reducer for authReducer
+const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
+
+// Configuration for category reducer
 const categoryPersistConfig = {
   key: "courseCategory",
   storage,
@@ -63,6 +74,7 @@ const persistedCourseReducer = persistReducer(
 const rootReducer = combineReducers({
   tempUser: persistedTempUserReducer,
   user: persistedUserReducer,
+  auth: persistedAuthReducer,
   courseCategory: persistedCategoryReducer,
   course: persistedCourseReducer,
 });

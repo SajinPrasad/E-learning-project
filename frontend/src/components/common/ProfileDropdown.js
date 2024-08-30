@@ -2,18 +2,20 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { IconProfile, Logout, Settings } from "./Icons";
 import { clearUserInfo } from "../../features/tempUser/userSlice";
+import { clearToken } from "../../features/auth/authSlice";
 
 /**
  * Renders the dropdown from the profile icon on header.
  */
 const ProfileDropdown = () => {
   const { firstName, lastName } = useSelector((state) => state.user);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   // Function to handle logout.
   const handleLogout = () => {
     // Clearing the user information from state.
     dispatch(clearUserInfo());
+    dispatch(clearToken);
   };
 
   return (
