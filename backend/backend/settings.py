@@ -165,8 +165,10 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # For development only, don't use in production
+CORS_ALLOW_ALL_ORIGINS = True  # For development only, don't use in production
 # Allow credentials (e.g., cookies) to be included in cross-origin requests
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = ["content-type", "x-csrftoken", "authorization"]
 CORS_ALLOW_HEADERS = ["content-type", "x-csrftoken", "authorization"]
 
 PHONENUMBER_DEFAULT_REGION = "IN"
