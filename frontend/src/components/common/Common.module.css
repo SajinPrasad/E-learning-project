@@ -3,9 +3,6 @@ section {
 }
 
 /* Common.module.css */
-.iconContainer:hover .iconRect {
-  fill: #fff; /* Change fill color to white on hover */
-}
 
 .iconRect {
   fill: #8965e4; /* Default color */

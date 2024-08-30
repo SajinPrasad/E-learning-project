@@ -42,6 +42,9 @@ class Course(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    preview_image = models.ImageField(
+        upload_to="course_preview/", blank=True, null=True
+    )
     # User (Mentor) submitted the course.
     mentor = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -59,7 +62,8 @@ class Lesson(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons")
     title = models.CharField(max_length=255)
     content = models.TextField()
-    video_url = models.URLField(blank=True)
+    video_url = models.URLField(null=True, blank=True)
+    video_file = models.FileField(upload_to="videos/", blank=True)
     # For sequential order of each lesson
     order = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -74,10 +78,9 @@ class CourseRequirement(models.Model):
     Model for storing requirements for each courses.
     """
 
-    course = models.ForeignKey(
+    course = models.OneToOneField(
         Course, on_delete=models.CASCADE, related_name="requirements"
     )
-    title = models.CharField(max_length=255)
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

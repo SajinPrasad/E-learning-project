@@ -1,5 +1,5 @@
 import React from "react";
-import { DownwardArrow, UpwardArrow } from "../../../components/common/Icons";
+import { DownwardArrow, UpwardArrow } from "../../common/Icons";
 
 const AdminStats = () => {
   return (

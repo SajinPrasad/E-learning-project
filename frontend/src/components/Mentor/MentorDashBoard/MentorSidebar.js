@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 // Styles imported from icons module for hovering effect for SVGs.
 import { styles } from "../../../components/common";
@@ -7,17 +7,28 @@ import {
   DashboardIcon,
   HamBurger,
 } from "../../../components/common/Icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const MentorSidebar = () => {
-  const [selected, setSelected] = useState("dashboard"); // Tracks the selected sidebar item
+  const [selected, setSelected] = useState("dashboard"); // Default selection
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Controls sidebar visibility on smaller screens
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Set the selected state based on the current URL path
+    const path = location.pathname;
+    if (path === "/mentor") {
+      setSelected("dashboard");
+    } else if (path === "/mentor/courses") {
+      setSelected("courses");
+    }
+  }, [location.pathname]);
 
   // Handles sidebar item click, updates selected state, and navigates
-  const handleClick = (item) => {
+  const handleClick = (item, url) => {
     setSelected(item);
-    navigate(`/mentor`);
+    navigate(url);
   };
 
   // Toggles sidebar visibility
@@ -45,24 +56,24 @@ const MentorSidebar = () => {
           <nav className={`flex-1 px-2 py-4`}>
             {/* Dashboard link */}
             <div
-              className={`flex cursor-pointer items-center gap-1 ${styles.iconContainer} rounded border-b border-b-gray-100 px-2 ${
+              className={`flex cursor-pointer items-center gap-1 ${styles.iconContainer} toggleCourseDropdown rounded px-2 ${
                 selected === "dashboard"
                   ? "bg-theme-primary text-white" // Apply styles if selected
-                  : "hover:bg-theme-primary hover:text-white"
+                  : "hover:bg-purple-100"
               }`}
-              onClick={() => handleClick("dashboard")}
+              onClick={() => handleClick("dashboard", "/mentor")}
             >
               <DashboardIcon isSelected={selected === "dashboard"} />
               <a className={`flex items-start px-3 py-2`}>Dashboard</a>
             </div>
             {/* My Courses link */}
             <div
-              className={`flex cursor-pointer items-center gap-1 ${styles.iconContainer} rounded border-b border-b-gray-100 px-2 ${
+              className={`flex cursor-pointer items-center gap-1 ${styles.iconContainer} toggleCourseDropdown rounded px-2 ${
                 selected === "courses"
                   ? "bg-theme-primary text-white" // Apply styles if selected
-                  : "hover:bg-theme-primary hover:text-white"
+                  : "hover:bg-purple-100"
               }`}
-              onClick={() => handleClick("courses")}
+              onClick={() => handleClick("courses", "/mentor/courses")}
             >
               <CoursesIcon isSelected={selected === "courses"} />
               <a className={`flex items-start px-3 py-2`}>My Courses</a>

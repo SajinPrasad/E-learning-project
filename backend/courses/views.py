@@ -1,10 +1,14 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+import logging
 
-from .models import Category
-from .serializers import CategorySerializer, SubCategorySerializer
+from .models import Category, Course
+from .serializers import CategorySerializer, CourseSerializer, SubCategorySerializer
 
 # Create your views here.
+
+logger = logging.getLogger(__name__)
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -34,7 +38,6 @@ class SubCategoryViewSet(viewsets.ModelViewSet):
         parent_id = self.request.data.get("parent")
         # Ensure the parent category exists or raise a 404 error
         parent = get_object_or_404(Category, id=parent_id)
-        # Save the subcategory with the parent category
         serializer.save(parent=parent)
 
     def perform_update(self, serializer):
@@ -46,3 +49,17 @@ class SubCategoryViewSet(viewsets.ModelViewSet):
         parent = get_object_or_404(Category, id=parent_id)
         # Update the subcategory with the new parent category
         serializer.save(parent=parent)
+
+
+class CourseViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Course.objects.all()
+    serializer_class = CourseSerializer
+
+    def perform_create(self, serializer):
+        
+        user = self.request.user
+            
+        serializer.save(mentor=user)
+        
+

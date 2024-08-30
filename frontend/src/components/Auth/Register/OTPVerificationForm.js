@@ -6,8 +6,8 @@ import {
   otpResendService,
   otpVerificationService,
 } from "../../../services/authService";
-import { clearEmail } from "../../../features/tempUser/tempUserSlice";
 import { Loading } from "../../common";
+import { clearTempUser } from "../../../features/tempUser/tempUserSlice";
 
 /**
  * Verifies the OTP and resending the OTP.
@@ -18,7 +18,7 @@ const OTPVerificationForm = () => {
   const [loading, setLoading] = useState(false);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
-  const email = useSelector((state) => state.tempUser.email);
+  const { email, role } = useSelector((state) => state.tempUser);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -58,8 +58,12 @@ const OTPVerificationForm = () => {
       if (response) {
         // If the service returns a successful result
         setLoading(false);
-        dispatch(clearEmail());
-        navigate("/login");
+        dispatch(clearTempUser());
+        if (role === "student") {
+          navigate("/login");
+        } else if (role === "student") {
+          navigate("/mentor-login");
+        }
       }
     } catch (error) {
       setLoading(false);

@@ -6,8 +6,8 @@ import { useDispatch } from "react-redux";
 
 import { registerService } from "../../../services/authService";
 import styles from "./Form.module.css";
-import { setEmail } from "../../../features/tempUser/tempUserSlice";
 import { Loading } from "../../common";
+import { setTempUser } from "../../../features/tempUser/tempUserSlice";
 
 // Validation schema for Formik
 const SignUpSchema = Yup.object().shape({
@@ -45,6 +45,10 @@ const RegistrationForm = ({ role }) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
 
+  const handleSetTempUserState = (email, role) => {
+    dispatch(setTempUser({ email: email, role: role }));
+  };
+
   return (
     <div className={`flex justify-center`}>
       {loading ? (
@@ -65,7 +69,7 @@ const RegistrationForm = ({ role }) => {
             try {
               const response = await registerService(values);
               //Setting the eamil of registered user in state for OTP verification.
-              dispatch(setEmail(response.email));
+              handleSetTempUserState(response.email);
               navigate("/verification");
             } catch (error) {
               setLoading(false);

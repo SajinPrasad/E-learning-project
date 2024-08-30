@@ -1,15 +1,13 @@
 import React from "react";
 
-const Button = ({ text, bg = true }) => {
+const Button = ({ text, bg = true}) => {
   return (
-    <div>
-      <div class="flex gap-4">
-        <a
-          className={`min-w-[120px] rounded border-2 border-theme-primary ${bg ? "bg-theme-primary text-white" : "bg-white text-black"} hover:border-theme-primary hover:bg-white hover:text-black  py-1 text-center hover:bg-transparent focus:outline-none focus:ring`}
-        >
-          {text}
-        </a>
-      </div>
+    <div className={`flex cursor-pointer gap-4`}>
+      <button
+        className={`flex min-w-[110px] items-center justify-center rounded border-2 border-theme-primary md:min-w-[130px] ${bg ? "bg-theme-primary text-white hover:bg-white hover:text-black" : "bg-white text-black hover:bg-theme-primary hover:text-white"} py-1 hover:border-theme-primary focus:outline-none`}
+      >
+        {text}
+      </button>
     </div>
   );
 };

@@ -149,7 +149,7 @@ const loginService = async (formData) => {
       email,
       password,
     });
-
+    console.log(response)
     // Check if the response indicates a successful login
     if (response.status >= 200 && response.status < 300) {
       return response.data; // Return the response data including tokens and user information

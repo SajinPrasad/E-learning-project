@@ -1,44 +1,48 @@
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
-import { Header } from "../../../components/common";
-import MentorSidebar from "./MentorSidebar";
-import MentorStats from "./MentorStats";
 import { useNavigate } from "react-router-dom";
+import { MentorLayout, MentorStats } from "../../../components/Mentor";
+import { getCategories } from "../../../services/courseServices/categoryService";
+import { setCategoryData } from "../../../features/course/categorySlice";
 
 const MentorDashBoard = () => {
   const { role } = useSelector((state) => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    //Redirecting non mentor users
-    if (role != "mentor") {
-      toast.warning("Your are not authorized to visit this page!");
+    // Redirecting non-mentor users
+    if (role !== "mentor") {
+      toast.warning("You are not authorized to visit this page!");
       if (role === "admin") {
         navigate("/admin");
       } else if (role === "student") {
         navigate("/");
       }
+      return; // Exit early if the user is not a mentor
     }
-  }, []);
+
+    // Fetch data if the role is 'mentor'
+    const fetchData = async () => {
+      try {
+        const courseCategories = await getCategories();
+        
+        if (courseCategories) {
+          dispatch(setCategoryData(courseCategories));
+        }
+      } catch (error) {
+       console.error(error);
+      }
+    };
+
+    fetchData();
+  }, [role, navigate, dispatch]);
   return (
-    <div className="flex h-screen flex-col">
-      {/* Header with higher z-index */}
-      <div className="sticky top-0 z-10 w-full">
-        <Header />
-      </div>
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar on the left */}
-        <div className="w-1/5 flex-shrink-0">
-          <MentorSidebar />
-        </div>
-        {/* Stats on the right */}
-        <div className="flex-1 overflow-auto p-4">
-          <MentorStats />
-        </div>
-      </div>
-    </div>
+    <MentorLayout>
+      <MentorStats />
+    </MentorLayout>
   );
 };
 

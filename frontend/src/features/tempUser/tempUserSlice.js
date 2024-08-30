@@ -6,19 +6,21 @@ import { createSlice } from "@reduxjs/toolkit";
  */
 const tempUserSlice = createSlice({
   name: "tempUser",
-  initialState: { email: "" }, // Initial state with an empty email
+  initialState: { email: "", role: "" }, // Initial state with an empty email
   reducers: {
     // Action to set the email address for OTP verification
-    setEmail(state, action) {
+    setTempUser(state, action) {
       state.email = action.payload;
+      state.role = action.role;
     },
 
     // Action to clear the email address (after OTP verification)
-    clearEmail(state) {
+    clearTempUser(state) {
       state.email = "";
+      state.role = "";
     },
   },
 });
 
-export const { setEmail, clearEmail } = tempUserSlice.actions;
+export const { setTempUser, clearTempUser } = tempUserSlice.actions;
 export default tempUserSlice.reducer;

@@ -10,9 +10,12 @@ import {
   StudentLogin,
   StudentRegister,
 } from "../pages/Auth";
-import { MentorDashBoard } from "../pages/Mentor";
+import { MenotrCourses, MentorDashBoard } from "../pages/Mentor";
+import {
+  AdminDashBoard,
+} from "../pages/Adimin";
 import ProtectedRoutes from "./ProtectedRoutes";
-import { AdminDashBoard, CourseCategoryForm } from "../pages/Adimin";
+import { CourseCategories } from "../components/Course";
 
 const AppRoutes = () => {
   return (
@@ -26,8 +29,9 @@ const AppRoutes = () => {
       <Route path="/admin" element={<AdminLogin />} />
       <Route element={<ProtectedRoutes />}>
         <Route path="/mentor" element={<MentorDashBoard />} />
+        <Route path="/mentor/courses" element={<MenotrCourses />} />
         <Route path="/admin/dashboard" element={<AdminDashBoard />} />
-        <Route path="/admin/coursecategory" element={<CourseCategoryForm />} />
+        <Route path="/admin/coursecategories" element={<CourseCategories />} />
       </Route>
     </Routes>
   );

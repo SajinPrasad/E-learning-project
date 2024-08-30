@@ -98,7 +98,7 @@ const LoginForm = ({ role }) => {
               } else if (response.user.role === "admin" && role === "admin") {
                 handleSetUserState(response.user);
                 setLoading(false);
-                navigate("/admin-dashboard");
+                navigate("/admin/dashboard");
               } else if (
                 response.user.role === "student" &&
                 role === "mentor"

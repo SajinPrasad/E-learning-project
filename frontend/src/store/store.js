@@ -11,18 +11,17 @@ import {
   REGISTER,
 } from "redux-persist/es/constants";
 
-import { tempUserReducer, userReducer } from "../features";
+import {
+  courseCategoryReducer,
+  courseReducer,
+  tempUserReducer,
+  userReducer,
+} from "../features";
 
 // Configuration for tempUserReducer
 const tempUserPersistConfig = {
   key: "tempUser", // unique key for this reducer
   storage, // storage method (localStorage in this case)
-};
-
-// Configuration for user reducer
-const userPersistConfig = {
-  key: "user",
-  storage,
 };
 
 // Persisted reducer for tempUserReducer
@@ -31,13 +30,41 @@ const persistedTempUserReducer = persistReducer(
   tempUserReducer,
 );
 
+// Configuration for user reducer
+const userPersistConfig = {
+  key: "user",
+  storage,
+};
+
 // Persisted reducer for userReducer
 const persistedUserReducer = persistReducer(userPersistConfig, userReducer);
+
+const categoryPersistConfig = {
+  key: "courseCategory",
+  storage,
+};
+
+const persistedCategoryReducer = persistReducer(
+  categoryPersistConfig,
+  courseCategoryReducer,
+);
+
+const coursePersistConfig = {
+  key: "course",
+  storage,
+};
+
+const persistedCourseReducer = persistReducer(
+  coursePersistConfig,
+  courseReducer,
+);
 
 // Combine your reducers
 const rootReducer = combineReducers({
   tempUser: persistedTempUserReducer,
   user: persistedUserReducer,
+  courseCategory: persistedCategoryReducer,
+  course: persistedCourseReducer,
 });
 
 // Configure store with reducers and middleware
