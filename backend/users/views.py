@@ -6,6 +6,9 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from django.conf import settings
 from django.middleware import csrf
+from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+import logging
 
 from .serializer import (
     OTPResendSerializer,
@@ -19,6 +22,8 @@ from .utils import send_otp_email
 # Create your views here.
 
 User = get_user_model()
+
+logger = logging.getLogger(__name__)
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -59,25 +64,32 @@ class UserLoginview(APIView):
         if serializer.is_valid():
             data = serializer.validated_data
             response = Response(data, status=status.HTTP_200_OK)
+            # Set access token cookie
             response.set_cookie(
-                key=settings.SIMPLE_JWT["AUTH_COOKIE"],  # Cookie name
-                value=data["access"],  # Access token value
-                expires=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],  # Expiry time
-                httponly=True,  # HTTP-only flag
-                secure=settings.SIMPLE_JWT[
-                    "AUTH_COOKIE_SECURE"
-                ],  # Secure flag (use True in production)
-                samesite="Lax",  # SameSite attribute
+                key=settings.SIMPLE_JWT["AUTH_COOKIE"],
+                value=data["access"],
+                expires=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
+                httponly=True,
+                secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
+                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
             )
+
+            # Set refresh token cookie
             response.set_cookie(
                 key="refresh_token",
                 value=data["refresh"],
+                expires=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
                 httponly=True,
                 secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
-                samesite="Lax",
+                samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
             )
-            csrf.get_token(request)  # Generate and attach CSRF token
+
+            # Generate and set CSRF token
+            csrf_token = csrf.get_token(request)
+            response["X-CSRFToken"] = csrf_token
+
             return response
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -120,3 +132,66 @@ class OTPResendView(APIView):
         Utility method to send the OTP email to the user.
         """
         send_otp_email(user)
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get("refresh_token")
+
+        if not refresh_token:
+            return Response(
+                {"detail": "Refresh token cookie not provided"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Add the refresh token to the request data
+        request.data["refresh"] = refresh_token
+
+        try:
+            logger.info("Attempting to call super().post()")
+            response = super().post(request, *args, **kwargs)
+            logger.debug(f"Response received: {response.status_code}")
+
+            if response.status_code == 200:
+                logger.info("Setting new access token in cookie")
+                response.set_cookie(
+                    key=settings.SIMPLE_JWT["AUTH_COOKIE"],
+                    value=response.data["access"],
+                    expires=settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"],
+                    httponly=True,
+                    secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
+                    samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
+                )
+                
+                # Set the new refresh token in the cookie
+                if "refresh" in response.data:
+                    logger.info("Setting new refresh token in cookie")
+                    response.set_cookie(
+                        key="refresh_token",
+                        value=response.data["refresh"],
+                        expires=settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"],
+                        httponly=True,
+                        secure=settings.SIMPLE_JWT["AUTH_COOKIE_SECURE"],
+                        samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
+                    )
+            
+            return response
+
+        except TokenError as e:
+            logger.error(f"TokenError encountered: {str(e)}")
+            if "blacklisted" in str(e).lower():
+                logger.warning("Token is blacklisted, forcing re-login")
+                return Response(
+                    {"detail": "Session expired. Please log in again."},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+            return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+        except InvalidToken as e:
+            logger.error(f"InvalidToken encountered: {str(e)}")
+            return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            logger.exception("An unexpected error occurred during token refresh")
+            return Response(
+                {"detail": "An error occurred during token refresh"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
