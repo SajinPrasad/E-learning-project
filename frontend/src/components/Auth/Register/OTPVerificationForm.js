@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -18,14 +18,16 @@ const OTPVerificationForm = () => {
   const [loading, setLoading] = useState(false);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
+  const location = useLocation();
   const { email, role } = useSelector((state) => state.tempUser);
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (email === "") {
-      navigate("/login");
+      // Redirect to the previous location or default to "/login" if no previous location
+      navigate(location.state?.from || "/login");
     }
-  }, [email, navigate]);
+  }, [email, navigate, location.state?.from]);
 
   const handleChange = (e, index) => {
     const value = e.target.value;
@@ -67,7 +69,6 @@ const OTPVerificationForm = () => {
       }
     } catch (error) {
       setLoading(false);
-      console.error(error);
     }
   };
 

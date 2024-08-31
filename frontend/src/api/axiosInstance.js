@@ -52,6 +52,7 @@ privateAxiosInstance.interceptors.response.use(
       try {
         const state = store.getState();
         const refreshToken = state.auth.refreshToken; // Fetching the refresh token from state.
+        console.log("Refresh token: ", refreshToken)
         const response = await axios.post(`${API_URL}/token/refresh/`, {
           refresh: refreshToken,
         });
