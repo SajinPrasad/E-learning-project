@@ -1,6 +1,7 @@
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 from django.contrib.auth import get_user_model
 import logging
+from decimal import Decimal, InvalidOperation
 
 from .models import Category, Lesson, Course, CourseRequirement, Price
 
@@ -67,18 +68,22 @@ class CourseRequirementSerializer(serializers.ModelSerializer):
 class PriceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Price
-        fields = ["id", "amount", "currency"]
+        fields = ["id", "amount"]
 
 
 class CourseSerializer(serializers.ModelSerializer):
-    lessons = LessonSerializer(many=True)
-    requirements = CourseRequirementSerializer()
-    # price = PriceSerializer()
+    lessons = serializers.JSONField(write_only=True)
+    requirements = serializers.JSONField(write_only=True)
+    price = PriceSerializer(read_only=True)
+    price_amount = serializers.DecimalField(
+        max_digits=10, decimal_places=2, write_only=True
+    )
 
     # Instead of CharField, using SlugRelatedField or PrimaryKeyRelatedField for better validation
     category = serializers.SlugRelatedField(
         slug_field="name", queryset=Category.objects.all()
     )
+    preview_image = serializers.ImageField(required=False)
 
     class Meta:
         model = Course
@@ -86,33 +91,58 @@ class CourseSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "description",
+            "preview_image",
             "category",
             "lessons",
             "requirements",
+            "price",
+            "price_amount",
         ]
 
     def validate(self, data):
+        """
+        Validating the course details.
+        """
+        title = data.get("title", "")
+        description = data.get("description", "")
+        price_amount = data.get("price_amount", 0)
+        lessons = data.get("lessons", [])
+        print("Lessons: ", lessons)
+        if len(title) < 5:
+            raise serializers.ValidationError("Course Title is too short")
 
-        # Ensure the user is authenticated
-        request = self.context.get("request")
+        if len(description) < 200:
+            raise serializers.ValidationError("Course Description is too short")
 
-        # Log the authorization header and cookies
-        authorization_header = request.headers.get("Authorization")
-        print("Authorisation header: ", authorization_header)
-        logger.debug(f"Authorization header in serializer: {authorization_header}")
-        logger.debug(f"Cookies in serializer: {request.COOKIES}")
-        print("User:", request.user)
-        if request and request.user.is_authenticated:
-            data["mentor"] = request.user
-        else:
-            raise serializers.ValidationError(
-                {"mentor": "User must be authenticated to create a course."}
-            )
+        if price_amount < 0.00:
+            raise serializers.ValidationError("Invalid price")
+
+        if len(lessons) < 1:
+            raise serializers.ValidationError("At least one lesson is required.")
+
+        for lesson in lessons:
+            if not lesson["title"]:
+                raise serializers.ValidationError("Lesson Title is required")
+
+            if len(lesson["content"]) < 200:
+                raise serializers.ValidationError("Leccon content is too short.")
+
         return data
 
     def create(self, validated_data):
-        lessons_data = validated_data.pop("lessons")
-        requirements_data = validated_data.pop("requirements")
+        """
+        Creating the course including the related objects, such as,
+        Price, Lessons and Requirements.
+        """
+        lessons_data = validated_data.pop("lessons", [])
+        requirements_data = validated_data.pop("requirements", {})
+        price_amount = validated_data.pop("price_amount", 0)
+
+        try:
+            price_amount = Decimal(price_amount)
+        except (InvalidOperation, TypeError) as e:
+            raise exceptions.ValidationError({"price": "Invalid price format."})
+
         # Create the Course instance
         course = Course.objects.create(**validated_data)
 
@@ -124,36 +154,41 @@ class CourseSerializer(serializers.ModelSerializer):
         CourseRequirement.objects.create(course=course, **requirements_data)
 
         # Handle price creation
-        # Price.objects.create(course=course, **price_data)
+        Price.objects.create(course=course, amount=price_amount)
 
         return course
 
-    def update(self, instance, validated_data):
-        lessons_data = validated_data.pop("lessons")
-        requirements_data = validated_data.pop("requirements")
-        # price_data = validated_data.pop("price")
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["price"] = PriceSerializer(instance.price).data
+        return representation
 
-        # Update course fields
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+    # def update(self, instance, validated_data):
+    #     lessons_data = validated_data.pop("lessons")
+    #     requirements_data = validated_data.pop("requirements")
+    #     # price_data = validated_data.pop("price")
 
-        # Update or recreate lessons
-        instance.lessons.all().delete()
-        for lesson_data in lessons_data:
-            Lesson.objects.create(course=instance, **lesson_data)
+    #     # Update course fields
+    #     for attr, value in validated_data.items():
+    #         setattr(instance, attr, value)
+    #     instance.save()
 
-        # Update or recreate requirements (single set)
-        if instance.requirements:
-            instance.requirements.delete()
-        CourseRequirement.objects.create(course=instance, **requirements_data)
+    #     # Update or recreate lessons
+    #     instance.lessons.all().delete()
+    #     for lesson_data in lessons_data:
+    #         Lesson.objects.create(course=instance, **lesson_data)
 
-        # Update or recreate price
-        # if instance.price:
-        #     for attr, value in price_data.items():
-        #         setattr(instance.price, attr, value)
-        #     instance.price.save()
-        # else:
-        #     Price.objects.create(course=instance, **price_data)
+    #     # Update or recreate requirements (single set)
+    #     if instance.requirements:
+    #         instance.requirements.delete()
+    #     CourseRequirement.objects.create(course=instance, **requirements_data)
 
-        return instance
+    #     # Update or recreate price
+    #     # if instance.price:
+    #     #     for attr, value in price_data.items():
+    #     #         setattr(instance.price, attr, value)
+    #     #     instance.price.save()
+    #     # else:
+    #     #     Price.objects.create(course=instance, **price_data)
+
+    #     return instance

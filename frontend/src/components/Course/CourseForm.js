@@ -2,38 +2,90 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import Swal from "sweetalert2";
+
 import { Button, CategoryDropdown } from "../common";
-import { CloseIcon } from "../common/Icons";
+import { Camera, CloseIcon, Video } from "../common/Icons";
 import { createCourse } from "../../services/courseServices/courseService";
+import { styles } from "../common";
+import { toast } from "react-toastify";
 
 // Validation schema using Yup
 const validationSchema = Yup.object({
-  courseTitle: Yup.string().required("Course title is required"),
-  courseDescription: Yup.string().required("Description is required"),
+  courseTitle: Yup.string()
+    .min(10, "Course title should be atleast 5 characters.")
+    .required("Course title is required"),
+  courseDescription: Yup.string()
+    .min(200, "Course descriptions should contain atleast 200 characters.")
+    .required("Description is required"),
   courseCategory: Yup.string().required("Category is required"),
-  courseRequirement: Yup.string().required("Requirements are required"),
-  lessons: Yup.array()
-    .of(
-      Yup.object({
-        lessonTitle: Yup.string().required("Lesson title is required"),
-        lessonContent: Yup.string().required("Lesson content is required"),
-      }),
-    )
-    .min(1, "At least one lesson is required"),
+  courseRequirement: Yup.string()
+    .min(100, "Course title should contain atleast 100 characters.")
+    .required("Requirements are required"),
+  previewImage: Yup.mixed()
+    .required("Preview image is required.")
+    .test("fileType", "Unsupported File Format", (value) => {
+      if (!value) return false;
+      const allowedFormats = ["image/jpeg", "image/png", "image/gif"];
+      return allowedFormats.includes(value.type);
+    }),
+  lessons: Yup.array().min(1, "At least one lesson is required"),
+  coursePrice: Yup.number()
+    .required("Course price is required.")
+    .positive("Course price must be a positive number.")
+    .min(0.0, "Course price must be at least $0.00"),
 });
 
-const CourseForm = ({ setAddCourse }) => {
+function showConfirmFreeCourseAlert() {
+  return Swal.fire({
+    title: "Are you sure?",
+    text: "You are adding the course as a free course!",
+    icon: "warning",
+    showConfirmButton: true,
+    showCancelButton: true,
+    confirmButtonText: `Confirm`,
+    cancelButtonText: "Cancel",
+    background: "#fffff",
+    customClass: {
+      title: "text-black",
+      popup: "my-popup-class",
+      confirmButton: `${styles.confirmbutton}`,
+      cancelButton: `${styles.cancelbutton}`,
+    },
+  }).then((result) => result.isConfirmed);
+}
+
+function confirmCourseSubmission() {
+  return Swal.fire({
+    title: "Are you sure?",
+    text: "You are about to submit a new course, make sure that everything perfect.",
+    icon: "warning",
+    showConfirmButton: true,
+    showCancelButton: true,
+    confirmButtonText: `Continue`,
+    cancelButtonText: "Review again",
+    background: "#fffff",
+    customClass: {
+      title: "text-black",
+      popup: "my-popup-class",
+      confirmButton: `${styles.confirmbutton}`,
+      cancelButton: `${styles.cancelbutton}`,
+    },
+  }).then((result) => result.isConfirmed);
+}
+
+const CourseForm = ({ setAddCourse, refreshCourses }) => {
   const courseCategories = useSelector((state) => state.courseCategory);
+
   // Convert courseCategories from object to array
   const categoriesArray = Object.values(courseCategories).filter(
     (category) => category.id !== undefined,
   );
 
-  const email = useSelector((state) => state.user.email);
-
   const [videoPreview, setVideoPreview] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Select category");
   const [imagePreview, setImagePreview] = useState(null);
+  const [isFreeCourse, setIsFreeCourse] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -41,16 +93,23 @@ const CourseForm = ({ setAddCourse }) => {
       courseDescription: "",
       courseCategory: selectedCategory,
       courseRequirement: "",
+      coursePrice: 0.0,
       lessons: [],
+      previewImage: null,
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
-        console.log(values)
-        // Calling the service function here
-        const response = await createCourse(values);
+        const submit = confirmCourseSubmission();
 
-        setAddCourse(false);
+        if (submit) {
+          // Calling the service function here
+          const response = await createCourse(values);
+          setAddCourse(false);
+          refreshCourses(); // Refreshing the course list
+        } else {
+          toast.warn("Course submission cancelled, Please review.")
+        }
       } catch (error) {
         // Handle error response
         console.error("Error submitting course:", error);
@@ -62,9 +121,33 @@ const CourseForm = ({ setAddCourse }) => {
     formik.setFieldValue("courseCategory", selectedCategory);
   }, [selectedCategory]);
 
+  // Validating the lesson details and adding the lessons to the form data
   const handleAddLesson = (e) => {
     e.preventDefault();
     const { lessonTitle, lessonContent } = formik.values;
+
+    if (lessonTitle === "") {
+      toast.error("Please enter valid title for the lesson.");
+      return;
+    } else if (lessonContent === "") {
+      toast.error("Please enter valid lesson content.");
+      return;
+    } else if (lessonContent.length < 200) {
+      toast.error("Lesson content is too short.");
+      return;
+    }
+
+    // Check if a lesson with the same title already exists
+    const exists = formik.values.lessons.some(
+      (lesson) => lesson.lessonTitle === lessonTitle,
+    );
+
+    if (exists) {
+      toast.error("A lesson with the same name already exists.");
+      return;
+    }
+
+    // Updating the lessons array in the form data.
     formik.setFieldValue("lessons", [
       ...formik.values.lessons,
       { lessonTitle, lessonContent, lessonVideo: videoPreview },
@@ -74,19 +157,22 @@ const CourseForm = ({ setAddCourse }) => {
     setVideoPreview("");
   };
 
+  // Adding the image in the Formdata after validation.
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
-        formik.setFieldValue('courseImage', file); // Set the file in formik
+        formik.setFieldValue("previewImage", file); // Set the file in Formik
       };
       reader.readAsDataURL(file);
+    } else {
+      formik.setFieldValue("previewImage", null); // Clear field if no file is selected
     }
   };
-  
 
+  // Deleting lessons from Form data before submiting.
   const handleDeleteLesson = (lessonTitle) => {
     formik.setFieldValue(
       "lessons",
@@ -96,16 +182,52 @@ const CourseForm = ({ setAddCourse }) => {
     );
   };
 
+  // Setting the preview url for video after selecting video.
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const previewUrl = URL.createObjectURL(file);
-      setVideoPreview(previewUrl);
+      // Check if the file is a video by verifying its MIME type
+      if (file.type.startsWith("video/")) {
+        const previewUrl = URL.createObjectURL(file);
+        setVideoPreview(previewUrl);
+        formik.setFieldValue("lessonVideo", file); // Set the video in Formik
+      } else {
+        // Handle invalid file type
+        toast.error("Please select proper video file for the lesson");
+        return;
+      }
     }
   };
 
-  const handleRemoveVideo = () => {
-    setVideoPreview("");
+  // Removing both image and video preview.
+  const handleRemovePreview = (type) => {
+    if (type === "image") {
+      setImagePreview(null);
+    } else if (type === "video") {
+      setVideoPreview("");
+    }
+  };
+
+  // Setting the course as free and changing the checkbox status
+  const handleFreeCourseChange = async (e) => {
+    const checked = e.target.checked;
+
+    // If the checkbox is being checked, show confirmation alert
+    if (checked) {
+      const isConfirmed = await showConfirmFreeCourseAlert();
+      if (isConfirmed) {
+        setIsFreeCourse(true);
+        formik.setFieldValue("coursePrice", 0.0);
+      } else {
+        e.target.checked = false; // Revert checkbox state
+        setIsFreeCourse(false); // Update state if user cancels
+        formik.setFieldValue("coursePrice", formik.values.coursePrice); // Restore previous price
+      }
+    } else {
+      // If the checkbox is being unchecked, just update the state
+      setIsFreeCourse(false);
+      formik.setFieldValue("coursePrice", formik.values.coursePrice);
+    }
   };
 
   return (
@@ -113,6 +235,7 @@ const CourseForm = ({ setAddCourse }) => {
       <form
         onSubmit={formik.handleSubmit}
         className="mt-8 flex flex-col p-2 shadow"
+        encType="multipart/form-data"
       >
         <div className="mb-6 flex flex-col items-end gap-4 md:flex-row">
           <div className="w-full">
@@ -142,27 +265,6 @@ const CourseForm = ({ setAddCourse }) => {
             <p className="text-blue-gray-800 text-sm font-medium">
               Course Category
             </p>
-            {/* <select
-              name="courseCategory"
-              value={formik.values.courseCategory}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className={`border-t-blue-gray-200 w-full rounded border bg-white p-3 text-sm placeholder-opacity-100 focus:border-theme-primary focus:outline-none ${
-                formik.touched.courseCategory && formik.errors.courseCategory
-                  ? "border-red-500"
-                  : ""
-              }`}
-              required
-            >
-              <option value="" disabled>
-                Select a category
-              </option>
-              {categoriesArray.map((category) => (
-                <option key={category.id} value={category.name}>
-                  {category.name}
-                </option>
-              ))}
-            </select> */}
             <CategoryDropdown
               categories={categoriesArray}
               selectedCategory={selectedCategory}
@@ -171,7 +273,6 @@ const CourseForm = ({ setAddCourse }) => {
             />
           </div>
         </div>
-
         <div className="flex flex-col gap-4">
           {/* Full-width Description */}
           <div className="w-full">
@@ -227,8 +328,9 @@ const CourseForm = ({ setAddCourse }) => {
             </div>
 
             {/* Picture Upload */}
-            <div className="flex h-48 w-full md:w-1/3 cursor-pointer md:mt-6 items-center justify-center rounded-lg border border-dashed p-3">
+            <div className="h-48 w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed p-3 md:mt-6 md:w-1/3">
               <input
+                name="previewImage"
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleImageUpload(e)}
@@ -237,28 +339,40 @@ const CourseForm = ({ setAddCourse }) => {
               />
               <label
                 htmlFor="file-upload"
-                className="flex h-full w-full cursor-pointer items-center justify-center"
+                className="flex h-full w-full cursor-pointer flex-col items-center justify-center self-center"
               >
                 {imagePreview ? (
-                  <img
-                    src={imagePreview}
-                    alt="Uploaded Preview"
-                    className="h-full w-full rounded-lg object-cover"
-                  />
+                  <div className="relative h-full w-full">
+                    <img
+                      src={imagePreview}
+                      alt="Uploaded Preview"
+                      className="h-full w-full rounded-lg object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePreview("image")}
+                      className="absolute right-2 top-2 rounded-full bg-red-600 bg-opacity-50 px-2 py-1 text-white hover:bg-red-700"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 ) : (
                   <span className="text-blue-gray-600">
-                    Click to upload a picture
+                    <Camera />
                   </span>
+                )}
+                {formik.errors.previewImage && (
+                  <div className="mt-2 text-sm text-red-500">
+                    {formik.errors.previewImage}
+                  </div>
                 )}
               </label>
             </div>
           </div>
         </div>
-
         <h5 className="text-blue-gray-900 text-lg font-semibold sm:text-xl">
           Lessons
         </h5>
-
         {formik.values.lessons.length > 0 && (
           <div className="flex-col">
             {formik.values.lessons.map((lesson, index) => (
@@ -298,9 +412,13 @@ const CourseForm = ({ setAddCourse }) => {
                 </div>
               </div>
             ))}
+            {formik.touched.lessons && formik.errors.lessons && (
+              <div className="text-sm text-red-500">
+                {formik.errors.lessons}
+              </div>
+            )}
           </div>
         )}
-
         <div className="mb-6 flex flex-col items-end gap-4">
           <div className="w-full">
             <label className="text-blue-gray-800 mb-2 text-sm font-medium">
@@ -327,7 +445,6 @@ const CourseForm = ({ setAddCourse }) => {
             )}
           </div>
         </div>
-
         <div className="mb-6 flex flex-col items-end gap-4 md:flex-row">
           <div className="w-full md:w-4/6">
             <label className="text-blue-gray-800 mb-2 text-sm font-medium">
@@ -357,15 +474,22 @@ const CourseForm = ({ setAddCourse }) => {
                 />
                 <button
                   type="button"
-                  onClick={handleRemoveVideo}
-                  className="absolute right-2 top-2 rounded-full bg-red-600 px-2 py-1 text-white hover:bg-red-700"
+                  onClick={() => handleRemovePreview("video")}
+                  className="absolute right-2 top-2 rounded-full bg-red-600 bg-opacity-50 px-2 py-1 text-white hover:bg-red-700"
                 >
                   Remove
                 </button>
               </div>
             ) : (
               <label className="absolute inset-0 mt-2 flex cursor-pointer items-center justify-center">
-                <p className="text-gray-500">Upload a video file</p>
+                <div className="flex flex-col items-center justify-center">
+                  <span className="flex items-center justify-center">
+                    <Video />
+                  </span>
+                  <p className="mt-2 text-sm text-gray-500">
+                    Upload a video file
+                  </p>
+                </div>
                 <input
                   type="file"
                   accept="video/*"
@@ -375,6 +499,52 @@ const CourseForm = ({ setAddCourse }) => {
               </label>
             )}
           </div>
+        </div>
+        <div className="mb-6 w-full">
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={isFreeCourse}
+              onChange={handleFreeCourseChange}
+              className="form-checkbox"
+            />
+            <span className="text-blue-gray-800 text-lg font-medium">
+              Add as Free course
+            </span>
+          </label>
+          <label
+            className={`text-blue-gray-800 ${isFreeCourse ? "text-gray-400" : ""} mb-2 text-sm font-medium`}
+          >
+            Course Price (₹)
+          </label>
+          <input
+            value={formik.values.coursePrice || ""} // Use empty string to handle clearing
+            type="number"
+            name="coursePrice"
+            onChange={(e) => {
+              // Update formik state with the new value
+              const value = e.target.value;
+              formik.setFieldValue(
+                "coursePrice",
+                value === "" ? "" : parseFloat(value),
+              );
+            }}
+            onBlur={formik.handleBlur}
+            placeholder="Enter the course price..."
+            disabled={isFreeCourse} // Disable input if checkbox is checked
+            className={`border-t-blue-gray-200 w-full rounded border ${isFreeCourse ? "border-gray-300" : ""} p-3 text-sm placeholder-opacity-100 focus:border-theme-primary focus:outline-none ${
+              formik.touched.coursePrice && formik.errors.coursePrice
+                ? "border-red-500"
+                : ""
+            }`}
+          />
+          {!isFreeCourse &&
+            formik.touched.coursePrice &&
+            formik.errors.coursePrice && (
+              <div className="text-sm text-red-500">
+                {formik.errors.coursePrice}
+              </div>
+            )}
         </div>
 
         <div type={"submit"} className="m-auto mb-5">

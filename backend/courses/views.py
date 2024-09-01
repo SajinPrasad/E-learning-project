@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
 import logging
 
+from .permissions import IsMentor
 from .models import Category, Course
 from .serializers import CategorySerializer, CourseSerializer, SubCategorySerializer
 
@@ -51,15 +51,24 @@ class SubCategoryViewSet(viewsets.ModelViewSet):
         serializer.save(parent=parent)
 
 
-class CourseViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+class MentorCourseViewSet(viewsets.ModelViewSet):
+    """
+    Viewset for creating, updating and listing the courses.
+    Only accessed by mentors. Using custom permission Class.
+    """
+    permission_classes = [IsMentor] # Custom Permission class.
     queryset = Course.objects.all()
     serializer_class = CourseSerializer
 
     def perform_create(self, serializer):
-        
         user = self.request.user
-            
-        serializer.save(mentor=user)
-        
 
+        serializer.save(mentor=user)
+
+    def get_queryset(self):
+        """
+        Filter queryset to only include courses owned by the requesting mentor
+        """
+        if self.request.user.is_authenticated and self.request.user.role == "mentor":
+            return Course.objects.filter(mentor=self.request.user)
+        return Course.objects.none()

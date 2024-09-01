@@ -7,7 +7,7 @@ router = DefaultRouter()
 # Register the viewsets with the router
 router.register(r"categories", views.CategoryViewSet, basename="category")
 router.register(r"subcategories", views.SubCategoryViewSet, basename="subcategory")
-router.register(r"courses", views.CourseViewSet, basename="course")
+router.register(r"courses", views.MentorCourseViewSet, basename="course")
 
 urlpatterns = [
     path("", include(router.urls)),

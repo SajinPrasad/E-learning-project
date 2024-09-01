@@ -52,7 +52,7 @@ privateAxiosInstance.interceptors.response.use(
       try {
         const state = store.getState();
         const refreshToken = state.auth.refreshToken; // Fetching the refresh token from state.
-        console.log("Refresh token: ", refreshToken)
+        console.log("Refresh token fetched:", refreshToken)
         const response = await axios.post(`${API_URL}/token/refresh/`, {
           refresh: refreshToken,
         });
@@ -74,8 +74,8 @@ privateAxiosInstance.interceptors.response.use(
         return privateAxiosInstance(originalRequest);
       } catch (err) {
         console.error("Error refreshing token:", err.response || err.message);
-        store.dispatch(clearToken());
-        window.location.href = "/login";
+        // store.dispatch(clearToken());
+        // window.location.href = "/login";
         return Promise.reject(err);
       }
     }

@@ -98,9 +98,8 @@ class Price(models.Model):
         Course, on_delete=models.CASCADE, related_name="price"
     )
     amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    currency = models.CharField(max_length=10, default="INR")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.amount} {self.currency} for {self.course.title}"
+        return f"{self.amount} for {self.course.title}"

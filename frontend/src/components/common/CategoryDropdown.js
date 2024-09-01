@@ -29,7 +29,6 @@ const CategoryDropdown = ({ categories, selectedCategory, setSelectedCategory, s
   // Handle category selection, close dropdown after selection
   const handleCategorySelect = (categoryName) => {
     setSelectedCategory(categoryName);
-    console.log("Selected Category:", selectedCategory);
     setFieldValue('courseCategory', categoryName);
     setDropdownOpen(false); // Close the dropdown menu after selection
   };
@@ -76,7 +75,7 @@ const CategoryDropdown = ({ categories, selectedCategory, setSelectedCategory, s
                 onMouseEnter={() => handleMouseEnter(parent.id)}
                 onMouseLeave={handleMouseLeave}
               >
-                <span className="w-full flex justify-between" onClick={() => handleCategorySelect(parent.name)}>
+                <span className="w-full flex justify-between">
                   {parent.name}
                   <RightArrow />
                 </span>

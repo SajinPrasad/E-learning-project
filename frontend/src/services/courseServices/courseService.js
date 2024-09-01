@@ -1,32 +1,71 @@
 import { toast } from "react-toastify";
 import { privateAxiosInstance } from "../../api/axiosInstance";
 
+// Service for creating courses.
 const createCourse = async (courseData) => {
-  console.log("Course data", courseData);
+  const {
+    courseTitle,
+    courseDescription,
+    previewImage,
+    courseCategory,
+    lessons,
+    courseRequirement,
+    coursePrice,
+  } = courseData;
+
+  const formData = new FormData();
+  formData.append("title", courseTitle);
+  formData.append("description", courseDescription);
+  formData.append("category", courseCategory);
+  formData.append("preview_image", previewImage);
+  formData.append("price_amount", coursePrice);
+
+  // Append lessons as a JSON string
+  const lessonsData = lessons.map((lesson, index) => ({
+    title: lesson.lessonTitle,
+    content: lesson.lessonContent,
+    video_url: lesson.lessonVideo,
+    order: index + 1,
+  }));
+  formData.append("lessons", JSON.stringify(lessonsData));
+
+  // Append requirements as a JSON string
+  formData.append(
+    "requirements",
+    JSON.stringify({ description: courseRequirement }),
+  );
+
+  console.log("Formdata: ", [...formData.entries()]);
+
   try {
-    const response = await privateAxiosInstance.post("/courses/", {
-      title: courseData.courseTitle,
-      description: courseData.courseDescription,
-      category: courseData.courseCategory, // Assuming this is a slug or ID that matches the category in the backend
-      preview_image: courseData.courseImage,
-      lessons: courseData.lessons.map((lesson, index) => ({
-        title: lesson.lessonTitle,
-        content: lesson.lessonContent,
-        video_url: lesson.lessonVideo, // The video URL or path
-        order: index + 1, // Ordering lessons
-      })),
-      requirements: {
-        description: courseData.courseRequirement,
+    const response = await privateAxiosInstance.post("/courses/", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
       },
     });
-
-    return response.data;
+    // Check if the response indicates a successful creation of course
+    if (response.status >= 200 && response.status < 300) {
+      return response.data; // Return the response data including tokens and user information
+    } else {
+      toast.error("Unexpected error!");
+    }
   } catch (error) {
-    console.error("Error creating course:", error);
+    // Handle errors returned from the server
+    if (error.response) {
+      if (error.response.data.non_field_errors) {
+        toast.error(error.response.data.non_field_errors[0]);
+      }
+    } else if (error.request) {
+      // Handle errors where the server did not respond
+      toast.error("An error occurred during course creation.");
+    } else {
+      console.log(error);
+    }
     throw error;
   }
 };
 
+// Service for fetching Courses.
 const getCourses = async () => {
   try {
     const response = await privateAxiosInstance.get("/courses/");

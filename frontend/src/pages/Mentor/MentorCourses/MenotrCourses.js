@@ -23,6 +23,14 @@ const MentorCourses = () => {
     fetchCourses();
   }, []);
 
+  // Refreshing the courses to fetch the newly added couse too.
+  const refreshCourses = async () => {
+    const fetchedCourses = await getCourses(email);
+    if (fetchedCourses) {
+      setCourses(fetchedCourses);
+    }
+  };
+
   const toggleAddCourse = () => {
     setAddCourse((prevState) => !prevState);
   };
@@ -50,7 +58,12 @@ const MentorCourses = () => {
             )}
           </p>
           {/* Render the form conditionally */}
-          {addCourse && <CourseForm setAddCourse={setAddCourse} />}
+          {addCourse && (
+            <CourseForm
+              setAddCourse={setAddCourse}
+              refreshCourses={refreshCourses}
+            />
+          )}
 
           {/* Render course cards */}
           <div className="mt-6 grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
