@@ -111,6 +111,7 @@ class CourseListCreateSerializer(ModelSerializer):
             "id",
             "title",
             "description",
+            "preview_image",
             "category",
             "preview_image",
             "mentor",
@@ -137,60 +138,21 @@ class CourseListCreateSerializer(ModelSerializer):
         lessons_data = validated_data.pop("lessons", [])
         requirements_data = validated_data.pop("requirements", {})
         price_data = validated_data.pop("price")
-        category_name = validated_data.pop("category")
-        
-        try:
-            category = Category.objects.get(name=category_name)
-        except e:
-            print(e)
-            
-
-        # Print the extracted data for debugging
-        print("Category:", category)
-        print("Validated Data:", validated_data)
-        print("Lessons Data:", lessons_data)
-        print("Requirements Data:", requirements_data)
-        print("Price Data:", price_data)
-        print()
+        category = validated_data.pop("category")
 
         try:
-            print("Creating Course")
-            try:
-                course = Course.objects.create(category=category, **validated_data)
-                print(f"Course created: {course}")
-            except Exception as e:
-                print("Error creating course:", e)
-                raise e
+            # Create course
+            course = Course.objects.create(category=category, **validated_data)
 
-            print("Creating course requirement")
-            try:
-                CourseRequirement.objects.create(course=course, **requirements_data)
-                print("Course requirement created.")
-            except Exception as e:
-                print("Error creating course requirement:", e)
-                raise e
+            # Create related objects
+            CourseRequirement.objects.create(course=course, **requirements_data)
+            Price.objects.create(course=course, **price_data)
 
-            print("Creating course price")
-            try:
-                Price.objects.create(course=course, **price_data)
-                print("Price created.")
-            except Exception as e:
-                print("Error creating price:", e)
-                raise e
+            # Create lessons
+            for lesson_data in lessons_data:
+                Lesson.objects.create(course=course, **lesson_data)
 
-            print("Creating lesson")
-            try:
-                for lesson_data in lessons_data:
-                    Lesson.objects.create(course=course, **lesson_data)
-                print("Lessons created.")
-            except Exception as e:
-                print("Error creating lessons:", e)
-                raise e
-
-            print("Done")
-            
         except Exception as e:
-            print("General error:", e)
             logger.error(f"Error creating course: {str(e)}")
             raise ValidationError(
                 "An error occurred while creating the course. Please try again."

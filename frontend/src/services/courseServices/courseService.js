@@ -1,6 +1,7 @@
 import { toast } from "react-toastify";
 import { privateAxiosInstance } from "../../api/axiosInstance";
 
+// Service for creating courses.
 const createCourse = async (courseData) => {
   const {
     courseTitle,
