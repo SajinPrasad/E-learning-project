@@ -15,7 +15,7 @@ const ProfileDropdown = () => {
   const handleLogout = () => {
     // Clearing the user information from state.
     dispatch(clearUserInfo());
-    dispatch(clearToken);
+    dispatch(clearToken());
   };
 
   return (

@@ -1,10 +1,18 @@
+import json
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
+from rest_framework import viewsets, generics, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 import logging
 
-from .permissions import IsMentor
+from .permissions import MentorOrAdminPermission
 from .models import Category, Course
-from .serializers import CategorySerializer, CourseSerializer, SubCategorySerializer
+from .serializers import (
+    CategorySerializer,
+    SubCategorySerializer,
+    CourseDetailSerializer,
+    CourseListCreateSerializer,
+)
 
 # Create your views here.
 
@@ -51,24 +59,106 @@ class SubCategoryViewSet(viewsets.ModelViewSet):
         serializer.save(parent=parent)
 
 
-class MentorCourseViewSet(viewsets.ModelViewSet):
+class CourseListCreateView(APIView):
     """
-    Viewset for creating, updating and listing the courses.
-    Only accessed by mentors. Using custom permission Class.
+    View for creating and listing courses.
+    * Admin can list all the courses.
+    * Mentor can list own courses.
     """
-    permission_classes = [IsMentor] # Custom Permission class.
-    queryset = Course.objects.all()
-    serializer_class = CourseSerializer
 
-    def perform_create(self, serializer):
-        user = self.request.user
+    permission_classes = [MentorOrAdminPermission]  # Custom Permission class.
+    serializer_class = CourseListCreateSerializer
 
-        serializer.save(mentor=user)
+    def get(self, request):
+        """
+        Filters own courses for mentors.
+        Fetches all the courses for admins.
+        """
+        user = request.user
+
+        if user.is_superuser:
+            courses = Course.objects.all()
+        elif user.role == "mentor":
+            courses = Course.objects.filter(mentor=user)
+
+        serializer = self.serializer_class(
+            courses, many=True, context={"request": request}
+        )
+        return Response(serializer.data)
+
+    def post(self, request):
+        """
+        Fetching all the data from the request.
+        Passing the data to the serializer.
+        """
+        try:
+            # Extract request data and files
+            data = request.data
+
+            lessons_data = []  # For appending all the lessons for a single course
+            index = 0
+
+            # Fetching all the lesson data which is present in the request data.
+            # Creating map with lesson data and appending to the array.
+            while f"lessons[{index}][title]" in request.data:
+                lesson_data = {
+                    "title": request.data.get(f"lessons[{index}][title]"),
+                    "content": request.data.get(f"lessons[{index}][content]"),
+                    "order": request.data.get(f"lessons[{index}][order]"),
+                    "video_file": request.FILES.get(f"lessons[{index}][video_file]"),
+                }
+                lessons_data.append(lesson_data)
+                index += 1
+
+            # Course data for passing to the serializer.
+            course_data = {
+                "title": data.get("title"),
+                "description": data.get("description"),
+                "category": data.get("category"),
+                "preview_image": request.FILES.get("preview_image"),
+                "mentor": request.user.id,
+                "status" : "pending",
+                "lessons": lessons_data,
+                "requirements": json.loads(data.get("requirements", "{}")),
+                "price": {"amount": data.get("price_amount")},
+            }
+
+            # Serialize the data
+            serializer = self.serializer_class(
+                data=course_data, context={"request": request}
+            )
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            logger.error(f"Error occurred: {e}")
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MentorCourseDetailView(generics.RetrieveAPIView):
+    """
+    View only for retrieving the course details. Only accessible by
+    Mentors and Admins. Using custom permission classes.
+    """
+
+    permission_classes = [MentorOrAdminPermission]  # Custom permission class.
+    serializer_class = CourseDetailSerializer
 
     def get_queryset(self):
         """
-        Filter queryset to only include courses owned by the requesting mentor
+        Filter queryset to only include courses owned by the requesting mentor.
+        Fetching all the courses for Admins.
         """
-        if self.request.user.is_authenticated and self.request.user.role == "mentor":
-            return Course.objects.filter(mentor=self.request.user)
+        user = self.request.user
+
+        if user.is_authenticated and user.role == "mentor":
+            return Course.objects.filter(mentor=user)
+
+        if user.is_authenticated and user.is_superuser:
+            return Course.objects.all()
+
         return Course.objects.none()

@@ -11,7 +11,7 @@ COPY requirements.txt ./
 
 # Install dependencies (multi-stage build)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc python3-dev libpq-dev && \
+    apt-get install -y --no-install-recommends gcc python3-dev libpq-dev libmagic1 libmagic-dev && \
     pip install --no-cache-dir -r requirements.txt
 
 # Clean up build dependencies (optional)

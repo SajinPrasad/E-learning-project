@@ -4,9 +4,12 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 
-import { Button, CategoryDropdown } from "../common";
-import { Camera, CloseIcon, Video } from "../common/Icons";
-import { createCourse } from "../../services/courseServices/courseService";
+import { Button, CategoryDropdown, Loading } from "../common";
+import { Camera, CloseIcon, VideoIcon } from "../common/Icons";
+import {
+  createCourse,
+  validateVideoFile,
+} from "../../services/courseServices/courseService";
 import { styles } from "../common";
 import { toast } from "react-toastify";
 
@@ -26,10 +29,15 @@ const validationSchema = Yup.object({
     .required("Preview image is required.")
     .test("fileType", "Unsupported File Format", (value) => {
       if (!value) return false;
-      const allowedFormats = ["image/jpeg", "image/png", "image/gif"];
+      const allowedFormats = ["image/jpeg", "image/png", "image/webp"];
       return allowedFormats.includes(value.type);
+    })
+    .test("fileSize", "File size must be between 10KB and 8MB", (value) => {
+      if (!value) return false;
+      const maxSize = 8 * 1024 * 1024; // 8MB in bytes
+      const minSize = 10 * 1024; // 10KB in bytes
+      return value.size >= minSize && value.size <= maxSize;
     }),
-  lessons: Yup.array().min(1, "At least one lesson is required"),
   coursePrice: Yup.number()
     .required("Course price is required.")
     .positive("Course price must be a positive number.")
@@ -86,6 +94,8 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
   const [selectedCategory, setSelectedCategory] = useState("Select category");
   const [imagePreview, setImagePreview] = useState(null);
   const [isFreeCourse, setIsFreeCourse] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [videoFile, setVideoFile] = useState(null);
 
   const formik = useFormik({
     initialValues: {
@@ -93,26 +103,36 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
       courseDescription: "",
       courseCategory: selectedCategory,
       courseRequirement: "",
-      coursePrice: 0.0,
+      coursePrice: null,
       lessons: [],
       previewImage: null,
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
+      if (values.lessons.length < 1) {
+        toast.error("Atleast one lesson is required");
+        return;
+      }
+
       try {
-        const submit = confirmCourseSubmission();
+        const submit = await confirmCourseSubmission();
 
         if (submit) {
           // Calling the service function here
+          setIsLoading(true);
           const response = await createCourse(values);
           setAddCourse(false);
           refreshCourses(); // Refreshing the course list
+          setIsLoading(false);
         } else {
-          toast.warn("Course submission cancelled, Please review.")
+          toast.warn("Course submission cancelled, Please review.");
         }
       } catch (error) {
         // Handle error response
         console.error("Error submitting course:", error);
+        setIsLoading(false);
+      } finally {
+        setIsLoading(false);
       }
     },
   });
@@ -126,10 +146,10 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
     e.preventDefault();
     const { lessonTitle, lessonContent } = formik.values;
 
-    if (lessonTitle === "") {
+    if (!lessonTitle || lessonTitle === "") {
       toast.error("Please enter valid title for the lesson.");
       return;
-    } else if (lessonContent === "") {
+    } else if (!lessonContent || lessonContent === "") {
       toast.error("Please enter valid lesson content.");
       return;
     } else if (lessonContent.length < 200) {
@@ -150,10 +170,18 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
     // Updating the lessons array in the form data.
     formik.setFieldValue("lessons", [
       ...formik.values.lessons,
-      { lessonTitle, lessonContent, lessonVideo: videoPreview },
+      {
+        lessonTitle,
+        lessonContent,
+        lessonVideoPreview: videoPreview,
+        lessonVideo: videoFile,
+      },
     ]);
+
+    // Reset form fields and video state
     formik.setFieldValue("lessonTitle", "");
     formik.setFieldValue("lessonContent", "");
+    setVideoFile(null);
     setVideoPreview("");
   };
 
@@ -182,19 +210,25 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
     );
   };
 
-  // Setting the preview url for video after selecting video.
-  const handleFileChange = (e) => {
+  // Handling video file - setting up URL, form data after validating video
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Check if the file is a video by verifying its MIME type
-      if (file.type.startsWith("video/")) {
+      try {
+        setIsLoading(true);
+        await validateVideoFile({ file, setIsLoading });
+        setIsLoading(false);
+
         const previewUrl = URL.createObjectURL(file);
         setVideoPreview(previewUrl);
-        formik.setFieldValue("lessonVideo", file); // Set the video in Formik
-      } else {
-        // Handle invalid file type
-        toast.error("Please select proper video file for the lesson");
-        return;
+        setVideoFile(file);
+
+        formik.setFieldValue("lessonVideo", file);
+        formik.setFieldValue("lessonVideoPreview", previewUrl);
+      } catch (error) {
+        toast.error(error);
+        // Reset file input
+        e.target.value = "";
       }
     }
   };
@@ -232,6 +266,7 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
 
   return (
     <>
+      {isLoading && <Loading />}
       <form
         onSubmit={formik.handleSubmit}
         className="mt-8 flex flex-col p-2 shadow"
@@ -395,7 +430,7 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
                   {lesson.lessonVideo && (
                     <div className="col-span-1">
                       <video
-                        src={lesson.lessonVideo}
+                        src={lesson.lessonVideoPreview}
                         controls
                         className="w-full rounded"
                       />
@@ -484,7 +519,7 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
               <label className="absolute inset-0 mt-2 flex cursor-pointer items-center justify-center">
                 <div className="flex flex-col items-center justify-center">
                   <span className="flex items-center justify-center">
-                    <Video />
+                    <VideoIcon />
                   </span>
                   <p className="mt-2 text-sm text-gray-500">
                     Upload a video file

@@ -386,7 +386,7 @@ const Camera = () => {
   );
 };
 
-const Video = () => {
+const VideoIcon = () => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -419,5 +419,5 @@ export {
   DeleteIcon,
   RightArrow,
   Camera,
-  Video,
+  VideoIcon,
 };

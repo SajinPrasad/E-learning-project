@@ -17,7 +17,7 @@ const MentorLayout = ({ children }) => {
       </div>
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar on the left */}
-        <div className="w-1/5 flex-shrink-0">
+        <div className="hidden lg:block lg:w-1/5 flex-shrink-0">
           <MentorSidebar />
         </div>
         {/* Main content area */}

@@ -1,16 +1,25 @@
-from rest_framework import serializers, exceptions
+from rest_framework.serializers import (
+    ModelSerializer,
+    ValidationError,
+    PrimaryKeyRelatedField,
+    ImageField,
+    CharField,
+)
 from django.contrib.auth import get_user_model
 import logging
-from decimal import Decimal, InvalidOperation
+from django.conf import settings
+from django.core.validators import MinValueValidator
+from django.db import transaction
 
-from .models import Category, Lesson, Course, CourseRequirement, Price
+from .models import Category, Lesson, Course, CourseRequirement, Price, Suggestion
+from .utils import validate_course
 
 logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
 
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(ModelSerializer):
     """
     Serializer for creating and managing Category instances.
     """
@@ -20,14 +29,12 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ["id", "name", "description", "parent"]
 
 
-class SubCategorySerializer(serializers.ModelSerializer):
+class SubCategorySerializer(ModelSerializer):
     """
     Serializer for creating and managing Sub Categories.
     """
 
-    parent = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(), required=True
-    )
+    parent = PrimaryKeyRelatedField(queryset=Category.objects.all(), required=True)
 
     class Meta:
         model = Category
@@ -41,7 +48,7 @@ class SubCategorySerializer(serializers.ModelSerializer):
 
         # Ensure the parent is a valid category
         if not Category.objects.filter(id=parent.id).exists():
-            raise serializers.ValidationError({"parent": "Invalid parent category."})
+            raise ValidationError({"parent": "Invalid parent category."})
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
@@ -49,41 +56,162 @@ class SubCategorySerializer(serializers.ModelSerializer):
 
         # Ensure the parent is a valid category
         if not Category.objects.filter(id=parent.id).exists():
-            raise serializers.ValidationError({"parent": "Invalid parent category."})
+            raise ValidationError({"parent": "Invalid parent category."})
         return super().update(instance, validated_data)
 
 
-class LessonSerializer(serializers.ModelSerializer):
+class LessonSerializer(ModelSerializer):
     class Meta:
         model = Lesson
         fields = ["id", "title", "content", "video_file", "order"]
 
 
-class CourseRequirementSerializer(serializers.ModelSerializer):
+class CourseRequirementSerializer(ModelSerializer):
     class Meta:
         model = CourseRequirement
         fields = ["id", "description"]
 
 
-class PriceSerializer(serializers.ModelSerializer):
+class PriceSerializer(ModelSerializer):
     class Meta:
         model = Price
         fields = ["id", "amount"]
 
 
-class CourseSerializer(serializers.ModelSerializer):
-    lessons = serializers.JSONField(write_only=True)
-    requirements = serializers.JSONField(write_only=True)
-    price = PriceSerializer(read_only=True)
-    price_amount = serializers.DecimalField(
-        max_digits=10, decimal_places=2, write_only=True
-    )
+class FullURLImageField(ImageField):
+    """
+    generates a full URL using the current request.
+    """
 
-    # Instead of CharField, using SlugRelatedField or PrimaryKeyRelatedField for better validation
-    category = serializers.SlugRelatedField(
-        slug_field="name", queryset=Category.objects.all()
-    )
-    preview_image = serializers.ImageField(required=False)
+    def to_representation(self, value):
+        if not value:
+            return None
+        # Concatenates the value of image field with media URL.
+        return self.context["request"].build_absolute_uri(
+            f"{settings.MEDIA_URL}{value}"
+        )
+
+
+class CourseListCreateSerializer(ModelSerializer):
+    """
+    Serializer for creating, updating and listing the courses.
+    Not for detailed view of courses.
+    Lessons and requirements are not included in the get request for listing.
+    """
+
+    lessons = LessonSerializer(many=True, write_only=True, required=True)
+    category = CharField(required=True)  # To handle category by name
+    requirements = CourseRequirementSerializer(write_only=True, required=True)
+    price = PriceSerializer(required=True)
+    preview_image = FullURLImageField(required=True)
+
+    class Meta:
+        model = Course
+        fields = [
+            "id",
+            "title",
+            "description",
+            "category",
+            "preview_image",
+            "mentor",
+            "status",
+            "lessons",
+            "requirements",
+            "price",
+        ]
+
+    def validate(self, data):
+        """
+        Calling the custom validate function to validate the course data.
+        """
+        validate_course(data)  # Custom validation
+        return data
+
+    @transaction.atomic
+    def create(self, validated_data):
+        """
+        Creating course object including Price, Requirements, and Lesson objects.
+        Wrapped in a transaction to ensure atomicity.
+        """
+        # Extract nested data
+        lessons_data = validated_data.pop("lessons", [])
+        requirements_data = validated_data.pop("requirements", {})
+        price_data = validated_data.pop("price")
+        category_name = validated_data.pop("category")
+        
+        try:
+            category = Category.objects.get(name=category_name)
+        except e:
+            print(e)
+            
+
+        # Print the extracted data for debugging
+        print("Category:", category)
+        print("Validated Data:", validated_data)
+        print("Lessons Data:", lessons_data)
+        print("Requirements Data:", requirements_data)
+        print("Price Data:", price_data)
+        print()
+
+        try:
+            print("Creating Course")
+            try:
+                course = Course.objects.create(category=category, **validated_data)
+                print(f"Course created: {course}")
+            except Exception as e:
+                print("Error creating course:", e)
+                raise e
+
+            print("Creating course requirement")
+            try:
+                CourseRequirement.objects.create(course=course, **requirements_data)
+                print("Course requirement created.")
+            except Exception as e:
+                print("Error creating course requirement:", e)
+                raise e
+
+            print("Creating course price")
+            try:
+                Price.objects.create(course=course, **price_data)
+                print("Price created.")
+            except Exception as e:
+                print("Error creating price:", e)
+                raise e
+
+            print("Creating lesson")
+            try:
+                for lesson_data in lessons_data:
+                    Lesson.objects.create(course=course, **lesson_data)
+                print("Lessons created.")
+            except Exception as e:
+                print("Error creating lessons:", e)
+                raise e
+
+            print("Done")
+            
+        except Exception as e:
+            print("General error:", e)
+            logger.error(f"Error creating course: {str(e)}")
+            raise ValidationError(
+                "An error occurred while creating the course. Please try again."
+            )
+
+        return course
+
+
+class CourseDetailSerializer(ModelSerializer):
+    """
+    Serializer for detailed view of Courses.
+    Only accessible for admins and metors.
+    """
+
+    # lessons should be a list of LessonSerializer since it's a
+    # related set (Many-to-One)
+    lessons = LessonSerializer(many=True, read_only=True)
+    requirements = CourseRequirementSerializer(read_only=True)
+    price = PriceSerializer(read_only=True)
+    preview_image = FullURLImageField(read_only=True)
+    # suggestion_text = CourseSuggestionSerializer()
 
     class Meta:
         model = Course
@@ -96,99 +224,37 @@ class CourseSerializer(serializers.ModelSerializer):
             "lessons",
             "requirements",
             "price",
-            "price_amount",
+            "status",
+            # "suggestion_text",
         ]
 
-    def validate(self, data):
-        """
-        Validating the course details.
-        """
-        title = data.get("title", "")
-        description = data.get("description", "")
-        price_amount = data.get("price_amount", 0)
-        lessons = data.get("lessons", [])
-        print("Lessons: ", lessons)
-        if len(title) < 5:
-            raise serializers.ValidationError("Course Title is too short")
 
-        if len(description) < 200:
-            raise serializers.ValidationError("Course Description is too short")
+class CourseStatusUpdateSerializer(ModelSerializer):
+    """
+    Serializer for updating course status by admin.
+    """
 
-        if price_amount < 0.00:
-            raise serializers.ValidationError("Invalid price")
+    class Meta:
+        model = Course
+        fields = ["id", "status"]
 
-        if len(lessons) < 1:
-            raise serializers.ValidationError("At least one lesson is required.")
+    def update(self, instance, validated_data):
+        # Updating the satus.
+        instance.status = validated_data.get("status", instance.status)
+        instance.save()
 
-        for lesson in lessons:
-            if not lesson["title"]:
-                raise serializers.ValidationError("Lesson Title is required")
+        return instance
 
-            if len(lesson["content"]) < 200:
-                raise serializers.ValidationError("Leccon content is too short.")
 
-        return data
+class CourseSuggestionSerializer(ModelSerializer):
+    """
+    Creating suggestions for the submitted courses by admins.
+    """
+
+    class Meta:
+        model = Suggestion
+        fields = ["id", "suggestion_text"]
 
     def create(self, validated_data):
-        """
-        Creating the course including the related objects, such as,
-        Price, Lessons and Requirements.
-        """
-        lessons_data = validated_data.pop("lessons", [])
-        requirements_data = validated_data.pop("requirements", {})
-        price_amount = validated_data.pop("price_amount", 0)
-
-        try:
-            price_amount = Decimal(price_amount)
-        except (InvalidOperation, TypeError) as e:
-            raise exceptions.ValidationError({"price": "Invalid price format."})
-
-        # Create the Course instance
-        course = Course.objects.create(**validated_data)
-
-        # Handle lessons creation
-        for lesson_data in lessons_data:
-            Lesson.objects.create(course=course, **lesson_data)
-
-        # Handle requirements creation
-        CourseRequirement.objects.create(course=course, **requirements_data)
-
-        # Handle price creation
-        Price.objects.create(course=course, amount=price_amount)
-
-        return course
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation["price"] = PriceSerializer(instance.price).data
-        return representation
-
-    # def update(self, instance, validated_data):
-    #     lessons_data = validated_data.pop("lessons")
-    #     requirements_data = validated_data.pop("requirements")
-    #     # price_data = validated_data.pop("price")
-
-    #     # Update course fields
-    #     for attr, value in validated_data.items():
-    #         setattr(instance, attr, value)
-    #     instance.save()
-
-    #     # Update or recreate lessons
-    #     instance.lessons.all().delete()
-    #     for lesson_data in lessons_data:
-    #         Lesson.objects.create(course=instance, **lesson_data)
-
-    #     # Update or recreate requirements (single set)
-    #     if instance.requirements:
-    #         instance.requirements.delete()
-    #     CourseRequirement.objects.create(course=instance, **requirements_data)
-
-    #     # Update or recreate price
-    #     # if instance.price:
-    #     #     for attr, value in price_data.items():
-    #     #         setattr(instance.price, attr, value)
-    #     #     instance.price.save()
-    #     # else:
-    #     #     Price.objects.create(course=instance, **price_data)
-
-    #     return instance
+        suggestion = Suggestion.objects.create(**validated_data)
+        return suggestion

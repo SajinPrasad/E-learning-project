@@ -1,16 +1,15 @@
 import { toast } from "react-toastify";
 import { privateAxiosInstance } from "../../api/axiosInstance";
 
-// Service for creating courses.
 const createCourse = async (courseData) => {
   const {
     courseTitle,
     courseDescription,
     previewImage,
     courseCategory,
-    lessons,
-    courseRequirement,
     coursePrice,
+    courseRequirement,
+    lessons,
   } = courseData;
 
   const formData = new FormData();
@@ -20,22 +19,18 @@ const createCourse = async (courseData) => {
   formData.append("preview_image", previewImage);
   formData.append("price_amount", coursePrice);
 
-  // Append lessons as a JSON string
-  const lessonsData = lessons.map((lesson, index) => ({
-    title: lesson.lessonTitle,
-    content: lesson.lessonContent,
-    video_url: lesson.lessonVideo,
-    order: index + 1,
-  }));
-  formData.append("lessons", JSON.stringify(lessonsData));
-
-  // Append requirements as a JSON string
   formData.append(
     "requirements",
     JSON.stringify({ description: courseRequirement }),
   );
 
-  console.log("Formdata: ", [...formData.entries()]);
+  // Append lessons data, but serialize non-file fields to JSON
+  lessons.forEach((lesson, index) => {
+    formData.append(`lessons[${index}][title]`, lesson.lessonTitle);
+    formData.append(`lessons[${index}][content]`, lesson.lessonContent);
+    formData.append(`lessons[${index}][order]`, index + 1);
+    formData.append(`lessons[${index}][video_file]`, lesson.lessonVideo);
+  });
 
   try {
     const response = await privateAxiosInstance.post("/courses/", formData, {
@@ -43,20 +38,18 @@ const createCourse = async (courseData) => {
         "Content-Type": "multipart/form-data",
       },
     });
-    // Check if the response indicates a successful creation of course
+
     if (response.status >= 200 && response.status < 300) {
       return response.data; // Return the response data including tokens and user information
     } else {
       toast.error("Unexpected error!");
     }
   } catch (error) {
-    // Handle errors returned from the server
     if (error.response) {
       if (error.response.data.non_field_errors) {
         toast.error(error.response.data.non_field_errors[0]);
       }
     } else if (error.request) {
-      // Handle errors where the server did not respond
       toast.error("An error occurred during course creation.");
     } else {
       console.log(error);
@@ -96,4 +89,98 @@ const getCourses = async () => {
   }
 };
 
-export { createCourse, getCourses };
+/**
+ * Fetching the course details only for admins and mentors.
+ * Contains additional information like suggestion and status.
+ * @param {*} id - Id of the course
+ */
+const getCourseDetailsAdminMentor = async (id) => {
+  try {
+    const response = await privateAxiosInstance.get(`/course/${id}/`);
+    // Check if the response indicates a successful retreval
+    if (response.status >= 200 && response.status < 300) {
+      return response.data; // Return the response data including tokens and user information
+    } else {
+      toast.error("Unexpected error!");
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const validateVideoFile = ({ file, setIsLoading }) => {
+  return new Promise((resolve, reject) => {
+    setIsLoading(true);
+
+    // Check if file exists
+    if (!file) {
+      toast.error("No file selected.");
+      setIsLoading(false);
+      reject("No file selected");
+      return;
+    }
+
+    // Check file type (MIME type)
+    const allowedTypes = ["video/mp4"];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Invalid file type. Please select an MP4 video.");
+      setIsLoading(false);
+      reject("Invalid file type");
+      return;
+    }
+
+    // Check file size (example: between 100KB and 20MB)
+    const minSize = 100 * 1024; // 100KB in bytes
+    const maxSize = 20 * 1024 * 1024; // 20MB in bytes
+    if (file.size < minSize || file.size > maxSize) {
+      toast.error(
+        `File size must be between ${minSize / (1024 * 1024)}MB and ${maxSize / (1024 * 1024)}MB.`
+      );
+      setIsLoading(false);
+      reject("File size out of range");
+      return;
+    }
+
+    // FileReader to check the file's magic number (first few bytes)
+    const reader = new FileReader();
+    reader.onloadend = (e) => {
+      const arr = new Uint8Array(e.target.result).subarray(0, 8); // Read more bytes for better signature checks
+      let header = "";
+      for (let i = 0; i < arr.length; i++) {
+        header += arr[i].toString(16).padStart(2, "0"); // Ensure hex is padded correctly
+      }
+
+      // Validate against known MP4 signatures
+      const mp4Signatures = [
+        "0000001866747970", // ftyp (18-byte offset)
+        "0000002066747970", // ftyp (32-byte offset)
+        "66747970",         // 'ftyp' box (default)
+        // Add more signatures if needed
+      ];
+
+      const isValid = mp4Signatures.some(signature => header.startsWith(signature));
+      if (isValid) {
+        resolve(file);
+      } else {
+        reject("Invalid file format");
+      }
+      setIsLoading(false); // Set loading state to false after validation
+    };
+
+    reader.onerror = () => {
+      setIsLoading(false);
+      reject("Error reading file");
+    };
+
+    // Read the first few bytes of the file to check the signature
+    reader.readAsArrayBuffer(file.slice(0, 8)); // Read more bytes for better signature checks
+  });
+};
+
+
+export {
+  createCourse,
+  getCourses,
+  getCourseDetailsAdminMentor,
+  validateVideoFile,
+};

@@ -151,8 +151,23 @@ EMAIL_USE_SSL = False
 STATIC_URL = "static/"
 
 MEDIA_URL = "media/"
-
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# Image types which are allowed
+WHITELISTED_IMAGE_TYPES = {
+    "jpeg": "image/jpeg",
+    "jpg": "image/jpeg",
+    "png": "image/png",
+    "webp": "image/webp",
+}
+MAX_PREVIEW_IMAGE_SIZE = 8 * 1048576  # 8 MB
+MIN_PREVIEW_IMAGE_SIZE = 10 * 1024
+
+MAX_PROFILE_PIC_SIZE = 5 * 1048576  # 5 MB
+
+# For testing purpose, video max size is 20MB and min size is 100KB
+MIN_VIDEO_FILE_SIZE = 100 * 1024  # 100 KB
+MAX_VIDEO_FILE_SIZE = 20 * 1024 * 1024  # 20 MB
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

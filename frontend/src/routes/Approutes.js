@@ -10,10 +10,12 @@ import {
   StudentLogin,
   StudentRegister,
 } from "../pages/Auth";
-import { MenotrCourses, MentorDashBoard } from "../pages/Mentor";
 import {
-  AdminDashBoard,
-} from "../pages/Adimin";
+  MenotrCourses,
+  MentorCourseDetail,
+  MentorDashBoard,
+} from "../pages/Mentor";
+import { AdminDashBoard } from "../pages/Adimin";
 import ProtectedRoutes from "./ProtectedRoutes";
 import { CourseCategories } from "../components/Course";
 
@@ -30,6 +32,7 @@ const AppRoutes = () => {
       <Route element={<ProtectedRoutes />}>
         <Route path="/mentor" element={<MentorDashBoard />} />
         <Route path="/mentor/courses" element={<MenotrCourses />} />
+        <Route path="/mentor/course/:id" element={<MentorCourseDetail />} />
         <Route path="/admin/dashboard" element={<AdminDashBoard />} />
         <Route path="/admin/coursecategories" element={<CourseCategories />} />
       </Route>

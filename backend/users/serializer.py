@@ -1,7 +1,5 @@
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import Token
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .utils import email_validation as email_is_valid, send_otp_email
