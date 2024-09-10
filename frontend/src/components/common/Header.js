@@ -121,7 +121,7 @@ const Header = () => {
               </a>
               <a
                 onClick={() => navigate("/register")}
-                className={`whitespace-no-wrap inline-flex cursor-pointer items-center justify-center rounded-md border-2 border-transparent bg-theme-primary px-4 py-2 text-base font-medium leading-6 text-white shadow-sm hover:border-theme-primary hover:bg-white hover:text-black focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2`}
+                className={`whitespace-no-wrap inline-flex cursor-pointer items-center justify-center rounded-md border-2 border-transparent bg-theme-primary px-4 py-2 text-base font-medium leading-6 text-white shadow-sm hover:border-theme-primary hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2`}
               >
                 Sign up
               </a>

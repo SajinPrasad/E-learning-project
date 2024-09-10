@@ -4,11 +4,11 @@ from rest_framework.serializers import (
     PrimaryKeyRelatedField,
     ImageField,
     CharField,
+    SerializerMethodField,
 )
 from django.contrib.auth import get_user_model
 import logging
 from django.conf import settings
-from django.core.validators import MinValueValidator
 from django.db import transaction
 
 from .models import Category, Lesson, Course, CourseRequirement, Price, Suggestion
@@ -80,7 +80,7 @@ class PriceSerializer(ModelSerializer):
 
 class FullURLImageField(ImageField):
     """
-    generates a full URL using the current request.
+    Generates a full URL using the current request.
     """
 
     def to_representation(self, value):
@@ -104,6 +104,7 @@ class CourseListCreateSerializer(ModelSerializer):
     requirements = CourseRequirementSerializer(write_only=True, required=True)
     price = PriceSerializer(required=True)
     preview_image = FullURLImageField(required=True)
+    mentor_name = SerializerMethodField(read_only=True)
 
     class Meta:
         model = Course
@@ -119,6 +120,7 @@ class CourseListCreateSerializer(ModelSerializer):
             "lessons",
             "requirements",
             "price",
+            "mentor_name",
         ]
 
     def validate(self, data):
@@ -160,20 +162,62 @@ class CourseListCreateSerializer(ModelSerializer):
 
         return course
 
+    def get_mentor_name(self, obj):
+        # Return the fullname of mentor
+        return f"{obj.mentor.first_name} {obj.mentor.last_name}" if obj.mentor else None
+
+
+class CourseUpdateSerializer(ModelSerializer):
+    """
+    Specifically for updating course and related objects except Lesson data.
+    """
+
+    class Meta:
+        model = Course
+        fields = [
+            "title",
+            "description",
+            "category",
+            "preview_image",
+            "status",
+            "updated_at",
+        ]
+
+
+class LessonTitleSerializer(ModelSerializer):
+    """
+    Serializer only for fetching the Lesson title for course details.
+    """
+
+    class Meta:
+        model = Lesson
+        fields = ["id", "title"]
+
+
+class CourseSuggestionSerializer(ModelSerializer):
+    """
+    Creating suggestions for the submitted courses by admins.
+    """
+
+    class Meta:
+        model = Suggestion
+        fields = ["id", "suggestion_text", "is_done", "course", "admin"]
+        read_only_fields = ["admin"]
+
 
 class CourseDetailSerializer(ModelSerializer):
     """
     Serializer for detailed view of Courses.
-    Only accessible for admins and metors.
     """
 
     # lessons should be a list of LessonSerializer since it's a
     # related set (Many-to-One)
-    lessons = LessonSerializer(many=True, read_only=True)
+    lessons = LessonTitleSerializer(many=True, read_only=True)
     requirements = CourseRequirementSerializer(read_only=True)
     price = PriceSerializer(read_only=True)
+    suggestions = CourseSuggestionSerializer(read_only=True)
     preview_image = FullURLImageField(read_only=True)
-    # suggestion_text = CourseSuggestionSerializer()
+    mentor_name = SerializerMethodField(read_only=True)
 
     class Meta:
         model = Course
@@ -183,12 +227,17 @@ class CourseDetailSerializer(ModelSerializer):
             "description",
             "preview_image",
             "category",
+            "mentor_name",
             "lessons",
             "requirements",
             "price",
             "status",
-            # "suggestion_text",
+            "suggestions",
         ]
+
+    def get_mentor_name(self, obj):
+        # Return the fullname of mentor
+        return f"{obj.mentor.first_name} {obj.mentor.last_name}" if obj.mentor else None
 
 
 class CourseStatusUpdateSerializer(ModelSerializer):
@@ -206,17 +255,3 @@ class CourseStatusUpdateSerializer(ModelSerializer):
         instance.save()
 
         return instance
-
-
-class CourseSuggestionSerializer(ModelSerializer):
-    """
-    Creating suggestions for the submitted courses by admins.
-    """
-
-    class Meta:
-        model = Suggestion
-        fields = ["id", "suggestion_text"]
-
-    def create(self, validated_data):
-        suggestion = Suggestion.objects.create(**validated_data)
-        return suggestion

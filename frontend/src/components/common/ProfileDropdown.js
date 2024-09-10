@@ -12,10 +12,10 @@ const ProfileDropdown = () => {
   const dispatch = useDispatch();
 
   // Function to handle logout.
-  const handleLogout = () => {
+  const handleLogout = async () => {
     // Clearing the user information from state.
-    dispatch(clearUserInfo());
-    dispatch(clearToken());
+    await dispatch(clearUserInfo());
+    await dispatch(clearToken());
   };
 
   return (

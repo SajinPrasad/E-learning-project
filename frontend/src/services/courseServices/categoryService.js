@@ -68,13 +68,14 @@ const createSubCategory = async (name, description, parentCategoryID) => {
   }
 };
 
-const getCategories = async () => {
+const getCategories = async (setIsLoading) => {
   try {
     const response = await privateAxiosInstance.get("/categories/");
     if (response.status >= 200 && response.status < 300) {
       return response.data;
     } else {
       toast.error("Error while fetching categories!");
+      setIsLoading(false);
     }
   } catch (error) {
     if (error.response) {
@@ -82,17 +83,21 @@ const getCategories = async () => {
       const statusCode = error.response.status;
       if (statusCode >= 400 && statusCode < 500) {
         toast.error("Request error. Please check your permissions.");
+        setIsLoading(false);
       } else if (statusCode >= 500) {
         toast.error("Server error. Please try again later.");
+        setIsLoading(false);
       }
     } else if (error.request) {
       // Handle no response from server
       toast.error(
         "No response received from server. Please check your network connection.",
       );
+      setIsLoading(false);
     } else {
       // Handle unexpected errors (e.g., network issues, etc.)
       toast.error("An unexpected error occurred. Please try again.");
+      setIsLoading(false);
     }
     throw error; // Rethrow the error to be handled by the calling code if necessary
   }
@@ -101,11 +106,13 @@ const getCategories = async () => {
 const deleteCategory = async (categoryID) => {
   try {
     // Make a DELETE request to the endpoint with the category ID
-    const response = await privateAxiosInstance.delete(`/categories/${categoryID}/`);
+    const response = await privateAxiosInstance.delete(
+      `/categories/${categoryID}/`,
+    );
 
     // Check if the response status indicates success
     if (response.status >= 200 && response.status < 300) {
-      toast.success("Successfully deleted Category.")
+      toast.success("Successfully deleted Category.");
     } else {
       toast.error("Error while deleting category!");
     }

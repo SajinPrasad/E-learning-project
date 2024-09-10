@@ -10,7 +10,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 
 const MentorSidebar = () => {
-  const [selected, setSelected] = useState("dashboard"); // Default selection
+  const [selected, setSelected] = useState(""); // Default selection
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Controls sidebar visibility on smaller screens
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,7 +20,7 @@ const MentorSidebar = () => {
     const path = location.pathname;
     if (path === "/mentor") {
       setSelected("dashboard");
-    } else if (path === "/mentor/courses") {
+    } else if (path.startsWith("/mentor/course")) {
       setSelected("courses");
     }
   }, [location.pathname]);

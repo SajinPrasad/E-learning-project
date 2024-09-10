@@ -111,13 +111,14 @@ class Suggestion(models.Model):
     Users can make changes according to the suggestions made by the admins.
     """
 
-    course = models.ForeignKey(
+    course = models.OneToOneField(
         Course, on_delete=models.CASCADE, related_name="suggestions"
     )
     admin = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="suggestions"
     )
     suggestion_text = models.TextField()
+    is_done = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     is_approved = models.BooleanField(default=False)
 

@@ -1,17 +1,27 @@
 import json
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, generics, status
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.generics import RetrieveAPIView, UpdateAPIView, ListAPIView
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED, HTTP_200_OK
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 import logging
 
-from .permissions import MentorOrAdminPermission
-from .models import Category, Course
+from .permissions import (
+    MentorOnlyPermission,
+    MentorOrAdminPermission,
+    AdminOnlyPermission,
+)
+from .models import Category, Course, Lesson, Suggestion
 from .serializers import (
     CategorySerializer,
+    CourseUpdateSerializer,
     SubCategorySerializer,
     CourseDetailSerializer,
     CourseListCreateSerializer,
+    CourseSuggestionSerializer,
+    LessonSerializer,
 )
 
 # Create your views here.
@@ -19,7 +29,7 @@ from .serializers import (
 logger = logging.getLogger(__name__)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(ModelViewSet):
     """
     ViewSet for managing categories. Handles CRUD operations for both
     main categories and subcategories.
@@ -29,7 +39,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
 
 
-class SubCategoryViewSet(viewsets.ModelViewSet):
+class SubCategoryViewSet(ModelViewSet):
     """
     ViewSet for managing subcategories. This only includes categories that
     have a parent (i.e., subcategories).
@@ -117,7 +127,7 @@ class CourseListCreateView(APIView):
                 "category": data.get("category"),
                 "preview_image": request.FILES.get("preview_image"),
                 "mentor": request.user.id,
-                "status" : "pending",
+                "status": "pending",
                 "lessons": lessons_data,
                 "requirements": json.loads(data.get("requirements", "{}")),
                 "price": {"amount": data.get("price_amount")},
@@ -130,23 +140,33 @@ class CourseListCreateView(APIView):
 
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=HTTP_201_CREATED)
             else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             logger.error(f"Error occurred: {e}")
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": str(e)}, status=HTTP_400_BAD_REQUEST)
 
 
-class MentorCourseDetailView(generics.RetrieveAPIView):
+class CourseListView(ListAPIView):
     """
-    View only for retrieving the course details. Only accessible by
-    Mentors and Admins. Using custom permission classes.
+    Public course listing view.
+    Only listing approved courses
     """
 
-    permission_classes = [MentorOrAdminPermission]  # Custom permission class.
-    serializer_class = CourseDetailSerializer
+    permission_classes = [AllowAny]
+    serializer_class = CourseListCreateSerializer
+    queryset = Course.objects.filter(status="approved")
+
+
+class CourseUpdateView(UpdateAPIView):
+    """
+    Updating the course details and related objects except Lessons.
+    """
+
+    pagination_class = [MentorOrAdminPermission]  # Custom permission class.
+    serializer_class = CourseUpdateSerializer
 
     def get_queryset(self):
         """
@@ -162,3 +182,60 @@ class MentorCourseDetailView(generics.RetrieveAPIView):
             return Course.objects.all()
 
         return Course.objects.none()
+
+
+class CourseDetailView(RetrieveAPIView):
+    """
+    View only for retrieving the course details.
+    """
+
+    permission_classes = [AllowAny]
+    serializer_class = CourseDetailSerializer
+
+    def get_queryset(self):
+        """
+        Filter queryset to only include courses owned by the requesting mentor.
+        Fetching all the courses for Admins.
+        """
+        user = self.request.user
+
+        if user.is_authenticated and user.role == "mentor":
+            return Course.objects.filter(mentor=user)
+
+        return Course.objects.all()
+    
+
+class CourseSuggestionView(ModelViewSet):
+    """
+    Viewset for creating  Suggestions for courses.
+    * Admins can create the suggestion
+    """
+
+    permission_classes = [AdminOnlyPermission]  # Custom permission
+    serializer_class = CourseSuggestionSerializer
+    queryset = Suggestion.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(admin=self.request.user)
+
+
+class CourseSuggestionUpdateView(UpdateAPIView):
+    """
+    View for the status of suggestions for courses.
+    * Mentors can update the completion status (is_done)
+    """
+
+    permission_classes = [MentorOnlyPermission]  # Custom permission
+    serializer_class = CourseSuggestionSerializer
+    queryset = Suggestion.objects.all()
+
+    def update(self, request, *args, **kwargs):
+        print("Request user:", request.user)
+        print("Request data:", request.data)
+        return super().update(request, *args, **kwargs)
+
+
+class LessonDataView(RetrieveAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = LessonSerializer
+    queryset = Lesson.objects.all()

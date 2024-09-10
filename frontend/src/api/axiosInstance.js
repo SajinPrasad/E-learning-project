@@ -36,6 +36,7 @@ privateAxiosInstance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
+
 // Response interceptor to handle token expiration and refresh
 privateAxiosInstance.interceptors.response.use(
   (response) => response,
@@ -50,7 +51,7 @@ privateAxiosInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const state = store.getState();
+        const state = await store.getState();
         const refreshToken = state.auth.refreshToken; // Fetching the refresh token from state.
 
         const response = await axios.post(`${API_URL}/token/refresh/`, {

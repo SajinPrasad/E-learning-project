@@ -1,5 +1,23 @@
 import { toast } from "react-toastify";
-import { privateAxiosInstance } from "../../api/axiosInstance";
+import {
+  privateAxiosInstance,
+  publicAxiosInstance,
+} from "../../api/axiosInstance";
+
+const getActiveCourses = async (setIsLoading) => {
+  try {
+    const response = await publicAxiosInstance.get("/courses/");
+    if (response.status >= 200 && response.status < 300) {
+      return response.data;
+    } else {
+      toast.error("Error while fetching Courses!");
+    }
+  } catch (error) {
+    handleError(error);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
 // Service for creating courses.
 const createCourse = async (courseData) => {
@@ -34,7 +52,7 @@ const createCourse = async (courseData) => {
   });
 
   try {
-    const response = await privateAxiosInstance.post("/courses/", formData, {
+    const response = await privateAxiosInstance.post("/course/", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -60,13 +78,14 @@ const createCourse = async (courseData) => {
 };
 
 // Service for fetching Courses.
-const getCourses = async () => {
+const getCourses = async (setIsLoading) => {
   try {
-    const response = await privateAxiosInstance.get("/courses/");
+    const response = await privateAxiosInstance.get("/course/");
     if (response.status >= 200 && response.status < 300) {
       return response.data;
     } else {
       toast.error("Error while fetching Courses!");
+      setIsLoading(false);
     }
   } catch (error) {
     if (error.response) {
@@ -74,17 +93,21 @@ const getCourses = async () => {
       const statusCode = error.response.status;
       if (statusCode >= 400 && statusCode < 500) {
         toast.error("Request error. Please check your permissions.");
+        setIsLoading(false);
       } else if (statusCode >= 500) {
         toast.error("Server error. Please try again later.");
+        setIsLoading(false);
       }
     } else if (error.request) {
       // Handle no response from server
       toast.error(
         "No response received from server. Please check your network connection.",
       );
+      setIsLoading(false);
     } else {
       // Handle unexpected errors (e.g., network issues, etc.)
       toast.error("An unexpected error occurred. Please try again.");
+      setIsLoading(false);
     }
     throw error; // Rethrow the error to be handled by the calling code if necessary
   }
@@ -95,7 +118,7 @@ const getCourses = async () => {
  * Contains additional information like suggestion and status.
  * @param {*} id - Id of the course
  */
-const getCourseDetailsAdminMentor = async (id) => {
+const getCourseDetails = async (id) => {
   try {
     const response = await privateAxiosInstance.get(`/course/${id}/`);
     // Check if the response indicates a successful retreval
@@ -105,7 +128,7 @@ const getCourseDetailsAdminMentor = async (id) => {
       toast.error("Unexpected error!");
     }
   } catch (error) {
-    console.error(error);
+    handleError(error);
   }
 };
 
@@ -135,7 +158,7 @@ const validateVideoFile = ({ file, setIsLoading }) => {
     const maxSize = 20 * 1024 * 1024; // 20MB in bytes
     if (file.size < minSize || file.size > maxSize) {
       toast.error(
-        `File size must be between ${minSize / (1024 * 1024)}MB and ${maxSize / (1024 * 1024)}MB.`
+        `File size must be between ${minSize / (1024 * 1024)}MB and ${maxSize / (1024 * 1024)}MB.`,
       );
       setIsLoading(false);
       reject("File size out of range");
@@ -155,11 +178,13 @@ const validateVideoFile = ({ file, setIsLoading }) => {
       const mp4Signatures = [
         "0000001866747970", // ftyp (18-byte offset)
         "0000002066747970", // ftyp (32-byte offset)
-        "66747970",         // 'ftyp' box (default)
+        "66747970", // 'ftyp' box (default)
         // Add more signatures if needed
       ];
 
-      const isValid = mp4Signatures.some(signature => header.startsWith(signature));
+      const isValid = mp4Signatures.some((signature) =>
+        header.startsWith(signature),
+      );
       if (isValid) {
         resolve(file);
       } else {
@@ -178,10 +203,192 @@ const validateVideoFile = ({ file, setIsLoading }) => {
   });
 };
 
+const getLessonData = async (id) => {
+  try {
+    const response = await privateAxiosInstance.get(`/lesson/${id}`);
+    // Check if the response indicates a successful retreval
+    if (response.status >= 200 && response.status < 300) {
+      return response.data; // Return the response data
+    } else {
+      toast.error("Unexpected error!");
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const updateCourse = async (id, field, value) => {
+  const formData = new FormData();
+  formData.append(field, value);
+
+  try {
+    const response = privateAxiosInstance.patch(
+      `/course-update/${id}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+  } catch (error) {}
+};
+
+/**
+ * Function for Updating course status.
+ * @param {*} id - Course ID
+ * @param {*} newStatus - Updated status of the course (pending, approved, rejected)
+ * @returns - Promise
+ */
+const updateCourseStatus = async (id, newStatus) => {
+  const formData = new FormData();
+  formData.append("status", newStatus);
+
+  try {
+    const response = await privateAxiosInstance.patch(
+      `/course-update/${id}/`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+
+    if (response.status >= 200 && response.status < 300) {
+      console.log("Response: ", response);
+      return response.data;
+    } else {
+      toast.error("Error while updating status!");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error in updateCourseStatus:", error);
+
+    // Handle specific error cases
+    if (error.response) {
+      // Server responded with a status other than 2xx
+      console.error("Server responded with error:", error.response.data);
+      toast.error(
+        `Error: ${error.response.data.detail || "Something went wrong."}`,
+      );
+    } else if (error.request) {
+      // Request was made but no response received
+      console.error("No response received:", error.request);
+      toast.error("No response received from server.");
+    } else {
+      // Something else happened in setting up the request
+      console.error("Error setting up request:", error.message);
+      toast.error(`Request error: ${error.message}`);
+    }
+
+    return null;
+  }
+};
+
+/**
+ * Function ot create and update the course suggestions.
+ * Only accessed by admins.
+ * @param {*} method - The method to execute (put / post)
+ * @param {*} suggestion - Object with suggestion data
+ * @param {*} courseId - Course ID
+ * @returns
+ */
+const updateCreateCourseSuggestion = async (method, suggestion, courseId) => {
+  try {
+    let response;
+
+    if (method === "post") {
+      response = await privateAxiosInstance.post("/course/suggestions/", {
+        suggestion_text: suggestion.suggestion_text,
+        course: courseId,
+      });
+    } else if (method === "put") {
+      response = await privateAxiosInstance.put(
+        `/course/suggestions/${suggestion.id}/`,
+        {
+          suggestion_text: suggestion.suggestion_text,
+          is_done: suggestion.is_done,
+          course: courseId,
+        },
+      );
+    }
+
+    if (response && response.status >= 200 && response.status < 300) {
+      toast.success("Successfully updated suggesstion.");
+      return response.data;
+    } else {
+      toast.error("Error while updating suggestion!");
+      return null;
+    }
+  } catch (error) {
+    handleError(error);
+    return null;
+  }
+};
+
+/**
+ * Function for changing the status of the suggestion.
+ * Only accessed by mentors.
+ * @param {*} suggestion - Object with suggestion data.
+ * @returns
+ */
+const mentorChangingSuggestionStatus = async (suggestion) => {
+  const { id, is_done } = suggestion;
+
+  const formData = new FormData();
+  formData.append("is_done", is_done.toString());
+
+  try {
+    const response = await privateAxiosInstance.patch(
+      `/course/suggestion/${id}/`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+    console.log("Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error:",
+      error.response ? error.response.data : error.message,
+    );
+    handleError(error);
+    return null;
+  }
+};
+
+// Separate function to handle different error cases
+const handleError = (error) => {
+  if (error.response) {
+    // Server responded with a status other than 2xx
+    console.log("Error Response Data: ", error.response.data);
+    toast.error(
+      error.response.data.detail || "Something went wrong with the request!",
+    );
+  } else if (error.request) {
+    // Request was made, but no response was received
+    console.log("Error Request: ", error.request);
+    toast.error("No response from the server. Please try again later.");
+  } else {
+    // Something else happened while setting up the request
+    console.log("Error Message: ", error.message);
+    toast.error("An unexpected error occurred: " + error.message);
+  }
+};
 
 export {
   createCourse,
   getCourses,
-  getCourseDetailsAdminMentor,
+  getCourseDetails,
   validateVideoFile,
+  getLessonData,
+  updateCourse,
+  updateCourseStatus,
+  updateCreateCourseSuggestion,
+  mentorChangingSuggestionStatus,
+  getActiveCourses,
 };

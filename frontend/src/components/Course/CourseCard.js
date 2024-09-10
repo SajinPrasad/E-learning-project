@@ -1,18 +1,32 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-const CourseCard = ({ course }) => {
-  const { id, title, description, price } = course;
-  // Truncate description to 25 words
+/**
+ * Course card for displaying courses in cards
+ * @param {*} param0 - course - Course to display in the card
+ * @param {*} param1 - role - Role of the user, For adjusting the view based on differet users
+ * @returns
+ */
+const CourseCard = ({ course, role }) => {
+  const { id, title, description, price, mentor_name } = course;
+  // Truncate description to 15 words
   const truncatedDescription =
-    description.split(" ").slice(0, 25).join(" ") +
-    (description.split(" ").length > 25 ? "..." : "");
-
+    description.split(" ").slice(0, 15).join(" ") +
+    (description.split(" ").length > 15 ? "..." : "");
   const navigate = useNavigate();
+
+  const handleNavigation = () => {
+    if (role) {
+      navigate(`/${role}/course/${id}`);
+    } else {
+      navigate(`/course/${id}`);
+    }
+  };
+
   return (
     <div
-      onClick={() => navigate(`/mentor/course/${id}`)}
-      className="cursor-pointer overflow-hidden rounded-lg border bg-white shadow-md"
+      onClick={handleNavigation}
+      className="cursor-pointer overflow-hidden rounded-lg border bg-white shadow-md duration-500 hover:scale-105"
     >
       <div className="relative">
         <img
@@ -28,6 +42,9 @@ const CourseCard = ({ course }) => {
       </div>
       <div className="p-4">
         <h3 className="mb-1 text-lg font-semibold">{title}</h3>
+        {role !== "mentor" && (
+          <h4 className="text-xs font-semibold text-gray-600">{mentor_name}</h4>
+        )}
         <p className="rounded border border-gray-50 font-sentinent-medium text-lg">
           ₹ {price.amount}
         </p>

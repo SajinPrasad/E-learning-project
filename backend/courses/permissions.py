@@ -30,9 +30,18 @@ class MentorOrAdminPermission(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         # Allow access if the user is the mentor of the course or is an admin
-        return (
-            request.user.is_authenticated
-            and (request.user.role == "mentor" or request.user.is_superuser)
-            and getattr(obj, "mentor", None)
-            == request.user  # Handle if mentor attribute doesn't exist
+        return request.user.is_authenticated and (
+            getattr(obj, "mentor", None) == request.user or request.user.is_superuser
         )
+
+
+class AdminOnlyPermission(BasePermission):
+    """
+    Custom permission, Only allows admins.
+    """
+
+    def has_permission(self, request, view):
+        return request.user.is_superuser
+
+    def has_object_permission(self, request, view, obj):
+        return request.user.is_superuser

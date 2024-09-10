@@ -1,0 +1,130 @@
+[33mcommit bd9ba652c02fcbaced79bd3b14a2b91c7e3f34fd[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Sun Sep 8 08:52:18 2024 +0530
+
+    Course management bug fixing and resolving merge conflicts
+
+[33mcommit 0aca966effe0512909e608692baede6f6982f45c[m
+Merge: 849e293 bbbd05d
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Sun Sep 8 08:51:04 2024 +0530
+
+    Merge branch 'main' of https://github.com/SajinPrasad/E-learning-project
+
+[33mcommit 849e2936a51ddb9989cf28deae1b9a8a1b0a6260[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Mon Sep 2 02:15:32 2024 +0530
+
+    Course management bug fix
+
+[33mcommit e447dc0f655ea51d35f9936dec92863fa675b105[m[33m ([m[1;32mcourse-management[m[33m)[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Sun Sep 8 01:02:32 2024 +0530
+
+    Course creation completed. Icluding validation.
+
+[33mcommit bbbd05db46ea6bc29102cbb1bb640331c1714330[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Mon Sep 2 02:15:32 2024 +0530
+
+    Course management bug fix
+
+[33mcommit a7135263c449288659ce9882c9fca105a2fbf408[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Sat Aug 31 17:52:58 2024 +0530
+
+    Authentication bug fix
+
+[33mcommit 110249d123e5648b944b6f5acdfd422b41acf0c7[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Mon Sep 2 02:01:39 2024 +0530
+
+    Course creation bug fix
+
+[33mcommit 91be75c09f433760ce7f28f27c7437733da914c8[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Sat Aug 31 17:52:58 2024 +0530
+
+    Authentication bug fix
+
+[33mcommit da3a91c6e255eeda5c02de2894ab05b3f0d23270[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Sat Aug 31 00:31:16 2024 +0530
+
+    JWT authentication.
+
+[33mcommit 9ea96ffb21d09354f435e4a5e7400076ff356cb9[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Fri Aug 30 22:19:33 2024 +0530
+
+    Deleted file in main branch
+
+[33mcommit 5e1b5bc25011cb188dfaf45976aa504497bc5900[m[33m ([m[1;31morigin/http-only-cookie[m[33m, [m[1;32mhttp-only-cookie[m[33m)[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Fri Aug 30 12:17:47 2024 +0530
+
+    Http only cookie for authentication. Completed!
+
+[33mcommit f9c7dd9e0380d45f2601dd59dd2dcf900ef2ceb0[m[33m ([m[1;32mrestored-with-courses[m[33m)[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Fri Aug 30 12:17:47 2024 +0530
+
+    Restored Course and http-only-cookie changes.
+
+[33mcommit 0bd44c91397e414f2c5e3ccc89aee6276a10b387[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Fri Aug 30 12:09:11 2024 +0530
+
+    Course management, still in progress!
+
+[33mcommit 869f7bdc191232e53214c86964b2210a8fecbd08[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Sat Aug 17 00:24:58 2024 +0530
+
+    Created Category models, serializers, and views. Designed the front end for admin to add category.
+
+[33mcommit 36fe7f1298f26b15e6843d5dece4b45f77d24967[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Fri Aug 16 02:09:44 2024 +0530
+
+    Basic styling of Mentor dashboard.
+
+[33mcommit b199cc83c731ce97ba57c476efd54e41cd0e7a28[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Thu Aug 15 17:32:21 2024 +0530
+
+    Admin login and mentor dashboard stats.
+
+[33mcommit 12ca67295d70296a88ffcf6b434def586f3457a3[m
+Merge: 3d5a5ce 1f8e7ca
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Wed Aug 14 12:34:30 2024 +0530
+
+    Merge branch 'main' of https://github.com/SajinPrasad/E-learning-project
+
+[33mcommit 3d5a5cef1025961f8a5fcb8c71c538f3f32695b0[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Wed Aug 14 12:34:20 2024 +0530
+
+    Added Protected route
+
+[33mcommit 1f8e7ca8e8816705d12463689804ea5044b7df10[m
+Merge: a1c96e2 478b8a0
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Wed Aug 14 10:39:54 2024 +0530
+
+    Merge pull request #1 from SajinPrasad/http-only-cookie
+    
+    Implimented HTTP only cookie to store tokens.
+
+[33mcommit 478b8a0cb8c1c15ff59d52bdc4ae2633c9579e32[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Wed Aug 14 09:57:02 2024 +0530
+
+    Implimented HTTP only cookie to store tokens.
+
+[33mcommit a1c96e2c8869034bc4715cb9b78417851603d7ee[m
+Author: Sajin Prasad <sajinprasad52@gmail.com>
+Date:   Mon Aug 12 22:35:28 2024 +0530
+
+    Initial commit

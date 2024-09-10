@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { styles } from "../../../components/common";
 import {
   CategoryIcon,
+  CoursesIcon,
   DashboardIcon,
   HamBurger,
   UsersIcon,
@@ -24,9 +25,10 @@ const AdminSidebar = () => {
   useEffect(() => {
     const path = location.pathname;
     if (path.includes("/admin/dashboard")) setSelected("dashboard");
-    else if (path.includes("/admin/coursecategories"))
+    else if (path.includes("/admin/coursecategor"))
       setSelected("course category");
-    else if (path.includes("/admin/users")) setSelected("users");
+    else if (path.includes("/admin/course")) setSelected("courses");
+    else if (path.includes("/admin/user")) setSelected("users");
   }, [location]);
 
   // Function to handle clicks on menu items
@@ -86,6 +88,19 @@ const AdminSidebar = () => {
             >
               <CategoryIcon isSelected={selected === "course category"} />
               <a className="flex items-start px-3 py-2">Course Categories</a>
+            </div>
+
+            {/* Courses */}
+            <div
+              className={`flex cursor-pointer items-center gap-1 ${styles.iconContainer} toggleCourseDropdown rounded px-2 ${
+                selected === "courses"
+                  ? "bg-theme-primary text-white" // Apply styles if selected
+                  : "hover:bg-purple-100"
+              }`}
+              onClick={() => handleClick("courses", "/admin/courses")}
+            >
+              <CoursesIcon isSelected={selected === "courses"} />
+              <a className={`flex items-start px-3 py-2`}>Courses</a>
             </div>
 
             {/* Users menu item */}

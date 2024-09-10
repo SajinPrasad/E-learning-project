@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import { Card } from "../common";
+import { Card, Loading } from "../common";
 import {
   deleteCategory,
   getCategories,
@@ -12,16 +12,19 @@ import { setCategoryData } from "../../features/course/categorySlice";
 
 const CourseCategories = () => {
   // State to hold categories data
+  const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [isCategoryForm, setIsCategoryForm] = useState(); // State to show category form
 
   // useEffect hook to fetch categories data on component mount
   useEffect(() => {
     const fetchCategories = async () => {
-      const categoriesData = await getCategories();
+      setIsLoading(true);
+      const categoriesData = await getCategories(setIsLoading);
       if (categoriesData) {
         setCategories(categoriesData);
       }
+      setIsLoading(false);
     };
 
     fetchCategories();
@@ -47,6 +50,7 @@ const CourseCategories = () => {
 
   return (
     <AdminLayout>
+      {isLoading && <Loading />}
       <div className={`ml-2 flex-1 justify-center overflow-auto md:ml-0`}>
         {/* Section for title and action button */}
         <div className={`m-4`}>

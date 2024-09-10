@@ -2,15 +2,16 @@ import React from "react";
 
 import { CourseDetail } from "../../../components/Course";
 import { useSelector } from "react-redux";
-import { MentorLayout } from "../../../components/Mentor";
+import { AdminLayout } from "../../../components/Admin";
 
-const MentorCourseDetail = () => {
+const AdminCourseDetail = () => {
   const role = useSelector((state) => state.user.role);
+  
   return (
-    <MentorLayout>
+    <AdminLayout>
       <CourseDetail role={role} />
-    </MentorLayout>
+    </AdminLayout>
   );
 };
 
-export default MentorCourseDetail;
+export default AdminCourseDetail;
