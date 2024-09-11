@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 
 import { loginService } from "../../../services/authService";
-import styles from "./Form.module.css";
+import { formStyles } from ".";
 import { setUserInfo } from "../../../features/tempUser/userSlice";
 import { Loading } from "../../common";
 import { setToken } from "../../../features/auth/authSlice";
@@ -38,8 +38,8 @@ function showUnauthorizedAlert(navigate, role) {
     customClass: {
       title: "text-black",
       popup: "my-popup-class",
-      confirmButton: `${styles.confirmbutton}`,
-      cancelButton: `${styles.cancelbutton}`,
+      confirmButton: `${formStyles.confirmbutton}`,
+      cancelButton: `${formStyles.cancelbutton}`,
     },
   }).then((result) => {
     if (result.isConfirmed) {
@@ -148,7 +148,7 @@ const LoginForm = ({ role }) => {
                 <ErrorMessage
                   name="email"
                   component="div"
-                  className={styles.errormessage}
+                  className={formStyles.errormessage}
                 />
               </div>
 
@@ -163,7 +163,7 @@ const LoginForm = ({ role }) => {
                 <ErrorMessage
                   name="password"
                   component="div"
-                  className={styles.errormessage}
+                  className={formStyles.errormessage}
                 />
               </div>
 

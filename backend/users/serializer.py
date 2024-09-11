@@ -1,20 +1,32 @@
 from django.contrib.auth import authenticate, get_user_model
-from rest_framework import serializers
+from rest_framework.serializers import (
+    ModelSerializer,
+    CharField,
+    ValidationError,
+    Serializer,
+    EmailField,
+)
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.hashers import check_password
 
-from .utils import email_validation as email_is_valid, send_otp_email
+from .utils import (
+    email_validation as email_is_valid,
+    send_otp_email,
+    password_validation,
+)
 from .services.otp import verify_otp
+from .models import StudentProfile, MentorProfile
 
 
 User = get_user_model()
 
 
-class UserRegistrationSerializer(serializers.ModelSerializer):
+class UserRegistrationSerializer(ModelSerializer):
     """
     Serlizer for validating registration requests and User creation.
     """
 
-    password2 = serializers.CharField(write_only=True)
+    password2 = CharField(write_only=True)
 
     class Meta:
         model = User
@@ -28,41 +40,25 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         """
         Password and email validation
         """
-        if data["password"] != data["password2"]:
-            raise serializers.ValidationError("Passwords do not match!")
-
         password = data.get("password", "")
+        password2 = data.get("password2", "")
         email = data.get("email", "")
 
         # If user already exists with the same email
         try:
             user = User.objects.get(email=email)
             if user:
-                raise serializers.ValidationError(
-                    "Account already exists with entered email"
-                )
+                raise ValidationError("Account already exists with entered email")
         except User.DoesNotExist:
             pass
 
-        # Password length
-        if len(password) < 6:
-            raise serializers.ValidationError("Password length should be atleast 6!")
+        # Validating password with custom validation function
+        password_validation(password, password2)
 
-        # Uppercase and lower case letters
-        if not any(char.isupper() for char in password):
-            raise serializers.ValidationError(
-                "Password should contain atleast one uppercase letter"
-            )
-
-        if not any(char.lower() for char in password):
-            raise serializers.ValidationError(
-                "Password should contain atleast one lowercase letter"
-            )
-
-        # Email validating
+        # Validating email with custom validation function
         valid, error_message = email_is_valid(email)
         if not valid:
-            raise serializers.ValidationError(error_message)
+            raise ValidationError(error_message)
 
         return data
 
@@ -79,7 +75,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserRegistrationResponseSerializer(serializers.ModelSerializer):
+class UserRegistrationResponseSerializer(ModelSerializer):
     """
     Serializer for returning necessary user data after registration.
     """
@@ -89,13 +85,13 @@ class UserRegistrationResponseSerializer(serializers.ModelSerializer):
         fields = ("email", "first_name", "last_name", "username")
 
 
-class UserLoginSerializer(serializers.Serializer):
+class UserLoginSerializer(Serializer):
     """
     Serializer for  validating Login requests and authenticating.
     """
 
-    email = serializers.EmailField(max_length=150)
-    password = serializers.CharField(write_only=True)
+    email = EmailField(max_length=150)
+    password = CharField(write_only=True)
 
     def validate(self, data):
         """
@@ -106,25 +102,25 @@ class UserLoginSerializer(serializers.Serializer):
         email = data.get("email", None)
         password = data.get("password", None)
         if email is None:
-            raise serializers.ValidationError("An email address is required to log in.")
+            raise ValidationError("An email address is required to log in.")
 
         if password is None:
-            raise serializers.ValidationError("A password is required to log in.")
+            raise ValidationError("A password is required to log in.")
 
         try:
             user = User.objects.get(email=email)  # Checking the user exist or not.
         except User.DoesNotExist:
-            raise serializers.ValidationError("A user with this email is not found.")
+            raise ValidationError("A user with this email is not found.")
 
         user = authenticate(email=email, password=password)
         if not user:
-            raise serializers.ValidationError("Invalid password!")
+            raise ValidationError("Invalid password!")
 
         if not user.is_active:
-            raise serializers.ValidationError("This user is not currently activated.")
+            raise ValidationError("This user is not currently activated.")
 
         if not user.is_verified and not user.is_superuser:
-            raise serializers.ValidationError("Account not verified")
+            raise ValidationError("Account not verified")
 
         # Generate token
         refresh = RefreshToken.for_user(user)
@@ -141,13 +137,13 @@ class UserLoginSerializer(serializers.Serializer):
         }
 
 
-class OTPVerificationSerializer(serializers.Serializer):
+class OTPVerificationSerializer(Serializer):
     """
     Serializer for verifying the otp during the authentication process.
     """
 
-    otp_code = serializers.CharField(max_length=8)
-    email = serializers.EmailField(max_length=150)
+    otp_code = CharField(max_length=8)
+    email = EmailField(max_length=150)
 
     def validate(self, data):
         """
@@ -158,7 +154,7 @@ class OTPVerificationSerializer(serializers.Serializer):
         otp_code = data.get("otp_code")
         is_valid, message = verify_otp(email, otp_code)
         if not is_valid:
-            raise serializers.ValidationError({"non_field_errors": [message]})
+            raise ValidationError({"non_field_errors": [message]})
         return data
 
     def save(self):
@@ -174,12 +170,12 @@ class OTPVerificationSerializer(serializers.Serializer):
         return user
 
 
-class OTPResendSerializer(serializers.Serializer):
+class OTPResendSerializer(Serializer):
     """
     Serializer for validating the request to resend the OTP.
     """
 
-    email = serializers.EmailField()
+    email = EmailField()
 
     def validate_email(self, value):
         """
@@ -188,15 +184,82 @@ class OTPResendSerializer(serializers.Serializer):
         try:
             user = User.objects.get(email=value)
         except User.DoesNotExist:
-            raise serializers.ValidationError("User with this email does not exist.")
+            raise ValidationError("User with this email does not exist.")
 
         if user.is_verified:
-            raise serializers.ValidationError("User is already verified.")
+            raise ValidationError("User is already verified.")
 
         if not user.is_active:
-            raise serializers.ValidationError("User is not permitted for verification.")
+            raise ValidationError("User is not permitted for verification.")
 
         # Store the user in the serializer instance for use later
         self.user = user
 
         return value
+
+
+class ResetPasswordSerializer(Serializer):
+    """
+    Serializer for resetting the password via email.
+    """
+
+    email = EmailField(max_length=150)
+    new_password = CharField(max_length=150)
+    confirm_password = CharField(max_length=150)
+
+    def validate(self, data):
+        email = data.get("email")
+        new_password = data.get("new_password")
+        confirm_password = data.get("confirm_password")
+
+        if not email:
+            raise ValidationError("Email is required!")
+
+        if not new_password:
+            raise ValidationError("New password is required!")
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise ValidationError("User not found!")
+
+        # Validating password with custom validation function
+        password_validation(new_password, confirm_password)
+
+        # Check if the new password is the same as the old one
+        if check_password(new_password, user.password):
+            raise ValidationError(
+                "The new password cannot be the same as the old password!"
+            )
+
+        data["user"] = user  # Pass the user object to use in save method
+        return data
+
+    def save(self, **kwargs):
+        user = self.validated_data["user"]
+        new_password = self.validated_data["new_password"]
+
+        # Set and hash the new password
+        user.set_password(new_password)
+        user.save()
+
+        return user.role  # Returning the role of the user.
+
+
+class StudentProfileSerializer(ModelSerializer):
+    """
+    Serializer for managing student profile.
+    * Creatiion, Updation, Lisiting and retrieval
+    """
+
+    class Meta:
+        model = StudentProfile
+        fields = [
+            "profile_picture",
+            "bio",
+            "date_of_birth",
+            "interested_areas",
+            "highest_education_level",
+            "current_education_level",
+            "expected_graduation_date",
+        ]
