@@ -1,5 +1,7 @@
 import { toast } from "react-toastify";
-import { publicAxiosInstance } from "../api/axiosInstance";
+import privateAxiosInstance, {
+  publicAxiosInstance,
+} from "../api/axiosInstance";
 
 /**
  * Registers a new user by sending the registration data to the server.
@@ -214,9 +216,53 @@ const otpResendService = async (email) => {
   }
 };
 
+/**
+ * Service for resetting password.
+ * @param {Object} formData - Conatining email, new password, confirmation password
+ * @returns - Role of the user, for navigating to corresponding login pages.
+ */
+const resetPasswordService = async (formData) => {
+  const { email, password, confirmPassword } = formData;
+
+  try {
+    const response = await privateAxiosInstance.post("/reset/password/", {
+      email,
+      new_password: password,
+      confirm_password: confirmPassword,
+    });
+    if (response.status >= 200 && response.status < 300) {
+      toast.success(
+        "Password changed successfully, Please login with new password",
+      );
+      return response.data; // Return the response data
+    } else {
+      toast.error("Error occurred while resetting the password.");
+    }
+  } catch (error) {
+    // Handle errors returned from the server
+    if (error.response) {
+      if (error.response.data.non_field_errors) {
+        toast.error(error.response.data.non_field_errors[0]);
+      } else {
+        // Handle other possible errors from the server
+        toast.error("An error occurred during password reset.");
+      }
+    } else if (error.request) {
+      // Handle errors where the server did not respond
+      toast.error("No response from server. Please try again.");
+    } else {
+      // Handle any other errors (such as network issues)
+      toast.error("An error occurred during password reset.");
+      console.log(error);
+    }
+    throw error; // Optionally re-throw the error if you want to handle it elsewhere
+  }
+};
+
 export {
   registerService,
   otpVerificationService,
   loginService,
   otpResendService,
+  resetPasswordService,
 };

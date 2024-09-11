@@ -16,9 +16,8 @@ const MentorLogin = () => {
     if (isAuthenticated) {
       if (role === "mentor") {
         navigate("/mentor");
-      }
-      else if(role === "student") {
-        navigate("/")
+      } else if (role === "student") {
+        navigate("/");
       }
     }
   }, []);
@@ -60,10 +59,16 @@ const MentorLogin = () => {
           <LoginForm role={"mentor"} />
           <div
             onClick={() => navigate("/login ")}
-            className={`mt-2 cursor-pointer bg-gray-50 p-1`}
+            className={`mr-2 mt-2 inline-block cursor-pointer p-1`}
           >
-            <p className={`font-serif text-gray-800`}>Login as Student</p>
+            <p className={`font-semibold text-gray-800`}>Login as Student</p>
           </div>
+          <p
+            onClick={() => navigate("/resetpassword")}
+            className={`mb-3 mt-2 inline-block cursor-pointer text-xs text-gray-800`}
+          >
+            Forgot password?
+          </p>
         </div>
       </div>
     </div>

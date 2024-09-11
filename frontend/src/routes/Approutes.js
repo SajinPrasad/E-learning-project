@@ -6,6 +6,7 @@ import {
   AdminLogin,
   MentorLogin,
   MentorRegister,
+  ResetPassword,
   StudentLogin,
   StudentRegister,
 } from "../pages/Auth";
@@ -31,6 +32,7 @@ const AppRoutes = () => {
       <Route path="/mentor-register" element={<MentorRegister />} />
       <Route path="/mentor-login" element={<MentorLogin />} />
       <Route path="/verification" element={<OTPVerificationForm />} />
+      <Route path="/resetpassword" element={<ResetPassword />} />
       <Route path="/" element={<Home />} />
       <Route path="/admin" element={<AdminLogin />} />
       <Route path="/course/:id" element={<CommonCourseDetails />} />
