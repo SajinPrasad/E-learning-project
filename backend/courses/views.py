@@ -187,6 +187,7 @@ class CourseUpdateView(UpdateAPIView):
 class CourseDetailView(RetrieveAPIView):
     """
     View only for retrieving the course details.
+    Common for all users.
     """
 
     permission_classes = [AllowAny]

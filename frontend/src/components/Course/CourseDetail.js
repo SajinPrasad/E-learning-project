@@ -194,13 +194,13 @@ const CourseDetail = ({ role }) => {
       <div className="relative hidden w-full items-center bg-[#4a4129] p-6 text-white md:flex md:flex-row">
         {/* Free Badge */}
         {course.price.amount === "0.00" && (
-          <span className="absolute left-0 top-0 m-4 rounded bg-slate-400 bg-opacity-60 p-2 font-sentinent-medium-italic">
+          <span className="absolute left-0 top-0 m-4 rounded bg-slate-300 bg-opacity-45 p-2 font-sentinent-medium-italic">
             * Free *
           </span>
         )}
 
         {/* Left Section: Title and Mentor Info */}
-        <div className="ml-4 w-full md:w-1/2">
+        <div className="ml-4 flex w-full flex-col gap-1 md:w-1/2">
           <h1 className="text-3xl font-bold text-white md:text-4xl">
             {course.title}
           </h1>
@@ -232,9 +232,10 @@ const CourseDetail = ({ role }) => {
           ₹ {course.price.amount}
         </span>
       </div>
+
       {/* Course status */}
       {role && (
-        <div className="mt-3 flex flex-col justify-start gap-2 rounded border border-gray-200 md:flex-row">
+        <div className="mx-auto mt-3 flex w-4/5 flex-col justify-start gap-2 rounded border border-gray-200 md:w-full md:flex-row">
           <div className="flex-col border-r border-gray-200">
             <div className="mt-4 w-48 px-6">
               <h3 className="text-lg font-bold md:text-2xl">Course Status</h3>
