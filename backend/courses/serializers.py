@@ -60,19 +60,21 @@ class SubCategorySerializer(ModelSerializer):
         return super().update(instance, validated_data)
 
 
-class LessonSerializer(ModelSerializer):
-    class Meta:
-        model = Lesson
-        fields = ["id", "title", "content", "video_file", "order"]
-
-
 class CourseRequirementSerializer(ModelSerializer):
+    """
+    For creating course requirement
+    """
+
     class Meta:
         model = CourseRequirement
         fields = ["id", "description"]
 
 
 class PriceSerializer(ModelSerializer):
+    """
+    For creating course price
+    """
+
     class Meta:
         model = Price
         fields = ["id", "amount"]
@@ -90,6 +92,17 @@ class FullURLImageField(ImageField):
         return self.context["request"].build_absolute_uri(
             f"{settings.MEDIA_URL}{value}"
         )
+
+
+class LessonSerializer(ModelSerializer):
+    """
+    Used for creating and retrieving purchased courses.
+    * Only used for retrieval if the course is purchased or free.
+    """
+
+    class Meta:
+        model = Lesson
+        fields = ["id", "title", "content", "video_file", "order"]
 
 
 class CourseListCreateSerializer(ModelSerializer):
@@ -182,6 +195,24 @@ class CourseUpdateSerializer(ModelSerializer):
             "status",
             "updated_at",
         ]
+
+
+class LessonContentSerializer(ModelSerializer):
+    """
+    Only to access the lesson content for courses which are not purchased by the user.
+    """
+
+    trimmed_content = SerializerMethodField(read_only=True) # Field for trimmed content.
+
+    class Meta:
+        model = Lesson
+        fields = ["id", "title", "trimmed_content", "order"]
+
+    def get_trimmed_content(self, obj):
+        """
+        Trimming the content to 205 characters maximum.
+        """
+        return obj.content[:205] + "..." if len(obj.content )> 205 else obj.contnet
 
 
 class LessonTitleSerializer(ModelSerializer):

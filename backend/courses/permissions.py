@@ -1,4 +1,5 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
+from .models import PurchasedCourse
 
 
 class MentorOnlyPermission(BasePermission):
@@ -35,13 +36,21 @@ class MentorOrAdminPermission(BasePermission):
         )
 
 
-class AdminOnlyPermission(BasePermission):
+class IsCoursePurchased(BasePermission):
     """
-    Custom permission, Only allows admins.
+    Custom permission to only allow access to purchased courses.
     """
+
+    message = "You need to purchase this course to access it."
 
     def has_permission(self, request, view):
-        return request.user.is_superuser
+        return True  # We'll manage access on the object level
 
     def has_object_permission(self, request, view, obj):
-        return request.user.is_superuser
+        # `obj` will be the course instance
+        if request.user.is_authenticated:
+            # Check if the user has purchased the course
+            return PurchasedCourse.objects.filter(
+                user=request.user, course=obj
+            ).exists()
+        return False

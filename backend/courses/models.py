@@ -145,3 +145,16 @@ class Price(models.Model):
 
     def __str__(self):
         return f"{self.amount} for {self.course.title}"
+
+
+class PurchasedCourse(models.Model):
+    """
+    Model for storing purchased courses of each user
+    """
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    purchased_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.course.title} purchased by {self.user.username}"

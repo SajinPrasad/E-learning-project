@@ -7,7 +7,6 @@ const CourseStatusChange = ({ isOpen, onClose, onSubmit, currentStatus }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(selectedStatus); // Pass the selected status to the parent component
-    onClose(); // Close the modal after submitting
   };
 
   if (!isOpen) return null; // Do not render if modal is not open

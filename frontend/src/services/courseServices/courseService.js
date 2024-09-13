@@ -203,9 +203,11 @@ const validateVideoFile = ({ file, setIsLoading }) => {
   });
 };
 
-const getLessonData = async (id) => {
+const getLessonContent = async (lessonId, courseId) => {
   try {
-    const response = await privateAxiosInstance.get(`/lesson/${id}`);
+    const response = await privateAxiosInstance.get(
+      `/lesson-content/${lessonId}?course_id=${courseId}`,
+    );
     // Check if the response indicates a successful retreval
     if (response.status >= 200 && response.status < 300) {
       return response.data; // Return the response data
@@ -213,7 +215,23 @@ const getLessonData = async (id) => {
       toast.error("Unexpected error!");
     }
   } catch (error) {
-    console.error(error);
+    handleError(error);
+  }
+};
+
+const getFullLessonData = async (lessonId, courseId) => {
+  try {
+    const response = await privateAxiosInstance.get(
+      `/lesson/${lessonId}?course_id=${courseId}`,
+    );
+    // Check if the response indicates a successful retreval
+    if (response.status >= 200 && response.status < 300) {
+      return response.data; // Return the response data
+    } else {
+      toast.error("Unexpected error!");
+    }
+  } catch (error) {
+    handleError(error);
   }
 };
 
@@ -256,7 +274,6 @@ const updateCourseStatus = async (id, newStatus) => {
     );
 
     if (response.status >= 200 && response.status < 300) {
-      console.log("Response: ", response);
       return response.data;
     } else {
       toast.error("Error while updating status!");
@@ -335,29 +352,44 @@ const updateCreateCourseSuggestion = async (method, suggestion, courseId) => {
  */
 const mentorChangingSuggestionStatus = async (suggestion) => {
   const { id, is_done } = suggestion;
-
+  console.log("Recieved in service: ", suggestion);
   const formData = new FormData();
   formData.append("is_done", is_done.toString());
 
-  try {
-    const response = await privateAxiosInstance.patch(
-      `/course/suggestion/${id}/`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
+  if (id) {
+    try {
+      const response = await privateAxiosInstance.patch(
+        `/course/suggestion/${id}/`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
-      },
-    );
-    console.log("Response:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error:",
-      error.response ? error.response.data : error.message,
-    );
-    handleError(error);
-    return null;
+      );
+      if (response && response.status >= 200 && response.status < 300) {
+        console.log(response.data);
+        if (response.data.is_done) {
+          toast.success("Successfully marked the suggestions as done.");
+        } else {
+          toast.success("Successfully marked the suggestions as not done.");
+        }
+
+        return response.data;
+      } else {
+        toast.error("Error while updating suggestion!");
+        return null;
+      }
+    } catch (error) {
+      console.error(
+        "Error:",
+        error.response ? error.response.data : error.message,
+      );
+      handleError(error);
+      return null;
+    }
+  } else {
+    return;
   }
 };
 
@@ -385,10 +417,11 @@ export {
   getCourses,
   getCourseDetails,
   validateVideoFile,
-  getLessonData,
+  getLessonContent,
   updateCourse,
   updateCourseStatus,
   updateCreateCourseSuggestion,
   mentorChangingSuggestionStatus,
   getActiveCourses,
+  getFullLessonData,
 };

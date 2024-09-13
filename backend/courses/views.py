@@ -5,13 +5,13 @@ from rest_framework.generics import RetrieveAPIView, UpdateAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED, HTTP_200_OK
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 import logging
 
 from .permissions import (
     MentorOnlyPermission,
     MentorOrAdminPermission,
-    AdminOnlyPermission,
+    IsCoursePurchased,
 )
 from .models import Category, Course, Lesson, Suggestion
 from .serializers import (
@@ -21,6 +21,7 @@ from .serializers import (
     CourseDetailSerializer,
     CourseListCreateSerializer,
     CourseSuggestionSerializer,
+    LessonContentSerializer,
     LessonSerializer,
 )
 
@@ -204,7 +205,63 @@ class CourseDetailView(RetrieveAPIView):
             return Course.objects.filter(mentor=user)
 
         return Course.objects.all()
-    
+
+
+class LessonContentView(RetrieveAPIView):
+    """
+    Acessed by all users.
+    Specifically for displaying lesson content publically.
+    Video not included.
+    """
+
+    permission_classes = [AllowAny]
+    serializer_class = LessonContentSerializer
+
+    # Filtering the course only for the purticular course
+    def get_queryset(self):
+        course_id = self.request.query_params.get("course_id")
+        return Lesson.objects.filter(course__id=course_id)
+
+
+class LessonDetailViewAdminMentorOrPurchasedStudent(RetrieveAPIView):
+    """
+    Accessed by admins, mentors and students for lesson retrieval.
+    * Admins and mentors who created the course can access the lesson data.
+    * Students who purchased the course can access the lesson data.
+    """
+
+    serializer_class = LessonSerializer
+
+    def get_permissions(self):
+        user = self.request.user
+
+        if user.role == "mentor":  # For Mentor user
+            return [MentorOnlyPermission()]  # Custom permission
+        elif user.is_superuser:
+            return [IsAdminUser()]  # For Admin user
+        else:
+            return [IsCoursePurchased()]  # Custom permission
+
+    def get_queryset(self):
+        """
+        * If the user is mentor, first check whether the course is created by the user.
+          Then filters the courses of that purticular couse.
+        * If the user is admin filters all lessons of the purticular course.
+        """
+        user = self.request.user
+
+        if user.is_superuser:
+            course_id = self.request.query_params.get("course_id")
+            return Lesson.objects.filter(course__id=course_id)
+        else:
+            course_id = self.request.query_params.get("course_id")
+            course = Course.objects.get(id=course_id)
+
+            if course.mentor == user:
+                return Lesson.objects.filter(course=course)
+            else:
+                return None
+
 
 class CourseSuggestionView(ModelViewSet):
     """
@@ -212,7 +269,7 @@ class CourseSuggestionView(ModelViewSet):
     * Admins can create the suggestion
     """
 
-    permission_classes = [AdminOnlyPermission]  # Custom permission
+    permission_classes = [IsAdminUser]  # Custom permission
     serializer_class = CourseSuggestionSerializer
     queryset = Suggestion.objects.all()
 
@@ -229,14 +286,3 @@ class CourseSuggestionUpdateView(UpdateAPIView):
     permission_classes = [MentorOnlyPermission]  # Custom permission
     serializer_class = CourseSuggestionSerializer
     queryset = Suggestion.objects.all()
-
-    def update(self, request, *args, **kwargs):
-        print("Request user:", request.user)
-        print("Request data:", request.data)
-        return super().update(request, *args, **kwargs)
-
-
-class LessonDataView(RetrieveAPIView):
-    permission_classes = [AllowAny]
-    serializer_class = LessonSerializer
-    queryset = Lesson.objects.all()

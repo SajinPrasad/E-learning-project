@@ -1,6 +1,6 @@
 import React from "react";
 
-import { CourseDetail } from "../../components/Course";
+import { StudentCourseDetails } from "../../components/Course";
 import { Header } from "../../components/common";
 
 /**
@@ -11,7 +11,7 @@ const CommonCourseDetails = () => {
   return (
     <>
       <Header />
-      <CourseDetail />
+      <StudentCourseDetails />
     </>
   );
 };

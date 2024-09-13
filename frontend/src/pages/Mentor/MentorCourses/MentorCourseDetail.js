@@ -1,6 +1,9 @@
 import React from "react";
 
-import { CourseDetail } from "../../../components/Course";
+import {
+  AdminMentorCouseDetail,
+  CourseDetail,
+} from "../../../components/Course";
 import { useSelector } from "react-redux";
 import { MentorLayout } from "../../../components/Mentor";
 
