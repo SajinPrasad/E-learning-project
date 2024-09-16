@@ -1,8 +1,10 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+
 import { IconProfile, Logout, Settings } from "./Icons";
 import { clearUserInfo } from "../../features/tempUser/userSlice";
 import { clearToken } from "../../features/auth/authSlice";
+import { clearCartItems } from "../../features/cartItem/cartItemSlice";
 
 /**
  * Renders the dropdown from the profile icon on header.
@@ -12,10 +14,11 @@ const ProfileDropdown = () => {
   const dispatch = useDispatch();
 
   // Function to handle logout.
-  const handleLogout = async () => {
+  const handleLogout = () => {
     // Clearing the user information from state.
-    await dispatch(clearUserInfo());
-    await dispatch(clearToken());
+    dispatch(clearToken());
+    dispatch(clearUserInfo());
+    dispatch(clearCartItems());
   };
 
   return (

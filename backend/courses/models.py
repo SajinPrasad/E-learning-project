@@ -147,14 +147,28 @@ class Price(models.Model):
         return f"{self.amount} for {self.course.title}"
 
 
-class PurchasedCourse(models.Model):
+class Enrollment(models.Model):
     """
-    Model for storing purchased courses of each user
+    Model for storing purchased courses (enrollments) of each user
     """
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="enrollments")
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE, related_name="enrollments"
+    )
     purchased_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        # A user can purchase a course once, this constrint esures the uniqueness.
+        constraints = [
+            models.UniqueConstraint(fields=["user", "course"], name="unique_enrollment")
+        ]
 
     def __str__(self):
         return f"{self.course.title} purchased by {self.user.username}"
+
+    @property
+    def is_completed(self):
+        # Logic to implement couse completion (For later use)
+        pass

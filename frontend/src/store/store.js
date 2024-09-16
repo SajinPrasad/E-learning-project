@@ -13,6 +13,7 @@ import {
 
 import {
   authReducer,
+  cartItemReducer,
   courseCategoryReducer,
   courseReducer,
   tempUserReducer,
@@ -70,6 +71,16 @@ const persistedCourseReducer = persistReducer(
   courseReducer,
 );
 
+const cartItemPersistConfig = {
+  key: "cartItem",
+  storage,
+};
+
+const persistedCartItemReducer = persistReducer(
+  cartItemPersistConfig,
+  cartItemReducer,
+);
+
 // Combine your reducers
 const rootReducer = combineReducers({
   tempUser: persistedTempUserReducer,
@@ -77,6 +88,7 @@ const rootReducer = combineReducers({
   auth: persistedAuthReducer,
   courseCategory: persistedCategoryReducer,
   course: persistedCourseReducer,
+  cartItem: persistedCartItemReducer,
 });
 
 // Configure store with reducers and middleware

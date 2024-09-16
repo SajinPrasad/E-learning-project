@@ -7,12 +7,16 @@ import {
 } from "../../services/courseServices/courseService";
 import { Loading } from "../common";
 import { DropDownArrow, DropUpArrow } from "../common/Icons";
+import { createCartItems } from "../../services/cartServices";
+import { addItemToCart } from "../../features/cartItem/cartItemSlice";
+import { useDispatch } from "react-redux";
 
 const StudentCourseDetails = () => {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedLessonIds, setExpandedLessonIds] = useState([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchCourseDetail = async () => {
@@ -27,6 +31,13 @@ const StudentCourseDetails = () => {
     };
     fetchCourseDetail();
   }, [id]);
+
+  const handleAddCartItem = async () => {
+    const newItem = await createCartItems(id);
+    if (newItem) {
+      dispatch(addItemToCart(newItem));
+    }
+  };
 
   const handleLessonToggle = async (lessonId) => {
     // Check if the lesson is already expanded and has content
@@ -197,6 +208,7 @@ const StudentCourseDetails = () => {
               <button
                 type="submit"
                 className="mt-5 h-12 w-full bg-theme-primary text-center font-bold text-white"
+                onClick={handleAddCartItem}
               >
                 Add to cart
               </button>

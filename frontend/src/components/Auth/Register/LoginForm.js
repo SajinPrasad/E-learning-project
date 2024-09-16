@@ -10,6 +10,8 @@ import { formStyles } from ".";
 import { setUserInfo } from "../../../features/tempUser/userSlice";
 import { Loading } from "../../common";
 import { setToken } from "../../../features/auth/authSlice";
+import { getCartItems } from "../../../services/cartServices";
+import { setCartItems } from "../../../features/cartItem/cartItemSlice";
 
 // Validation schema for Formik
 const LoginSchema = Yup.object().shape({
@@ -80,6 +82,13 @@ const LoginForm = ({ role }) => {
     );
   };
 
+  const handleFetchingCartItems = async () => {
+    const cartItems = await getCartItems();
+    if (cartItems) {
+      dispatch(setCartItems(cartItems));
+    }
+  };
+
   return (
     <div className={`flex justify-center`}>
       {loading ? (
@@ -128,8 +137,10 @@ const LoginForm = ({ role }) => {
                 showUnauthorizedAlert(navigate, response.user.role);
               }
             } catch (error) {
-              setLoading(false);
               throw error;
+            } finally {
+              handleFetchingCartItems();
+              setLoading(false);
             }
 
             setSubmitting(false);

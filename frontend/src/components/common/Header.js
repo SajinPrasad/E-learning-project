@@ -3,13 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 import ProfileDropdown from "./ProfileDropdown";
+import { CartIcon } from "./Icons";
+import { getCartItems } from "../../services/cartServices";
 
 /**
  * Header component
  */
 const Header = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, firstName, lastName } = useSelector(
+  const { isAuthenticated, firstName, lastName, role } = useSelector(
     (state) => state.user,
   );
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -26,6 +28,8 @@ const Header = () => {
       setIsDropdownOpen(false);
     }
   };
+
+  const cartItems = useSelector((state) => state.cartItem.items);
 
   // Adds an event listener to detect clicks outside the dropdown when it is open.
   // Removes the event listener when the dropdown is closed or when the component unmounts.
@@ -63,16 +67,16 @@ const Header = () => {
               className={`mb-5 flex flex-wrap items-center text-base md:mb-0 md:ml-8 md:border-l md:border-gray-200 md:pl-8`}
             >
               <a
-                href="#_"
-                className={`mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900`}
+                onClick={() => navigate("/")}
+                className={`mr-5 cursor-pointer font-medium leading-6 text-gray-600 hover:text-gray-900`}
               >
                 Home
               </a>
               <a
-                href="#_"
-                className={`mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900`}
+                onClick={() => navigate("/")}
+                className={`cursor-pointe mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900`}
               >
-                Features
+                Courses
               </a>
               <a
                 href="#_"
@@ -88,6 +92,21 @@ const Header = () => {
               </a>
             </nav>
           </div>
+
+          {isAuthenticated && role == "student" && (
+            <div
+              onClick={() => navigate("/cart")}
+              className="relative mb-2 cursor-pointer md:mb-0 md:ml-auto"
+            >
+              <CartIcon />
+              {/* Overlaping circle with cart item numbers */}
+              {cartItems.length > 0 && (
+                <div className="absolute left-0 top-0 flex h-[18px] w-[18px] -translate-x-1/2 -translate-y-1/2 transform items-center justify-center rounded-full bg-theme-primary font-semibold text-xs text-white hover:bg-purple-600">
+                  {cartItems.length}
+                </div>
+              )}
+            </div>
+          )}
 
           {isAuthenticated ? (
             <div

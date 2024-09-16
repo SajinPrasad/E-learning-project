@@ -23,6 +23,7 @@ import {
 import ProtectedRoutes from "./ProtectedRoutes";
 import { CourseCategories } from "../components/Course";
 import { CommonCourseDetails, Home } from "../pages/Home";
+import { CartPage } from "../pages/Cart";
 
 const AppRoutes = () => {
   return (
@@ -36,6 +37,7 @@ const AppRoutes = () => {
       <Route path="/" element={<Home />} />
       <Route path="/admin" element={<AdminLogin />} />
       <Route path="/course/:id" element={<CommonCourseDetails />} />
+      <Route path="/cart/" element={<CartPage />} />
       <Route element={<ProtectedRoutes />}>
         <Route path="/mentor" element={<MentorDashBoard />} />
         <Route path="/mentor/courses" element={<MenotrCourses />} />

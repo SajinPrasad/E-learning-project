@@ -1,5 +1,5 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
-from .models import PurchasedCourse
+from .models import Enrollment
 
 
 class MentorOnlyPermission(BasePermission):
@@ -50,7 +50,7 @@ class IsCoursePurchased(BasePermission):
         # `obj` will be the course instance
         if request.user.is_authenticated:
             # Check if the user has purchased the course
-            return PurchasedCourse.objects.filter(
+            return Enrollment.objects.filter(
                 user=request.user, course=obj
             ).exists()
         return False
