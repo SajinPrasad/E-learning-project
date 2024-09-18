@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "users",
     "courses",
     "cart",
+    "paypal_payments",
 ]
 
 MIDDLEWARE = [
@@ -231,6 +232,14 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+PAYPAL_MODE = "sandbox"
+PAYPAL_CLIENT_ID = (
+    "AegV4jdwpguvPZaGFthgRFbNKZ-F7SsYAm0MomkehiL-BLyaOdEiZfbPw0dUxTn0tGs1gIQ8gKQJXv8x"
+)
+PAYPAL_CLIENT_SECRET = (
+    "EL8V2TiDZSPQXMV9AyeNCwiiX8vptVfMOn4OW6buC5IePch_eMQU2j_ZT1j6OZKOL72NV-tO9LgLtk0k"
+)
 
 LOGGING = {
     "version": 1,

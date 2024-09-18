@@ -11,6 +11,8 @@ from .views import (
     LessonContentView,
     CourseListView,
     CourseSuggestionUpdateView,
+    EnrolledCoursesListView,
+    AuthenticatedCourseListView,
 )
 
 router = DefaultRouter()
@@ -36,5 +38,15 @@ urlpatterns = [
         name="suggestion",
     ),
     path("courses/", CourseListView.as_view(), name="course"),
-    path("lesson/<int:pk>/", LessonDetailViewAdminMentorOrPurchasedStudent.as_view(), name="lesson-data"),
+    path(
+        "courses-authenticated/",
+        AuthenticatedCourseListView.as_view(),
+        name="courses-authenticated",
+    ),
+    path(
+        "lesson/<int:pk>/",
+        LessonDetailViewAdminMentorOrPurchasedStudent.as_view(),
+        name="lesson-data",
+    ),
+    path("enrolledcourses/", EnrolledCoursesListView.as_view(), name="enrolledcourses"),
 ]

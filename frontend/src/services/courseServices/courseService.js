@@ -113,6 +113,41 @@ const getCourses = async (setIsLoading) => {
   }
 };
 
+const getCoursesForAuthenticatedUser = async (setIsLoading) => {
+  try {
+    const response = await privateAxiosInstance.get("courses-authenticated/");
+    if (response.status >= 200 && response.status < 300) {
+      return response.data;
+    } else {
+      toast.error("Error while fetching Courses!");
+      setIsLoading(false);
+    }
+  } catch (error) {
+    if (error.response) {
+      // Handle client or server errors
+      const statusCode = error.response.status;
+      if (statusCode >= 400 && statusCode < 500) {
+        toast.error("Request error. Please check your permissions.");
+        setIsLoading(false);
+      } else if (statusCode >= 500) {
+        toast.error("Server error. Please try again later.");
+        setIsLoading(false);
+      }
+    } else if (error.request) {
+      // Handle no response from server
+      toast.error(
+        "No response received from server. Please check your network connection.",
+      );
+      setIsLoading(false);
+    } else {
+      // Handle unexpected errors (e.g., network issues, etc.)
+      toast.error("An unexpected error occurred. Please try again.");
+      setIsLoading(false);
+    }
+    throw error; // Rethrow the error to be handled by the calling code if necessary
+  }
+};
+
 /**
  * Fetching the course details only for admins and mentors.
  * Contains additional information like suggestion and status.
@@ -224,6 +259,7 @@ const getFullLessonData = async (lessonId, courseId) => {
     const response = await privateAxiosInstance.get(
       `/lesson/${lessonId}?course_id=${courseId}`,
     );
+    console.log(response)
     // Check if the response indicates a successful retreval
     if (response.status >= 200 && response.status < 300) {
       return response.data; // Return the response data
@@ -393,6 +429,13 @@ const mentorChangingSuggestionStatus = async (suggestion) => {
   }
 };
 
+const getEnrolledCourses = async () => {
+  const response = await privateAxiosInstance.get("/enrolledcourses/");
+  if (response && response.status >= 200 && response.status < 300) {
+    return response.data;
+  }
+};
+
 // Separate function to handle different error cases
 const handleError = (error) => {
   if (error.response) {
@@ -424,4 +467,6 @@ export {
   mentorChangingSuggestionStatus,
   getActiveCourses,
   getFullLessonData,
+  getEnrolledCourses,
+  getCoursesForAuthenticatedUser,
 };

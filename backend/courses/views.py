@@ -5,15 +5,20 @@ from rest_framework.generics import RetrieveAPIView, UpdateAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED, HTTP_200_OK
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 import logging
+from rest_framework.authentication import (
+    SessionAuthentication,
+    TokenAuthentication,
+    BasicAuthentication,
+)
 
 from .permissions import (
     MentorOnlyPermission,
     MentorOrAdminPermission,
     IsCoursePurchased,
 )
-from .models import Category, Course, Lesson, Suggestion
+from .models import Category, Course, Enrollment, Lesson, Suggestion
 from .serializers import (
     CategorySerializer,
     CourseUpdateSerializer,
@@ -23,6 +28,7 @@ from .serializers import (
     CourseSuggestionSerializer,
     LessonContentSerializer,
     LessonSerializer,
+    CourseEnrollementSerializer,
 )
 
 # Create your views here.
@@ -153,12 +159,36 @@ class CourseListCreateView(APIView):
 class CourseListView(ListAPIView):
     """
     Public course listing view.
-    Only listing approved courses
+    Only listing approved courses.
     """
 
     permission_classes = [AllowAny]
     serializer_class = CourseListCreateSerializer
     queryset = Course.objects.filter(status="approved")
+
+
+class AuthenticatedCourseListView(ListAPIView):
+    """ """
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = CourseListCreateSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        print("User auth: ", user.is_authenticated, user)
+
+        # If the user is authenticated, filter out the courses they are enrolled in
+        if user.is_authenticated:
+            enrolled_courses_ids = Enrollment.objects.filter(user=user).values_list(
+                "course", flat=True
+            )
+            print("Course id: ", enrolled_courses_ids)
+            return Course.objects.filter(status="approved").exclude(
+                id__in=enrolled_courses_ids
+            )
+
+        # If the user is not authenticated, return all approved courses
+        return Course.objects.filter(status="approved")
 
 
 class CourseUpdateView(UpdateAPIView):
@@ -240,23 +270,29 @@ class LessonDetailViewAdminMentorOrPurchasedStudent(RetrieveAPIView):
         elif user.is_superuser:
             return [IsAdminUser()]  # For Admin user
         else:
-            return [IsCoursePurchased()]  # Custom permission
+            # return [IsCoursePurchased()]  # Custom permission
+            return [IsAuthenticated()]
 
     def get_queryset(self):
-        """
-        * If the user is mentor, first check whether the course is created by the user.
-          Then filters the courses of that purticular couse.
-        * If the user is admin filters all lessons of the purticular course.
-        """
         user = self.request.user
+        course_id = self.request.query_params.get("course_id")
+
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return None  # Handle the case when the course doesn't exist
 
         if user.is_superuser:
-            course_id = self.request.query_params.get("course_id")
-            return Lesson.objects.filter(course__id=course_id)
-        else:
-            course_id = self.request.query_params.get("course_id")
-            course = Course.objects.get(id=course_id)
+            return Lesson.objects.filter(course=course)
 
+        elif user.role == "student":
+            if Enrollment.objects.filter(user=user, course=course).exists():
+                print("User enrolled the course: ", course)
+                return Lesson.objects.filter(course=course)
+            else:
+                return None
+
+        elif user.role == "mentor":
             if course.mentor == user:
                 return Lesson.objects.filter(course=course)
             else:
@@ -286,3 +322,16 @@ class CourseSuggestionUpdateView(UpdateAPIView):
     permission_classes = [MentorOnlyPermission]  # Custom permission
     serializer_class = CourseSuggestionSerializer
     queryset = Suggestion.objects.all()
+
+
+class EnrolledCoursesListView(ListAPIView):
+    serializer_class = CourseEnrollementSerializer
+    permission_classes = [IsAuthenticated, IsCoursePurchased]
+
+    def get_queryset(self):
+        print(
+            "User auth in enrolled caurse: ",
+            self.request.user,
+            self.request.user.is_authenticated,
+        )
+        return Enrollment.objects.filter(user=self.request.user, is_active=True)

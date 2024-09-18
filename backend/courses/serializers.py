@@ -11,7 +11,15 @@ import logging
 from django.conf import settings
 from django.db import transaction
 
-from .models import Category, Lesson, Course, CourseRequirement, Price, Suggestion
+from .models import (
+    Category,
+    Lesson,
+    Course,
+    CourseRequirement,
+    Price,
+    Suggestion,
+    Enrollment,
+)
 from .utils import validate_course
 
 logger = logging.getLogger(__name__)
@@ -202,7 +210,9 @@ class LessonContentSerializer(ModelSerializer):
     Only to access the lesson content for courses which are not purchased by the user.
     """
 
-    trimmed_content = SerializerMethodField(read_only=True) # Field for trimmed content.
+    trimmed_content = SerializerMethodField(
+        read_only=True
+    )  # Field for trimmed content.
 
     class Meta:
         model = Lesson
@@ -212,7 +222,7 @@ class LessonContentSerializer(ModelSerializer):
         """
         Trimming the content to 205 characters maximum.
         """
-        return obj.content[:205] + "..." if len(obj.content )> 205 else obj.contnet
+        return obj.content[:205] + "..." if len(obj.content) > 205 else obj.contnet
 
 
 class LessonTitleSerializer(ModelSerializer):
@@ -286,3 +296,11 @@ class CourseStatusUpdateSerializer(ModelSerializer):
         instance.save()
 
         return instance
+
+
+class CourseEnrollementSerializer(ModelSerializer):
+    course = CourseListCreateSerializer()
+
+    class Meta:
+        model = Enrollment
+        fields = ["course", "purchased_at"]

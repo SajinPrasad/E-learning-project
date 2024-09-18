@@ -1,55 +1,47 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
-import { checkoutService, removeCartItem } from "../../services/cartServices";
+import { Loading, PayPalButton } from "../common";
+import { removeCartItem } from "../../services/cartServices";
 import { deleteCartItem } from "../../features/cartItem/cartItemSlice";
-import { Loading } from "../common";
 
-const Cart = () => {
+const ConfirmOrder = () => {
   const cartItems = useSelector((state) => state.cartItem.items);
-  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [error, setError] = useState(null);
 
-  const handleDeleteCartItem = async (id) => {
-    setIsLoading(true);
-    await removeCartItem(id);
-    dispatch(deleteCartItem(id));
-    setIsLoading(false);
-  };
+  const handleRemoveItem = useCallback(
+    async (itemId) => {
+      setIsLoading(true);
+      try {
+        await removeCartItem(itemId);
+        dispatch(deleteCartItem(itemId));
+      } catch (error) {
+        console.error("Failed to remove item:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [dispatch],
+  );
 
-  if (!isAuthenticated) {
-    return (
-      <div
-        onClick={() => navigate("/login")}
-        className="flex h-screen items-center justify-center"
-      >
-        <p className="cursor-pointer text-center font-bold hover:text-gray-700 sm:text-2xl md:text-3xl lg:text-4xl">
-          Please login to access cart
-        </p>
-      </div>
-    );
-  }
-  console.log(cartItems)
   if (isLoading) {
     return <Loading />;
   }
 
   return (
     <div className="container mx-auto p-4 md:p-8">
-      <h1 className="mb-6 text-2xl md:text-3xl font-bold">Shopping Cart</h1>
+      <h1 className="mb-6 text-3xl font-bold">Confirm your order</h1>
 
-      {/* Grid Container */}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        {/* Courses and Saved for Later (Spanning 2 columns on larger screens) */}
         <div className="lg:col-span-2">
-          {/* Courses in Cart */}
           <div className="mb-8">
             <h2 className="mb-4 text-xl font-semibold">
               {cartItems.length} {cartItems.length > 1 ? "Courses" : "Course"}{" "}
-              in Cart
+              Selected
             </h2>
             {cartItems.length > 0 ? (
               cartItems.map((item) => (
@@ -80,7 +72,7 @@ const Cart = () => {
                     </p>
                     <div className="mt-2">
                       <button
-                        onClick={() => handleDeleteCartItem(item.id)}
+                        onClick={() => handleRemoveItem(item.id)}
                         className="mr-4 text-theme-primary hover:underline"
                       >
                         Remove
@@ -104,35 +96,22 @@ const Cart = () => {
           </div>
         </div>
 
-        {/* Summary and Promotions (Spanning 1 column on larger screens) */}
-        {cartItems && <div className="self-start rounded bg-white p-4 shadow-md md:p-8">
-          <h2 className="mb-4 text-xl font-semibold">
-            Total: ₹{cartItems[cartItems.length-1]?.cart.total_price}
-          </h2>
-          <button
-            onClick={() => navigate("/confirm-order")}
-            className="w-full rounded bg-theme-primary py-2 text-lg font-semibold text-white hover:bg-purple-700"
-          >
-            Checkout
-          </button>
-
-          {/* <div className="mt-4">
-            <h3 className="mb-2 text-lg font-semibold">Promotions</h3>
-            <div className="flex">
-              <input
-                type="text"
-                placeholder="Enter Coupon"
-                className="flex-1 rounded-l border border-gray-300 px-4 py-2"
+        {cartItems && (
+          <div className="self-start rounded bg-white p-4 shadow-md md:p-8">
+            <h2 className="mb-4 text-xl font-semibold">
+              Total: ₹{cartItems[cartItems.length - 1]?.cart.total_price}
+            </h2>
+            {cartItems.length > 0 && (
+              <PayPalButton
+                cartItems={cartItems}
+                onError={(errorMessage) => setError(errorMessage)}
               />
-              <button className="rounded-r bg-theme-primary px-4 py-2 text-white hover:bg-purple-700">
-                Apply
-              </button>
-            </div>
-          </div> */}
-        </div>}
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default Cart;
+export default ConfirmOrder;

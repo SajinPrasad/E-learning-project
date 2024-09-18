@@ -16,6 +16,7 @@ import {
   cartItemReducer,
   courseCategoryReducer,
   courseReducer,
+  enrolledCourseReducer,
   tempUserReducer,
   userReducer,
 } from "../features";
@@ -71,6 +72,16 @@ const persistedCourseReducer = persistReducer(
   courseReducer,
 );
 
+const enrolledCoursePersistConfig = {
+  key: "enrolledCourse",
+  storage,
+};
+
+const persistedEnrolledCourseReducer = persistReducer(
+  coursePersistConfig,
+  enrolledCourseReducer,
+);
+
 const cartItemPersistConfig = {
   key: "cartItem",
   storage,
@@ -89,6 +100,7 @@ const rootReducer = combineReducers({
   courseCategory: persistedCategoryReducer,
   course: persistedCourseReducer,
   cartItem: persistedCartItemReducer,
+  enrolledCourse: persistedEnrolledCourseReducer,
 });
 
 // Configure store with reducers and middleware

@@ -7,3 +7,5 @@ export { default as courseStyles } from "./Course.module.css";
 export { default as CourseStatusChange } from "./CourseStatusChange";
 export { default as AdminMentorCouseDetail } from "./AdminMentorCouseDetail";
 export { default as StudentCourseDetails } from "./StudentCourseDetails";
+export { default as EnrolledCourses } from "./EnrolledCourses";
+export { default as FullCourseView } from "./FullCourseView";

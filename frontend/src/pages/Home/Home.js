@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
 import {
   Banner,
   ContentHeading,
   Header,
   Loading,
 } from "../../components/common";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { getActiveCourses } from "../../services/courseServices/courseService";
+import {
+  getActiveCourses,
+  getCoursesForAuthenticatedUser,
+  getEnrolledCourses,
+} from "../../services/courseServices/courseService";
 import { CourseCard } from "../../components/Course";
+import { setCoursesState } from "../../features/course/courseSlice";
+import { setEnrolledCoursesState } from "../../features/course/enrolledCoursesState";
 
 /**
  * Renders the home page.
@@ -18,14 +25,31 @@ const Home = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [courses, setCourses] = useState([]);
+  const [enrolledCourses, setEnrolledCourses] = useState(null);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchCourses = async () => {
       setIsLoading(true);
       try {
-        const fetchedCourses = await getActiveCourses(setIsLoading);
-        if (fetchedCourses) {
-          setCourses(fetchedCourses);
+        if (isAuthenticated) {
+          const fetchedCourses =
+            await getCoursesForAuthenticatedUser(setIsLoading);
+          if (fetchedCourses) {
+            setCourses(fetchedCourses);
+            dispatch(setCoursesState(fetchedCourses));
+          }
+          const fetchedEnrolledCourses = await getEnrolledCourses();
+          if (fetchedEnrolledCourses) {
+            setEnrolledCourses(fetchedEnrolledCourses);
+            dispatch(setEnrolledCoursesState(fetchedEnrolledCourses));
+          }
+        } else {
+          const fetchedCourses = await getActiveCourses(setIsLoading);
+          if (fetchedCourses) {
+            setCourses(fetchedCourses);
+            dispatch(setCoursesState(fetchedCourses));
+          }
         }
       } catch (error) {
         console.error("Error in useEffect while fetching courses:", error);
@@ -37,6 +61,8 @@ const Home = () => {
     fetchCourses();
   }, []);
 
+  console.log("Enrolled courses: ", enrolledCourses);
+
   if (isLoading) {
     return <Loading />;
   }
@@ -46,7 +72,36 @@ const Home = () => {
       <Header />
       <Banner />
       {/** Courses */}
-      <div className="mt-3 rounded border border-gray-200 p-3 m-3 md:p-8">
+      {enrolledCourses && (
+        <div className="m-3 mt-3 rounded border border-gray-200 p-3 md:p-8">
+          <div
+            onClick={() => navigate("/enrolled-courses")}
+            className="w-auto cursor-pointer"
+          >
+            <ContentHeading text={"Your Courses"} />
+          </div>
+
+          <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {enrolledCourses.map((item) => (
+              <div
+                key={item.course.id}
+                className="flex cursor-pointer items-start rounded border border-gray-300 p-4"
+              >
+                <img
+                  src={item.course.preview_image}
+                  alt={item.course.title}
+                  className="h-28 w-28 mr-2 md:mr-0 rounded object-cover md:h-32 md:w-32"
+                />
+                <div className="mt-2 flex flex-col self-center md:ml-4 md:mt-0">
+                  <h3 className="text-lg font-semibold">{item.course.title}</h3>
+                  <p className="text-gray-600">{item.course.mentor_name}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="m-3 mt-3 rounded border border-gray-200 p-3 md:p-8">
         <ContentHeading text={"Courses"} />
         <div className="mt-6 grid gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {courses.map((course) => (
@@ -54,6 +109,16 @@ const Home = () => {
           ))}
         </div>
       </div>
+      {/* {enrolledCourses && (
+        <div className="m-3 mt-3 rounded border border-gray-200 p-3 md:p-8">
+          <ContentHeading text={"Enrolled Courses"} />
+          <div className="mt-6 grid gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            {enrolledCourses.map((course) => (
+              <CourseCard key={course.id} course={course} />
+            ))}
+          </div>
+        </div>
+      )} */}
     </>
   );
 };

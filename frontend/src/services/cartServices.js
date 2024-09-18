@@ -56,6 +56,31 @@ const removeCartItem = async (id) => {
   }
 };
 
+const checkoutService = async (cartItems) => {
+  const course_ids = cartItems.map((cartItem) => cartItem.course.id);
+
+  // Prepare data as JSON (if backend expects JSON)
+  const orderData = {
+    course_ids: course_ids, // Include course IDs as an array property
+  };
+
+  try {
+    const response = await privateAxiosInstance.post(
+      "order-create/",
+      JSON.stringify(orderData), // Send data as JSON
+    );
+
+    if (response.status >= 200 && response.status < 300) {
+      console.log(response);
+      return response;
+    } else {
+      throw new Error(`Order creation failed with status: ${response.status}`); // Handle non-2xx responses as errors
+    }
+  } catch (error) {
+    handleError(error);
+  }
+};
+
 // Separate function to handle different error cases
 const handleError = (error) => {
   if (error.response) {
@@ -103,4 +128,4 @@ const handleError = (error) => {
   }
 };
 
-export { getCartItems, createCartItems, removeCartItem };
+export { getCartItems, createCartItems, removeCartItem, checkoutService };
