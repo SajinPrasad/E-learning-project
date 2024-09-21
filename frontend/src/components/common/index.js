@@ -7,3 +7,4 @@ export { default as Card } from "./Card";
 export { default as CategoryDropdown } from "./CategoryDropdown";
 export { default as ContentHeading } from "./ContentHeading";
 export { default as PayPalButton } from "./PayPalButton";
+export { default as ProfileSkeleton } from "./ProfileSkeleton";

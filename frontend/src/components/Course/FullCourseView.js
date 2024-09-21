@@ -1,16 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import {
   getCourseDetails,
   getFullLessonData,
 } from "../../services/courseServices/courseService";
 import { useParams } from "react-router-dom";
+import CourseOverview from "./CourseOverview";
 
 const FullCourseView = () => {
   const { id } = useParams();
   const [courseDetails, setCourseDetails] = useState({});
   const [currentLesson, setCurrentLesson] = useState({});
-  const [lessons, setLessons] = useState();
+  const [currentLessonIndex, setCurrentLessonIndex] = useState(0); // Track lesson index
+  const [selected, setSelected] = useState("lessons");
+  const [showMore, setShowMore] = useState(false); // State to manage "see more"
+  const [showArrows, setShowArrows] = useState(true); // State to manage arrow visibility
+
+  const videoRef = useRef(null); // Ref to control video events
+  let hideArrowsTimeout; // Timeout for hiding arrows
 
   useEffect(() => {
     const fetchLessonContent = async () => {
@@ -22,44 +29,176 @@ const FullCourseView = () => {
           id,
         );
         setCurrentLesson(firstLessonData);
+        setCurrentLessonIndex(0); // Set index to 0 for first lesson
       }
     };
     fetchLessonContent();
   }, [id]);
 
-  const handleChangingLessons = async (lessonId) => {
+  const handleChangingLessons = async (lessonId, index) => {
     const lessonData = await getFullLessonData(lessonId, id);
     if (lessonData) {
       setCurrentLesson(lessonData);
+      setCurrentLessonIndex(index);
     }
   };
 
-  console.log(currentLesson.video_file);
+  const handleNextLesson = () => {
+    if (currentLessonIndex < courseDetails.lessons.length - 1) {
+      const nextLesson = courseDetails.lessons[currentLessonIndex + 1];
+      handleChangingLessons(nextLesson.id, currentLessonIndex + 1);
+    }
+  };
+
+  const handlePreviousLesson = () => {
+    if (currentLessonIndex > 0) {
+      const prevLesson = courseDetails.lessons[currentLessonIndex - 1];
+      handleChangingLessons(prevLesson.id, currentLessonIndex - 1);
+    }
+  };
+
+  // Function to display a limited number of words
+  const displayLimitedWords = (text, wordLimit) => {
+    const words = text.split(" ");
+    if (words.length > wordLimit) {
+      return words.slice(0, wordLimit).join(" ") + "...";
+    }
+    return text;
+  };
+
+  // Hide arrows after 3 seconds of playing video
+  const hideArrows = () => {
+    hideArrowsTimeout = setTimeout(() => setShowArrows(false), 1000);
+  };
+
+  // Reset the hiding arrows timer on mouse movement
+  const handleMouseMove = () => {
+    setShowArrows(true); // Show the arrows when mouse moves
+    clearTimeout(hideArrowsTimeout); // Clear any existing hide timer
+    hideArrows(); // Set a new timer to hide after 3 seconds
+  };
+
+  // Start hiding arrows when the video starts playing
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.addEventListener("play", hideArrows);
+      videoRef.current.addEventListener("mousemove", handleMouseMove);
+    }
+
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.removeEventListener("play", hideArrows);
+        videoRef.current.removeEventListener("mousemove", handleMouseMove);
+      }
+      clearTimeout(hideArrowsTimeout); // Clean up the timeout
+    };
+  }, [currentLessonIndex]);
+
   return (
-    <div className="w-full p-4">
+    <div className="w-full">
       {/* Video Container */}
-      <div className="mb-6 w-full">
+      <div className="relative mb-3 w-full">
         <video
           controls
           src={currentLesson?.video_file}
-          className="h-auto max-h-[75vh] w-full rounded-md border border-gray-300 shadow-lg"
+          className="h-auto max-h-[75vh] w-full rounded border border-gray-300 shadow-lg"
+          ref={videoRef} // Reference to video element
         />
+        {/* Previous and Next Arrows */}
+        {showArrows && (
+          <>
+            <button
+              onClick={handlePreviousLesson}
+              disabled={currentLessonIndex === 0}
+              className={`absolute left-2 top-1/2 -translate-y-1/2 transform rounded bg-gray-800 p-3 text-2xl text-white shadow-lg ${
+                currentLessonIndex === 0 && "cursor-not-allowed opacity-50"
+              }`}
+            >
+              &larr; {/* Left Arrow */}
+            </button>
+            <button
+              onClick={handleNextLesson}
+              disabled={
+                currentLessonIndex === courseDetails.lessons?.length - 1
+              }
+              className={`absolute right-2 top-1/2 -translate-y-1/2 transform rounded bg-gray-800 p-3 text-2xl text-white shadow-lg ${
+                currentLessonIndex === courseDetails.lessons?.length - 1 &&
+                "cursor-not-allowed opacity-50"
+              }`}
+            >
+              &rarr; {/* Right Arrow */}
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* About the Lesson */}
+      <div className="mb-4 mt-1 p-2 md:mx-auto md:w-2/3">
+        <h2 className="text-md mb-2 font-bold md:text-xl">About the lesson</h2>
+        <h5 className="text-gray-700">
+          {/* Show limited content initially, expand when "See more" is clicked */}
+          {showMore
+            ? currentLesson?.content || ""
+            : displayLimitedWords(currentLesson?.content || "", 5)}
+          {!showMore && currentLesson?.content?.split(" ").length > 5 && (
+            <span
+              className="cursor-pointer text-xs font-semibold text-blue-400"
+              onClick={() => setShowMore(true)}
+            >
+              {" "}
+              See more
+            </span>
+          )}
+          {showMore && (
+            <span
+              className="cursor-pointer text-xs font-semibold text-blue-400"
+              onClick={() => setShowMore(false)}
+            >
+              {" "}
+              See less
+            </span>
+          )}
+        </h5>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="mx-5 mb-5 flex justify-evenly border-b-2 border-gray-300 pb-3 font-semibold text-gray-400">
+        <h3
+          onClick={() => setSelected("overview")}
+          className={`cursor-pointer ${selected === "overview" && "text-gray-600"}`}
+        >
+          Overview
+        </h3>
+        <h3
+          onClick={() => setSelected("lessons")}
+          className={`cursor-pointer ${selected === "lessons" && "text-gray-600"}`}
+        >
+          Lessons
+        </h3>
       </div>
 
       {/* Lessons Container */}
-      <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-4">
-        {courseDetails.lessons?.map((lesson) => (
-          <div
-            onClick={() => handleChangingLessons(lesson.id)}
-            key={lesson.title}
-            className="cursor-pointer rounded-md border border-gray-200 bg-white p-4 shadow-sm"
-          >
-            <h1 className="text-lg font-semibold">{lesson.title}</h1>
-          </div>
-        ))}
-      </div>
+      {selected === "lessons" && (
+        <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-0">
+          {courseDetails.lessons?.map((lesson, index) => (
+            <div
+              onClick={() => handleChangingLessons(lesson.id, index)}
+              key={lesson.title}
+              className={`flex cursor-pointer items-center justify-between border border-gray-300 bg-slate-50 p-4 hover:bg-purple-50 ${
+                index === courseDetails.lessons.length - 1 ? "" : "border-b-0"
+              } shadow-md`}
+            >
+              <h1 className="text-md font-semibold text-gray-700 hover:text-blue-950">
+                {lesson.title}
+              </h1>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Course Overview */}
+      {selected === "overview" && <CourseOverview course={courseDetails} />}
     </div>
   );
 };
-
 export default FullCourseView;

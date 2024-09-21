@@ -7,6 +7,7 @@ import {
   ContentHeading,
   Header,
   Loading,
+  ProfileSkeleton,
 } from "../../components/common";
 import {
   getActiveCourses,
@@ -72,7 +73,7 @@ const Home = () => {
       <Header />
       <Banner />
       {/** Courses */}
-      {enrolledCourses && (
+      {enrolledCourses ? (
         <div className="m-3 mt-3 rounded border border-gray-200 p-3 md:p-8">
           <div
             onClick={() => navigate("/enrolled-courses")}
@@ -100,7 +101,17 @@ const Home = () => {
             ))}
           </div>
         </div>
-      )}
+      ) : 
+      <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <ProfileSkeleton />
+        <ProfileSkeleton/>
+        <ProfileSkeleton />
+        <ProfileSkeleton/>
+        <ProfileSkeleton />
+        <ProfileSkeleton/>
+      </div>
+      }
+
       <div className="m-3 mt-3 rounded border border-gray-200 p-3 md:p-8">
         <ContentHeading text={"Courses"} />
         <div className="mt-6 grid gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">

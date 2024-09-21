@@ -9,3 +9,4 @@ export { default as AdminMentorCouseDetail } from "./AdminMentorCouseDetail";
 export { default as StudentCourseDetails } from "./StudentCourseDetails";
 export { default as EnrolledCourses } from "./EnrolledCourses";
 export { default as FullCourseView } from "./FullCourseView";
+export { default as CourseOverview } from "./CourseOverview";
