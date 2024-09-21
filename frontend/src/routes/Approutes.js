@@ -22,8 +22,14 @@ import {
 } from "../pages/Adimin";
 import ProtectedRoutes from "./ProtectedRoutes";
 import { CourseCategories } from "../components/Course";
-import { CommonCourseDetails, EnrolledCoursesPage, FullCoursePage, Home } from "../pages/Home";
+import {
+  CommonCourseDetails,
+  EnrolledCoursesPage,
+  FullCoursePage,
+  Home,
+} from "../pages/Home";
 import { CartPage, ConfirmOrderPage } from "../pages/Cart";
+import { MentorProfilePage, StudentProfilePage } from "../pages/Profile";
 
 const AppRoutes = () => {
   return (
@@ -49,6 +55,8 @@ const AppRoutes = () => {
         <Route path="/confirm-order" element={<ConfirmOrderPage />} />
         <Route path="/enrolled-courses" element={<EnrolledCoursesPage />} />
         <Route path="/enrolled-course/:id" element={<FullCoursePage />} />
+        <Route path="/profile" element={<StudentProfilePage />} />
+        <Route path="/mentor/profile" element={<MentorProfilePage />} />
       </Route>
     </Routes>
   );

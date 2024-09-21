@@ -5,6 +5,7 @@ from rest_framework.serializers import (
     ValidationError,
     Serializer,
     EmailField,
+    DateField,
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
@@ -15,7 +16,7 @@ from .utils import (
     password_validation,
 )
 from .services.otp import verify_otp
-from .models import StudentProfile, MentorProfile
+from .models import StudentProfile, MentorProfile, CustomUser
 
 
 User = get_user_model()
@@ -122,6 +123,35 @@ class UserLoginSerializer(Serializer):
         if not user.is_verified and not user.is_superuser:
             raise ValidationError("Account not verified")
 
+        # Retrieve the profile details
+        profile_data = {}
+        if hasattr(user, "studentprofile"):
+            student_profile = user.studentprofile
+            profile_data = {
+                "profile_id": student_profile.id,
+                "bio": student_profile.bio,
+                "date_of_birth": student_profile.date_of_birth,
+                "profile_picture": (
+                    student_profile.profile_picture.url
+                    if student_profile.profile_picture
+                    else None
+                ),
+                # Add other profile-specific fields if needed
+            }
+        elif hasattr(user, "mentorprofile"):
+            mentor_profile = user.mentorprofile
+            profile_data = {
+                "profile_id": mentor_profile.id,
+                "bio": mentor_profile.bio,
+                "date_of_birth": mentor_profile.date_of_birth,
+                "profile_picture": (
+                    mentor_profile.profile_picture.url
+                    if mentor_profile.profile_picture
+                    else None
+                ),
+                # Add other profile-specific fields if needed
+            }
+
         # Generate token
         refresh = RefreshToken.for_user(user)
 
@@ -133,6 +163,7 @@ class UserLoginSerializer(Serializer):
                 "first_name": user.first_name,
                 "last_name": user.last_name,
                 "role": user.role,
+                "profile_data": profile_data,  # Include profile details
             },
         }
 
@@ -249,17 +280,143 @@ class ResetPasswordSerializer(Serializer):
 class StudentProfileSerializer(ModelSerializer):
     """
     Serializer for managing student profile.
-    * Creatiion, Updation, Lisiting and retrieval
+    * Creation, Update, Listing, and Retrieval
     """
+
+    date_of_birth = DateField(format="%Y-%m-%d", input_formats=["%Y-%m-%d"])
+    first_name = CharField(source="user.first_name", read_only=True)
+    last_name = CharField(source="user.last_name", read_only=True)
+    email = EmailField(source="user.email", read_only=True)
 
     class Meta:
         model = StudentProfile
         fields = [
+            "user",
             "profile_picture",
             "bio",
             "date_of_birth",
-            "interested_areas",
             "highest_education_level",
-            "current_education_level",
-            "expected_graduation_date",
+            "first_name",
+            "last_name",
+            "email",
         ]
+
+    def validate(self, data):
+        user_data = {}
+        email = self.initial_data.get("email", "")
+        first_name = self.initial_data.get("first_name", "")
+        last_name = self.initial_data.get("last_name", "")
+
+        # Email validation
+        if email:
+            # If user already exists with the same email
+            try:
+                user = User.objects.get(email=email)
+                if user:
+                    raise ValidationError("Account already exists with entered email")
+            except User.DoesNotExist:
+                pass
+
+            valid, message = email_is_valid(email)
+            if not valid:
+                raise ValidationError(message)
+            user_data["email"] = email
+
+        # First name and last name validation
+        if first_name:
+            user_data["first_name"] = first_name
+        if last_name:
+            user_data["last_name"] = last_name
+
+        data["user_data"] = user_data
+        return data
+
+    def update(self, instance, validated_data):
+        # Extracting and updating the user-related data
+        user_data = validated_data.pop("user_data", {})
+        user_instance = instance.user  # Access the related user instance
+
+        # Updating fields in CustomUser model
+        for attr, value in user_data.items():
+            setattr(user_instance, attr, value)
+        user_instance.save()
+
+        # Updating the StudentProfile fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance
+
+
+class MentorProfileSerializer(ModelSerializer):
+    """
+    Serializer for managing mentor profile.
+    * Creation, Update, Listing, and Retrieval
+    """
+
+    date_of_birth = DateField(format="%Y-%m-%d", input_formats=["%Y-%m-%d"])
+    first_name = CharField(source="user.first_name", read_only=True)
+    last_name = CharField(source="user.last_name", read_only=True)
+    email = EmailField(source="user.email", read_only=True)
+
+    class Meta:
+        model = MentorProfile
+        fields = [
+            "user",
+            "profile_picture",
+            "bio",
+            "date_of_birth",
+            "experience",
+            "highest_education_level",
+            "first_name",
+            "last_name",
+            "email",
+        ]
+
+    def validate(self, data):
+        user_data = {}
+        email = self.initial_data.get("email", "")
+        first_name = self.initial_data.get("first_name", "")
+        last_name = self.initial_data.get("last_name", "")
+
+        # Email validation
+        if email:
+            # If user already exists with the same email
+            try:
+                user = User.objects.get(email=email)
+                if user:
+                    raise ValidationError("Account already exists with entered email")
+            except User.DoesNotExist:
+                pass
+
+            valid, message = email_is_valid(email)
+            if not valid:
+                raise ValidationError(message)
+            user_data["email"] = email
+
+        # First name and last name validation
+        if first_name:
+            user_data["first_name"] = first_name
+        if last_name:
+            user_data["last_name"] = last_name
+
+        data["user_data"] = user_data
+        return data
+
+    def update(self, instance, validated_data):
+        # Extracting and updating the user-related data
+        user_data = validated_data.pop("user_data", {})
+        user_instance = instance.user  # Access the related user instance
+
+        # Updating fields in CustomUser model
+        for attr, value in user_data.items():
+            setattr(user_instance, attr, value)
+        user_instance.save()
+
+        # Updating the StudentProfile fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        return instance

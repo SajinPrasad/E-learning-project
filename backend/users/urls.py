@@ -7,7 +7,7 @@ from .views import (
     ResetPasswordView,
     UserLoginView,
     UserRegistrationView,
-    StudentProfileView,
+    ProfileView,
 )
 
 urlpatterns = [
@@ -18,6 +18,6 @@ urlpatterns = [
     path("otp/resend/", OTPResendView.as_view(), name="otp_resend"),
     path("reset/password/", ResetPasswordView.as_view(), name="password-reset"),
     path(
-        "studentprofile/<int:pk>/", StudentProfileView.as_view(), name="studentprofile"
+        "studentprofile/<int:pk>/", ProfileView.as_view(), name="studentprofile"
     ),
 ]

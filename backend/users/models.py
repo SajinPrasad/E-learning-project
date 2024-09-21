@@ -135,7 +135,6 @@ class ProfileBase(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     profile_picture = models.ImageField(
         upload_to="profile_pics/",
-        default="profile_pic/default.png",
         blank=True,
         null=True,
     )

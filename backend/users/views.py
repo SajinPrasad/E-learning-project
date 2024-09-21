@@ -4,10 +4,11 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_201_CR
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
-from rest_framework.exceptions import PermissionDenied, NotFound
+from rest_framework.exceptions import NotFound, PermissionDenied
 import logging
 
 from .serializer import (
+    MentorProfileSerializer,
     OTPResendSerializer,
     ResetPasswordSerializer,
     UserRegistrationResponseSerializer,
@@ -136,15 +137,23 @@ class ResetPasswordView(APIView):
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
-class StudentProfileView(RetrieveUpdateAPIView):
+class ProfileView(RetrieveUpdateAPIView):
     """
-    For updating and retrieving for profile object.
-    Using custom permission class to only allow owners to access their profile
+    For updating and retrieving the profile object for both students and mentors.
+    Using custom permission class to only allow owners to access their profile.
     """
 
     permission_classes = [IsProfileOwner]
-    serializer_class = StudentProfileSerializer
-    queryset = StudentProfile.objects.all()
+
+    def get_serializer_class(self):
+        """
+        Conditionally fetching serializer class.
+        """
+        print(self.request.user.role, self.request.user.id)
+        if self.request.user.role == "student":
+            return StudentProfileSerializer
+        elif self.request.user.role == "mentor":
+            return MentorProfileSerializer
 
     def get_object(self):
         try:
@@ -153,3 +162,10 @@ class StudentProfileView(RetrieveUpdateAPIView):
             return obj
         except PermissionDenied:
             raise NotFound("Profile not found.")
+
+    def get_queryset(self):
+        # Filter to only get the profile for the current user
+        if self.request.user.role == "student":
+            return StudentProfile.objects.filter(user=self.request.user)
+        elif self.request.user.role == "mentor":
+            return MentorProfile.objects.filter(user=self.request.user)

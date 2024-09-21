@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 
 import ProfileDropdown from "./ProfileDropdown";
 import { CartIcon } from "./Icons";
-import { getCartItems } from "../../services/cartServices";
 
 /**
  * Header component
@@ -14,6 +13,7 @@ const Header = () => {
   const { isAuthenticated, firstName, lastName, role } = useSelector(
     (state) => state.user,
   );
+  const { profilePicture } = useSelector((state) => state.profile);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -101,7 +101,7 @@ const Header = () => {
               <CartIcon />
               {/* Overlaping circle with cart item numbers */}
               {cartItems.length > 0 && (
-                <div className="absolute left-0 top-0 flex h-[18px] w-[18px] -translate-x-1/2 -translate-y-1/2 transform items-center justify-center rounded-full bg-theme-primary font-semibold text-xs text-white hover:bg-purple-600">
+                <div className="absolute left-0 top-0 flex h-[18px] w-[18px] -translate-x-1/2 -translate-y-1/2 transform items-center justify-center rounded-full bg-theme-primary text-xs font-semibold text-white hover:bg-purple-600">
                   {cartItems.length}
                 </div>
               )}
@@ -113,18 +113,32 @@ const Header = () => {
               ref={dropdownRef}
               className={`relative flex w-1/6 flex-col items-center justify-center`}
             >
-              <div
-                className={`flex aspect-square w-8 cursor-pointer items-center justify-center rounded-full bg-theme-primary text-white hover:border hover:border-theme-primary hover:bg-white hover:text-black`}
-                onClick={toggleDropdown}
-              >
-                <p className="text-center font-sentinent-bold text-xs">
-                  {firstName[0]}
-                  {lastName[0]}
-                </p>
-              </div>
+              {profilePicture ? (
+                <div
+                  className={`flex aspect-square w-8 cursor-pointer items-center justify-center rounded-full bg-theme-primary text-white hover:border hover:border-theme-primary hover:bg-white hover:text-black`}
+                  onClick={toggleDropdown}
+                >
+                  <img
+                    src={`http://localhost:8000${profilePicture}`}
+                    alt={firstName[0] + lastName[0]}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div
+                  className={`flex aspect-square w-8 cursor-pointer items-center justify-center rounded-full bg-theme-primary text-white hover:border hover:border-theme-primary hover:bg-white hover:text-black`}
+                  onClick={toggleDropdown}
+                >
+                  <p className="text-center font-sentinent-bold text-xs">
+                    {firstName[0]}
+                    {lastName[0]}
+                  </p>
+                </div>
+              )}
+
               {isDropdownOpen && (
                 <span className="absolute top-full w-full">
-                  <ProfileDropdown />
+                  <ProfileDropdown role={role} />
                 </span>
               )}
             </div>

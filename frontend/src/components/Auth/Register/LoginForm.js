@@ -12,6 +12,7 @@ import { Loading } from "../../common";
 import { setToken } from "../../../features/auth/authSlice";
 import { getCartItems } from "../../../services/cartServices";
 import { setCartItems } from "../../../features/cartItem/cartItemSlice";
+import { setProfileInfo } from "../../../features/tempUser/profileSlice";
 
 // Validation schema for Formik
 const LoginSchema = Yup.object().shape({
@@ -64,6 +65,7 @@ const LoginForm = ({ role }) => {
 
   // Function to set user state and tokens
   const handleSetUserState = (response) => {
+    console.log("The response: ", response)
     dispatch(
       setUserInfo({
         firstName: response.user.first_name,
@@ -78,6 +80,15 @@ const LoginForm = ({ role }) => {
       setToken({
         accessToken: response.access,
         refreshToken: response.refresh,
+      }),
+    );
+
+    dispatch(
+      setProfileInfo({
+        profileId: response.user.profile_data.profile_id,
+        bio: response.user.profile_data.bio,
+        profilePicture: response.user.profile_data.profile_picture,
+        dateOfBirth: response.user.profile_data.date_of_birth,
       }),
     );
   };
@@ -104,7 +115,6 @@ const LoginForm = ({ role }) => {
             setLoading(true);
             try {
               const response = await loginService(values);
-
               if (response.user.role === "student" && role === "student") {
                 handleSetUserState(response);
                 setLoading(false);

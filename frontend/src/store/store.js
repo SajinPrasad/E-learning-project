@@ -17,6 +17,7 @@ import {
   courseCategoryReducer,
   courseReducer,
   enrolledCourseReducer,
+  profileReducer,
   tempUserReducer,
   userReducer,
 } from "../features";
@@ -78,7 +79,7 @@ const enrolledCoursePersistConfig = {
 };
 
 const persistedEnrolledCourseReducer = persistReducer(
-  coursePersistConfig,
+  enrolledCoursePersistConfig,
   enrolledCourseReducer,
 );
 
@@ -92,6 +93,16 @@ const persistedCartItemReducer = persistReducer(
   cartItemReducer,
 );
 
+const profilePersistConfig = {
+  key: "profile",
+  storage,
+};
+
+const persistedProfileReducer = persistReducer(
+  profilePersistConfig,
+  profileReducer,
+);
+
 // Combine your reducers
 const rootReducer = combineReducers({
   tempUser: persistedTempUserReducer,
@@ -101,6 +112,7 @@ const rootReducer = combineReducers({
   course: persistedCourseReducer,
   cartItem: persistedCartItemReducer,
   enrolledCourse: persistedEnrolledCourseReducer,
+  profile: persistedProfileReducer,
 });
 
 // Configure store with reducers and middleware

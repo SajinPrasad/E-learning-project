@@ -1,5 +1,6 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import { IconProfile, Logout, Settings } from "./Icons";
 import { clearUserInfo } from "../../features/tempUser/userSlice";
@@ -9,9 +10,11 @@ import { clearCartItems } from "../../features/cartItem/cartItemSlice";
 /**
  * Renders the dropdown from the profile icon on header.
  */
-const ProfileDropdown = () => {
+const ProfileDropdown = ({role}) => {
   const { firstName, lastName } = useSelector((state) => state.user);
+  const { profilePicture } = useSelector((state) => state.profile);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Function to handle logout.
   const handleLogout = () => {
@@ -21,6 +24,15 @@ const ProfileDropdown = () => {
     dispatch(clearCartItems());
   };
 
+  const handleNavigate = () => {
+    if (role == "student") {
+      navigate("/profile")
+    } else if (role === "mentor") {
+      console.log("YEs ist")
+      navigate("/mentor/profile")
+    }
+  }
+
   return (
     <>
       <article className="rounded bg-white px-4 pb-4 drop-shadow-lg">
@@ -29,7 +41,7 @@ const ProfileDropdown = () => {
             <span className="flex gap-2">
               <img
                 className="h-6 w-6 rounded-lg"
-                src="https://lh3.googleusercontent.com/a/AGNmyxbSlMgTRzE3_SMIxpDAhpNad-_CN5_tmph1NQ1KhA=s96-c"
+                src={`http://localhost:8000${profilePicture}`}
                 alt=""
               />
 
@@ -38,7 +50,10 @@ const ProfileDropdown = () => {
               </span>
             </span>
           </li>
-          <li className="flex gap-2 hover:text-theme-primary">
+          <li
+            onClick={handleNavigate}
+            className="flex gap-2 hover:text-theme-primary"
+          >
             <IconProfile />
 
             <a href="">Your Profile</a>
