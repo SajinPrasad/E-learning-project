@@ -5,7 +5,10 @@ import {
   getFullLessonData,
 } from "../../services/courseServices/courseService";
 import { useParams } from "react-router-dom";
+import ReviewForm from "./ReviewForm";
+import CourseRating from "./CourseRating";
 import CourseOverview from "./CourseOverview";
+import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
 
 const FullCourseView = () => {
   const { id } = useParams();
@@ -15,7 +18,7 @@ const FullCourseView = () => {
   const [selected, setSelected] = useState("lessons");
   const [showMore, setShowMore] = useState(false); // State to manage "see more"
   const [showArrows, setShowArrows] = useState(true); // State to manage arrow visibility
-
+  const [courseRating, setCourseRating] = useState({});
   const videoRef = useRef(null); // Ref to control video events
   let hideArrowsTimeout; // Timeout for hiding arrows
 
@@ -32,6 +35,13 @@ const FullCourseView = () => {
         setCurrentLessonIndex(0); // Set index to 0 for first lesson
       }
     };
+
+    const fetchCourseRating = async () => {
+      const fetchedRating = await getAverageCourseRatingService(id);
+      setCourseRating(fetchedRating);
+    };
+
+    fetchCourseRating();
     fetchLessonContent();
   }, [id]);
 
@@ -170,6 +180,12 @@ const FullCourseView = () => {
           Overview
         </h3>
         <h3
+          onClick={() => setSelected("reviews")}
+          className={`cursor-pointer ${selected === "reviews" && "text-gray-600"}`}
+        >
+          Reviews
+        </h3>
+        <h3
           onClick={() => setSelected("lessons")}
           className={`cursor-pointer ${selected === "lessons" && "text-gray-600"}`}
         >
@@ -198,6 +214,16 @@ const FullCourseView = () => {
 
       {/* Course Overview */}
       {selected === "overview" && <CourseOverview course={courseDetails} />}
+
+      {/* Course Review */}
+      {selected === "reviews" && (
+        <>
+          <CourseRating
+            courseRating={courseRating}
+          />
+          <ReviewForm courseId={courseDetails.id} />
+        </>
+      )}
     </div>
   );
 };
