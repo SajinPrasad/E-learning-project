@@ -41,8 +41,8 @@ const FullCourseView = () => {
       setCourseRating(fetchedRating);
     };
 
-    fetchCourseRating();
     fetchLessonContent();
+    fetchCourseRating();
   }, [id]);
 
   const handleChangingLessons = async (lessonId, index) => {
@@ -218,9 +218,7 @@ const FullCourseView = () => {
       {/* Course Review */}
       {selected === "reviews" && (
         <>
-          <CourseRating
-            courseRating={courseRating}
-          />
+          <CourseRating size={80} courseRating={courseRating} />
           <ReviewForm courseId={courseDetails.id} />
         </>
       )}

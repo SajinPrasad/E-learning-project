@@ -90,4 +90,4 @@ class ReviewStatsView(RetrieveAPIView):
         try:
             return CourseReviewStats.objects.get(course=course)
         except CourseReviewStats.DoesNotExist:
-            raise NotFound(detail="Course review stats not found")
+            return None

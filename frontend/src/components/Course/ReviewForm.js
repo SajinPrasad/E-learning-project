@@ -24,6 +24,12 @@ const reviewSchema = Yup.object({
 const ReviewForm = ({ courseId }) => {
   const [review, setReview] = useState(null); // Store user's review
   const [isEditing, setIsEditing] = useState(false); // Toggle between view and edit mode
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Function to truncate the text to 75 words
+  const getTruncatedText = (text) => {
+    return text.split(" ").slice(0, 75).join(" ");
+  };
 
   useEffect(() => {
     const fetchOwnersReview = async () => {
@@ -96,7 +102,7 @@ const ReviewForm = ({ courseId }) => {
       {/* Conditionally render the form or the display mode */}
       {!isEditing && review ? (
         // Display mode (showing review and rating)
-        <div className="mb-5 border-b-2 border-gray-200 pb-7 md:w-4/5">
+        <div className="mb-5 border-b-2 border-gray-300 pb-7 md:w-4/5">
           <div className="flex w-auto gap-2">
             <h3 className="text-sm font-semibold text-gray-500">Your Review</h3>
             {!isEditing && (
@@ -108,7 +114,17 @@ const ReviewForm = ({ courseId }) => {
 
           <p>
             <ReactStarsWrapper edit={false} value={review?.rating} />
-            {review.review_text}
+            {isExpanded
+              ? review.review_text
+              : getTruncatedText(review.review_text)}
+            {review.review_text.split(" ").length > 75 && (
+              <button
+                className="ml-2 text-xs font-semibold text-gray-500"
+                onClick={() => setIsExpanded(!isExpanded)}
+              >
+                {isExpanded ? "See Less" : "See More"}
+              </button>
+            )}
           </p>
         </div>
       ) : (
@@ -133,7 +149,7 @@ const ReviewForm = ({ courseId }) => {
           </div>
 
           {/* Review text input */}
-          <div className="border-b-2 mb-5 pb-7 border-gray-200">
+          <div className="mb-5 border-b-2 border-gray-200 pb-7">
             <div className="mb-3">
               <label className="mb-2 block text-xs font-semibold text-gray-500 md:text-sm">
                 Add your review

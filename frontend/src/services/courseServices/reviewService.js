@@ -122,7 +122,6 @@ export const updateReviewService = async ({
   }
 };
 
-
 export const getAverageCourseRatingService = async (courseId) => {
   try {
     const response = await privateAxiosInstance.get(
@@ -152,4 +151,35 @@ export const getAverageCourseRatingService = async (courseId) => {
 
     console.error("Error fetching review:", error); // Log the error for debugging
   }
-}
+};
+
+export const getReviewListService = async (courseId) => {
+  try {
+    const response = await privateAxiosInstance.get(
+      `/review-list/?course_id=${courseId}`,
+    );
+
+    if (response.status >= 200 && response.status < 300) {
+      return response.data;
+    }
+  } catch (error) {
+    // Check if the error is a response from the server
+    if (error.response) {
+      const statusCode = error.response.status;
+      const backendMessage = error.response.data?.detail;
+
+      // Handle errors based on status code
+      if (statusCode === 500) {
+        toast.error("Internal Server Error. Please try again later.");
+      } else {
+        // Display backend message if available
+        toast.error(backendMessage || "An error occurred. Please try again.");
+      }
+    } else if (error.request) {
+      // If the error is related to network issues
+      toast.error("Please check your internet connection.");
+    }
+
+    console.error("Error fetching review:", error); // Log the error for debugging
+  }
+};

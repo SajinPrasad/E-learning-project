@@ -5,11 +5,13 @@ import {
   getCourseDetails,
   getLessonContent,
 } from "../../services/courseServices/courseService";
-import { Loading } from "../common";
+import { Loading, ReactStarsWrapper } from "../common";
 import { DropDownArrow, DropUpArrow } from "../common/Icons";
 import { createCartItems } from "../../services/cartServices";
 import { addItemToCart } from "../../features/cartItem/cartItemSlice";
 import { useDispatch } from "react-redux";
+import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
+import ListReviews from "./ListReviews";
 
 const StudentCourseDetails = () => {
   const { id } = useParams();
@@ -17,6 +19,7 @@ const StudentCourseDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [expandedLessonIds, setExpandedLessonIds] = useState([]);
   const dispatch = useDispatch();
+  const [courseRating, setCourseRating] = useState({});
 
   useEffect(() => {
     const fetchCourseDetail = async () => {
@@ -29,7 +32,14 @@ const StudentCourseDetails = () => {
         setIsLoading(false); // Make sure loading state is updated
       }
     };
+    
+    const fetchCourseRating = async () => {
+      const fetchedRating = await getAverageCourseRatingService(id);
+      setCourseRating(fetchedRating);
+    };
+
     fetchCourseDetail();
+    fetchCourseRating();
   }, [id]);
 
   const handleAddCartItem = async () => {
@@ -54,7 +64,6 @@ const StudentCourseDetails = () => {
         // Fetch the lesson content if not already fetched
         try {
           const lessonDetails = await getLessonContent(lessonId, course.id);
-          console.log("Lesson data: ", lessonDetails);
           setCourse((prevCourse) => ({
             ...prevCourse,
             lessons: prevCourse.lessons.map((lesson) =>
@@ -112,7 +121,26 @@ const StudentCourseDetails = () => {
           <p className="text-md text-gray-600 md:text-white">
             {course.mentor_name}
           </p>
-          <span className="font-sentinent-bold text-xl text-gray-800 md:mt-4 md:text-2xl md:text-white">
+          {courseRating && (
+            <div className="flex cursor-pointer items-end gap-2">
+              <h4 className="font-sentinent-medium text-lg text-yellow-400">
+                <a href="#reviews">{courseRating?.average_rating}</a>
+              </h4>
+              <a href="#reviews">
+                <ReactStarsWrapper
+                  edit={false}
+                  value={courseRating.average_rating}
+                  size={22}
+                />
+              </a>
+              <span className="self-center text-xs text-blue-100">
+                <a href="#reviews">
+                  ({courseRating.total_reviews ? "ratings" : "No ratings yet"})
+                </a>
+              </span>
+            </div>
+          )}
+          <span className="font-sentinent-bold text-2xl text-gray-800 sm:text-3xl md:mt-4 md:text-4xl md:text-white">
             ₹ {course.price.amount}
           </span>
         </div>
@@ -193,6 +221,30 @@ const StudentCourseDetails = () => {
               <h5 className="text-gray-700">
                 {course.requirements.description}
               </h5>
+            </div>
+
+            {/* Reviews and rating */}
+            <div id="reviews" className="mb-5 bg-white p-8 shadow-md">
+              <h2 className="mb-3 text-lg font-bold md:text-2xl">
+                Reviews and rating
+              </h2>
+              <div className="flex items-center gap-2">
+                <ReactStarsWrapper
+                  size={50}
+                  value={courseRating.average_rating}
+                  edit={false}
+                />
+                <span className="text-sm text-blue-500">
+                  ({courseRating.total_reviews ? "ratings" : "No ratings yet"})
+                </span>
+              </div>
+              <h2 className="text-xl font-bold text-yellow-700 sm:text-2xl md:text-3xl">
+                {courseRating.average_rating} Course Ratings
+              </h2>
+
+              <div className="mt-8">
+                <ListReviews courseId={id} />
+              </div>
             </div>
           </div>
 

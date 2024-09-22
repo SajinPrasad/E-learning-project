@@ -11,6 +11,6 @@ router.register(r"reviews", ReviewViewSet, basename="reviews")
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("review/", ReviewListView.as_view(), name="review"),
+    path("review-list/", ReviewListView.as_view(), name="review-list"),
     path("review-stats/", ReviewStatsView.as_view(), name="review-stats"),
 ]
