@@ -11,16 +11,16 @@ const Banner = () => {
           className={`container mx-auto max-w-6xl items-center px-8 xl:px-5`}
         >
           <div className={`flex flex-wrap items-center sm:-mx-3`}>
-            <div className={`w-full md:w-1/2 md:px-3`}>
+            <div className={`w-full md:w-2/4 md:px-3`}>
               <div
                 className={`w-full space-y-6 pb-6 sm:max-w-md sm:pr-5 md:space-y-4 md:pb-0 lg:max-w-lg lg:space-y-8 lg:pr-0 xl:space-y-9`}
               >
                 <h1
                   className={`text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl md:text-4xl lg:text-5xl xl:text-6xl`}
                 >
-                  <span className={`block xl:inline`}>Tools You Need</span>
+                  <span className={`block xl:inline`}>Tools You Need </span>
                   <span className={`block text-theme-primary xl:inline`}>
-                  to Build Better, Faster.
+                    to Build Better, Faster.
                   </span>
                 </h1>
                 <p
