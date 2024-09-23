@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getEnrolledCourses } from "../../services/courseServices/courseService";
-import { ContentHeading, Loading } from "../common";
-import CourseCard from "./CourseCard";
+import { Loading } from "../common";
 import { useDispatch } from "react-redux";
 import { setEnrolledCoursesState } from "../../features/course/enrolledCoursesState";
 import { useNavigate } from "react-router-dom";

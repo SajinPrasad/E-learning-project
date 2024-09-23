@@ -11,7 +11,7 @@ import { createCartItems } from "../../services/cartServices";
 import { addItemToCart } from "../../features/cartItem/cartItemSlice";
 import { useDispatch } from "react-redux";
 import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
-import ListReviews from "./ListReviews";
+import { ListReviews } from "../Reviews";
 
 const StudentCourseDetails = () => {
   const { id } = useParams();

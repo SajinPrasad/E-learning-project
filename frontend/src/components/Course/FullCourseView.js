@@ -5,8 +5,7 @@ import {
   getFullLessonData,
 } from "../../services/courseServices/courseService";
 import { useParams } from "react-router-dom";
-import ReviewForm from "./ReviewForm";
-import CourseRating from "./CourseRating";
+import { ReviewForm, CourseRating } from "../Reviews";
 import CourseOverview from "./CourseOverview";
 import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
 
