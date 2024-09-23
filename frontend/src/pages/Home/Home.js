@@ -73,7 +73,7 @@ const Home = () => {
       <Header />
       <Banner />
       {/** Courses */}
-      {enrolledCourses ? (
+      {enrolledCourses && (
         <div className="m-3 mt-3 rounded border border-gray-200 p-3 md:p-8">
           <div
             onClick={() => navigate("/enrolled-courses")}
@@ -91,7 +91,7 @@ const Home = () => {
                 <img
                   src={item.course.preview_image}
                   alt={item.course.title}
-                  className="h-28 w-28 mr-2 md:mr-0 rounded object-cover md:h-32 md:w-32"
+                  className="mr-2 h-28 w-28 rounded object-cover md:mr-0 md:h-32 md:w-32"
                 />
                 <div className="mt-2 flex flex-col self-center md:ml-4 md:mt-0">
                   <h3 className="text-lg font-semibold">{item.course.title}</h3>
@@ -101,16 +101,7 @@ const Home = () => {
             ))}
           </div>
         </div>
-      ) : 
-      <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-        <ProfileSkeleton />
-        <ProfileSkeleton/>
-        <ProfileSkeleton />
-        <ProfileSkeleton/>
-        <ProfileSkeleton />
-        <ProfileSkeleton/>
-      </div>
-      }
+      )}
 
       <div className="m-3 mt-3 rounded border border-gray-200 p-3 md:p-8">
         <ContentHeading text={"Courses"} />
