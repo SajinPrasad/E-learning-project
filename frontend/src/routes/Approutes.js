@@ -30,6 +30,7 @@ import {
 } from "../pages/Home";
 import { CartPage, ConfirmOrderPage } from "../pages/Cart";
 import { MentorProfilePage, StudentProfilePage } from "../pages/Profile";
+import InboxPage from "../pages/Chat/InboxPage";
 
 const AppRoutes = () => {
   return (
@@ -57,6 +58,7 @@ const AppRoutes = () => {
         <Route path="/enrolled-course/:id" element={<FullCoursePage />} />
         <Route path="/profile" element={<StudentProfilePage />} />
         <Route path="/mentor/profile" element={<MentorProfilePage />} />
+        <Route path="/inbox" element={<InboxPage />} />
       </Route>
     </Routes>
   );
