@@ -12,6 +12,7 @@ import { addItemToCart } from "../../features/cartItem/cartItemSlice";
 import { useDispatch } from "react-redux";
 import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
 import { ListReviews } from "../Reviews";
+import { MentorProfileBox } from "../Profile";
 
 const StudentCourseDetails = () => {
   const { id } = useParams();
@@ -25,6 +26,7 @@ const StudentCourseDetails = () => {
     const fetchCourseDetail = async () => {
       try {
         const courseDetails = await getCourseDetails(id);
+        console.log("Course detail: ", courseDetails);
         setCourse(courseDetails);
       } catch (error) {
         console.error("Error fetching course details:", error);
@@ -32,7 +34,7 @@ const StudentCourseDetails = () => {
         setIsLoading(false); // Make sure loading state is updated
       }
     };
-    
+
     const fetchCourseRating = async () => {
       const fetchedRating = await getAverageCourseRatingService(id);
       setCourseRating(fetchedRating);
@@ -83,6 +85,7 @@ const StudentCourseDetails = () => {
       }
     }
   };
+  
   // Handle loading state
   if (isLoading) {
     return <Loading />; // Optional loading component
@@ -265,6 +268,9 @@ const StudentCourseDetails = () => {
                 Add to cart
               </button>
             </div>
+
+            {/* Mentor profile details */}
+            <MentorProfileBox profile={course.mentor_profile} />
           </div>
         </div>
       </div>

@@ -20,6 +20,7 @@ from .models import (
     Suggestion,
     Enrollment,
 )
+from users.models import MentorProfile
 from .utils import validate_course
 
 logger = logging.getLogger(__name__)
@@ -251,14 +252,13 @@ class CourseDetailSerializer(ModelSerializer):
     Serializer for detailed view of Courses.
     """
 
-    # lessons should be a list of LessonSerializer since it's a
-    # related set (Many-to-One)
     lessons = LessonTitleSerializer(many=True, read_only=True)
     requirements = CourseRequirementSerializer(read_only=True)
     price = PriceSerializer(read_only=True)
     suggestions = CourseSuggestionSerializer(read_only=True)
     preview_image = FullURLImageField(read_only=True)
     mentor_name = SerializerMethodField(read_only=True)
+    mentor_profile = SerializerMethodField(read_only=True)
 
     class Meta:
         model = Course
@@ -269,6 +269,7 @@ class CourseDetailSerializer(ModelSerializer):
             "preview_image",
             "category",
             "mentor_name",
+            "mentor_profile",
             "lessons",
             "requirements",
             "price",
@@ -279,6 +280,22 @@ class CourseDetailSerializer(ModelSerializer):
     def get_mentor_name(self, obj):
         # Return the fullname of mentor
         return f"{obj.mentor.first_name} {obj.mentor.last_name}" if obj.mentor else None
+
+    def get_mentor_profile(self, obj):
+        # Returning profile details of the mentor
+        mentor_profile = {
+            "user_id": obj.mentor.id,
+            "profile_picture": (
+                obj.mentor.mentorprofile.profile_picture.url
+                if obj.mentor.mentorprofile.profile_picture
+                else None
+            ),
+            "full_name": obj.mentor.get_full_name(),
+            "bio": obj.mentor.mentorprofile.bio,
+            "highest_education_level": obj.mentor.mentorprofile.highest_education_level,
+            "experience": obj.mentor.mentorprofile.experience,
+        }
+        return mentor_profile
 
 
 class CourseStatusUpdateSerializer(ModelSerializer):

@@ -1,6 +1,10 @@
 import React, { useState } from "react";
+import { useLocation, useParams } from "react-router-dom";
 
 const Inbox = () => {
+  const location = useLocation();
+  const userId = location.state?.userId;
+  
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
     { text: "Hey, how are you?", sender: "other" },
