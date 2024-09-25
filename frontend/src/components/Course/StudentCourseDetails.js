@@ -196,7 +196,7 @@ const StudentCourseDetails = () => {
                   <div key={lesson.id}>
                     <div
                       onClick={() => handleLessonToggle(lesson.id)}
-                      className={`flex cursor-pointer items-center ${index == course.lessons.length - 1 ? "" : "border-b-0"} justify-between border border-gray-300 bg-slate-50 p-3 hover:bg-purple-50`}
+                      className={`flex cursor-pointer items-center ${index === course.lessons.length - 1 ? "" : "border-b-0"} justify-between border border-gray-300 bg-slate-50 p-3 hover:bg-purple-50`}
                     >
                       <h2 className="text-md font-semibold text-gray-700 hover:text-blue-950">
                         {lesson.title}

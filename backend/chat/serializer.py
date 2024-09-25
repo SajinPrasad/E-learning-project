@@ -10,16 +10,23 @@ class StudentProfileSerializer(ModelSerializer):
     """
 
     full_name = SerializerMethodField()
+    user_id = SerializerMethodField()
 
     class Meta:
         model = StudentProfile
-        fields = ["profile_picture", "full_name", "bio"]
+        fields = ["id", "user_id", "profile_picture", "full_name", "bio"]
 
     def get_full_name(self, obj):
         """
         Returns the full name of the user associated with the profile.
         """
         return obj.user.get_full_name()
+
+    def get_user_id(self, obj):
+        """
+        Return the user id of the profile owner.
+        """
+        return obj.user.id
 
 
 class MentorProfileSerializer(ModelSerializer):
@@ -28,10 +35,11 @@ class MentorProfileSerializer(ModelSerializer):
     """
 
     full_name = SerializerMethodField()
+    user_id = SerializerMethodField()
 
     class Meta:
         model = MentorProfile
-        fields = ["profile_picture", "full_name", "bio"]
+        fields = ["id", "profile_picture", "user_id", "full_name", "bio"]
 
     def get_full_name(self, obj):
         """
@@ -39,14 +47,17 @@ class MentorProfileSerializer(ModelSerializer):
         """
         return obj.user.get_full_name()
 
+    def get_user_id(self, obj):
+        """
+        Return the user id of the profile owner.
+        """
+        return obj.user.id
+
 
 class ChatMessageSerializer(ModelSerializer):
     """
     Serializer for ChatMessage model.
     """
-
-    sender_profile = SerializerMethodField()
-    receiver_profile = SerializerMethodField()
 
     class Meta:
         model = ChatMessage
@@ -57,30 +68,5 @@ class ChatMessageSerializer(ModelSerializer):
             "timestamp",
             "sender",
             "receiver",
-            "sender_profile",
-            "receiver_profile",
         ]
-        read_only_fields = ["sender_profile", "receiver_profile", "timestamp"]
-
-    def get_profile(self, user):
-        """
-        Returns the profile data for the given user.
-        Checks wether the user is mentor or student and returining appropreate profile.
-        """
-        if hasattr(user, "studentprofile"):
-            return StudentProfileSerializer(user.studentprofile).data
-        elif hasattr(user, "mentorprofile"):
-            return MentorProfileSerializer(user.mentorprofile).data
-        return None
-
-    def get_sender_profile(self, obj):
-        """
-        Returns the profile data for the sender of the chat message.
-        """
-        return self.get_profile(obj.sender)
-
-    def get_receiver_profile(self, obj):
-        """
-        Returns the profile data for the receiver of the chat message.
-        """
-        return self.get_profile(obj.receiver)
+        read_only_fields = ["timestamp"]
