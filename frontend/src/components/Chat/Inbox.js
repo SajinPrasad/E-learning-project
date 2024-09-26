@@ -114,8 +114,8 @@ const Inbox = () => {
           <div className="flex items-center border-b border-gray-200 p-4">
             {receiverProfile?.profile_picture ? (
               <img
-                src={`http://localhost:8000/${receiverProfile?.profile_picture}`}
-                alt={getInitials(receiverProfile?.full_name)}
+                src={`${receiverProfile?.profile_picture}`}
+                alt={""}
                 className="mb-4 h-14 w-14 rounded-full border-2 border-gray-300 object-cover md:mb-0"
               />
             ) : (
