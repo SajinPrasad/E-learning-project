@@ -35,7 +35,6 @@ const MentorProfileForm = () => {
     const fetchProfile = async () => {
       setIsLoading(true);
       const profileInfo = await fetchStudentProfileInformation(profileId);
-      console.log("Profile Info: ", profileInfo);
       if (profileInfo) {
         setProfile(profileInfo);
         setCurrentProfile(profileInfo);
