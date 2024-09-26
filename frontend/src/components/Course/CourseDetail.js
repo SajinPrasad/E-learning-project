@@ -10,11 +10,13 @@ import {
   getFullLessonData,
 } from "../../services/courseServices/courseService";
 import { useParams } from "react-router-dom";
-import { Button, Loading } from "../common";
+import { Button, Loading, ReactStarsWrapper } from "../common";
 import { DropDownArrow, DropUpArrow, PlusIcon } from "../common/Icons";
 import { CourseStatusChange, courseStyles } from "./";
 import { toast } from "react-toastify";
 import { styles } from "../common";
+import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
+import { ListReviews } from "../Reviews";
 
 async function confirmCourseStatusChange(newStatus) {
   return Swal.fire({
@@ -36,7 +38,7 @@ async function confirmCourseStatusChange(newStatus) {
 }
 
 const CourseDetail = ({ role }) => {
-  const { id } = useParams();
+  const { id } = useParams(); // Course id fetching.
   const [course, setCourse] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedLessonIds, setExpandedLessonIds] = useState([]);
@@ -44,6 +46,7 @@ const CourseDetail = ({ role }) => {
   const [suggestionText, setSuggestionText] = useState("");
   const [suggestion, setSuggestion] = useState({});
   const [suggestionStatus, setSuggestionStatus] = useState(false);
+  const [courseRating, setCourseRating] = useState({});
 
   useEffect(() => {
     const fetchCourseDetail = async () => {
@@ -53,7 +56,7 @@ const CourseDetail = ({ role }) => {
         if (courseDetails.suggestions) {
           setSuggestion(courseDetails.suggestions);
           setSuggestionText(courseDetails.suggestions.suggestion_text); // Setting the initial
-          console.log("Initial status: ", courseDetails.suggestions.is_done);
+
           setSuggestionStatus(courseDetails.suggestions.is_done);
         }
       } catch (error) {
@@ -62,7 +65,15 @@ const CourseDetail = ({ role }) => {
         setIsLoading(false); // Make sure loading state is updated
       }
     };
+
+    const fetchCourseRating = async () => {
+      const fetchedRating = await getAverageCourseRatingService(id);
+      console.log("Fetched rating: ", fetchedRating);
+      setCourseRating(fetchedRating);
+    };
+
     fetchCourseDetail();
+    fetchCourseRating();
   }, [id]);
 
   // Function to handle opening the modal
@@ -207,6 +218,25 @@ const CourseDetail = ({ role }) => {
             {course.title}
           </h1>
           <p className="text-md text-white">{course.mentor_name}</p>
+          {courseRating && (
+            <div className="flex cursor-pointer items-end gap-2">
+              <h4 className="font-sentinent-medium text-lg text-yellow-400">
+                <a href="#reviews">{courseRating?.average_rating}</a>
+              </h4>
+              <a href="#reviews">
+                <ReactStarsWrapper
+                  edit={false}
+                  value={courseRating.average_rating}
+                  size={22}
+                />
+              </a>
+              <span className="self-center text-xs text-blue-100">
+                <a href="#reviews">
+                  ({courseRating.total_reviews ? "ratings" : "No ratings yet"})
+                </a>
+              </span>
+            </div>
+          )}
           <span className="mt-4 font-sentinent-bold text-2xl text-white">
             ₹ {course.price.amount}
           </span>
@@ -407,6 +437,29 @@ const CourseDetail = ({ role }) => {
                 )}
               </div>
             ))}
+        </div>
+        {/* Reviews and rating */}
+        <div id="reviews" className="mb-5 bg-white p-8 shadow-md">
+          <h2 className="mb-3 text-lg font-bold md:text-2xl">
+            Reviews and rating
+          </h2>
+          <div className="flex items-center gap-2">
+            <ReactStarsWrapper
+              size={50}
+              value={courseRating.average_rating}
+              edit={false}
+            />
+            <span className="text-sm text-blue-500">
+              ({courseRating.total_reviews ? "ratings" : "No ratings yet"})
+            </span>
+          </div>
+          <h2 className="text-xl font-bold text-yellow-700 sm:text-2xl md:text-3xl">
+            {courseRating.average_rating} Course Ratings
+          </h2>
+
+          <div className="mt-8">
+            <ListReviews courseId={id} />
+          </div>
         </div>
       </div>
     </>
