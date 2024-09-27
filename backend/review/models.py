@@ -27,8 +27,8 @@ class Review(models.Model):
 
     def save(self, *args, **kwargs):
         # Validate rating range
-        if not (1.0 <= self.rating <= 5.0):
-            raise ValueError("Rating must be between 1.0 and 5.0")
+        if not (0.5 <= self.rating <= 5.0):
+            raise ValueError("Rating must be between 0.5 and 5.0")
         super().save(*args, **kwargs)
 
 

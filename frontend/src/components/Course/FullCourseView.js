@@ -20,6 +20,7 @@ const FullCourseView = () => {
   const [courseRating, setCourseRating] = useState({});
   const videoRef = useRef(null); // Ref to control video events
   let hideArrowsTimeout; // Timeout for hiding arrows
+  const [reviewUpdated, setReviewUpdated] = useState(false);
 
   useEffect(() => {
     const fetchLessonContent = async () => {
@@ -42,7 +43,7 @@ const FullCourseView = () => {
 
     fetchLessonContent();
     fetchCourseRating();
-  }, [id]);
+  }, [id, reviewUpdated]);
 
   const handleChangingLessons = async (lessonId, index) => {
     const lessonData = await getFullLessonData(lessonId, id);
@@ -199,7 +200,7 @@ const FullCourseView = () => {
             <div
               onClick={() => handleChangingLessons(lesson.id, index)}
               key={lesson.title}
-              className={`flex cursor-pointer items-center justify-between border border-gray-300 bg-slate-50 p-4 hover:bg-purple-50 ${
+              className={`flex cursor-pointer items-center justify-between border ${currentLessonIndex === index ? "bg-indigo-200" : "bg-slate-50"} border-gray-300 p-4 hover:bg-purple-50 ${
                 index === courseDetails.lessons.length - 1 ? "" : "border-b-0"
               } shadow-md`}
             >
@@ -217,8 +218,15 @@ const FullCourseView = () => {
       {/* Course Review */}
       {selected === "reviews" && (
         <>
-          <CourseRating size={80} courseRating={courseRating} />
-          <ReviewForm courseId={courseDetails.id} />
+          <CourseRating
+            reviewUpdated={reviewUpdated}
+            size={80}
+            courseRating={courseRating}
+          />
+          <ReviewForm
+            setReviewUpdated={setReviewUpdated}
+            courseId={courseDetails.id}
+          />
         </>
       )}
     </div>

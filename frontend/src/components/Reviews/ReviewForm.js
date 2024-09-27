@@ -14,14 +14,14 @@ import { EditIcon } from "../common/Icons";
 const reviewSchema = Yup.object({
   reviewRating: Yup.number()
     .required("Rating is required.")
-    .min(1, "Rating must be at least 1.")
+    .min(0.5, "Rating must be at least 0.5.")
     .max(5, "Rating cannot be more than 5."),
   reviewText: Yup.string()
     .min(5, "Review must be at least 5 characters.")
     .required("Review text is required."),
 });
 
-const ReviewForm = ({ courseId }) => {
+const ReviewForm = ({ courseId, setReviewUpdated }) => {
   const [review, setReview] = useState(null); // Store user's review
   const [isEditing, setIsEditing] = useState(false); // Toggle between view and edit mode
   const [isExpanded, setIsExpanded] = useState(false);
@@ -70,6 +70,7 @@ const ReviewForm = ({ courseId }) => {
           reviewText,
         });
         setReview(reviewUpdated);
+        setReviewUpdated((prev) => !prev);
       } else {
         // Call the service to create/update the review
         const reviewCreated = await createReviewService({
