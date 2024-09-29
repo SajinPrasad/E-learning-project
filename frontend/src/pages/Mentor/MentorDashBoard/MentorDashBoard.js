@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 
 import { useNavigate } from "react-router-dom";
 import { MentorLayout, MentorStats } from "../../../components/Mentor";
-import { getCategories } from "../../../services/courseServices/categoryService";
+import { getParentCategories } from "../../../services/courseServices/categoryService";
 import { setCategoryData } from "../../../features/course/categorySlice";
 
 const MentorDashBoard = () => {
@@ -27,7 +27,7 @@ const MentorDashBoard = () => {
     // Fetch data if the role is 'mentor'
     const fetchData = async () => {
       try {
-        const courseCategories = await getCategories();
+        const courseCategories = await getParentCategories();
         
         if (courseCategories) {
           dispatch(setCategoryData(courseCategories));

@@ -1,9 +1,11 @@
 import { toast } from "react-toastify";
-import privateAxiosInstance from "../../api/axiosInstance";
+import privateAxiosInstance, {
+  publicAxiosInstance,
+} from "../../api/axiosInstance";
 
-const createCategory = async (name, description) => {
+const createParentCategories = async (name, description) => {
   try {
-    const response = await privateAxiosInstance.post("/categories/", {
+    const response = await privateAxiosInstance.post("/parent-categories/", {
       name,
       description,
     });
@@ -68,9 +70,9 @@ const createSubCategory = async (name, description, parentCategoryID) => {
   }
 };
 
-const getCategories = async (setIsLoading) => {
+const getParentCategories = async (setIsLoading) => {
   try {
-    const response = await privateAxiosInstance.get("/categories/");
+    const response = await publicAxiosInstance.get("/parent-categories/");
     if (response.status >= 200 && response.status < 300) {
       return response.data;
     } else {
@@ -103,41 +105,77 @@ const getCategories = async (setIsLoading) => {
   }
 };
 
-const deleteCategory = async (categoryID) => {
+const getSubCategories = async (parentCategoryID) => {
   try {
-    // Make a DELETE request to the endpoint with the category ID
-    const response = await privateAxiosInstance.delete(
-      `/categories/${categoryID}/`,
+    const response = await publicAxiosInstance.get(
+      `/parent-categories/${parentCategoryID}/`,
     );
-
-    // Check if the response status indicates success
     if (response.status >= 200 && response.status < 300) {
-      toast.success("Successfully deleted Category.");
+      return response.data.sub_categories;
     } else {
-      toast.error("Error while deleting category!");
+      toast.error("Error while fetching subcategories!");
     }
   } catch (error) {
     if (error.response) {
-      // Handle errors returned by the server
+      // Handle client or server errors
       const statusCode = error.response.status;
-      if (statusCode >= 400) {
-        // Client-side errors
+      if (statusCode >= 400 && statusCode < 500) {
         toast.error("Request error. Please check your permissions.");
       } else if (statusCode >= 500) {
-        // Server-side errors
         toast.error("Server error. Please try again later.");
       }
     } else if (error.request) {
-      // Handle cases where no response was received from the server
+      // Handle no response from server
       toast.error(
         "No response received from server. Please check your network connection.",
       );
     } else {
-      // Handle unexpected errors (e.g., network issues)
+      // Handle unexpected errors (e.g., network issues, etc.)
       toast.error("An unexpected error occurred. Please try again.");
     }
-    throw error; // Rethrow error for further handling if needed
+    throw error; // Rethrow the error to be handled by the calling code if necessary
   }
 };
 
-export { createCategory, getCategories, createSubCategory, deleteCategory };
+const updateCategory = async ({ categoryId, field, value, url }) => {
+  console.log("Field:", field, "Value: ", value);
+  try {
+    // Create a dynamic object using computed property names
+    const payload = { [field]: value }; 
+    
+    const response = await privateAxiosInstance.patch(
+      `/${url}/${categoryId}/`,
+      payload,
+    );
+    if (response.status >= 200 && response.status < 300) {
+      toast.success("Successfully updated category");
+      return response.data;
+    } else {
+      toast.error("Error while updating subcategories!");
+    }
+  } catch (error) {
+    if (error.response) {
+      const statusCode = error.response.status;
+      if (statusCode >= 400 && statusCode < 500) {
+        toast.error("Request error. Please check your permissions.");
+      } else if (statusCode >= 500) {
+        toast.error("Server error. Please try again later.");
+      }
+    } else if (error.request) {
+      toast.error(
+        "No response received from server. Please check your network connection.",
+      );
+    } else {
+      toast.error("An unexpected error occurred. Please try again.");
+    }
+    throw error;
+  }
+};
+
+export {
+  createParentCategories,
+  getParentCategories,
+  createSubCategory,
+  getSubCategories,
+  updateCategory,
+};

@@ -20,7 +20,6 @@ from .models import (
     Suggestion,
     Enrollment,
 )
-from users.models import MentorProfile
 from .utils import validate_course
 
 logger = logging.getLogger(__name__)
@@ -28,26 +27,14 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
-class CategorySerializer(ModelSerializer):
-    """
-    Serializer for creating and managing Category instances.
-    """
-
-    class Meta:
-        model = Category
-        fields = ["id", "name", "description", "parent"]
-
-
 class SubCategorySerializer(ModelSerializer):
     """
     Serializer for creating and managing Sub Categories.
     """
 
-    parent = PrimaryKeyRelatedField(queryset=Category.objects.all(), required=True)
-
     class Meta:
         model = Category
-        fields = ["id", "name", "description", "parent"]
+        fields = ["id", "name", "description", "parent", "is_active"]
 
     def create(self, validated_data):
         """
@@ -60,13 +47,19 @@ class SubCategorySerializer(ModelSerializer):
             raise ValidationError({"parent": "Invalid parent category."})
         return super().create(validated_data)
 
-    def update(self, instance, validated_data):
-        parent = validated_data.get("parent")
 
-        # Ensure the parent is a valid category
-        if not Category.objects.filter(id=parent.id).exists():
-            raise ValidationError({"parent": "Invalid parent category."})
-        return super().update(instance, validated_data)
+class ParentCategorySerializer(ModelSerializer):
+    """
+    Serializer for creating and managing Category instances.
+    """
+
+    sub_categories = SubCategorySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ["id", "name", "description", "sub_categories", "is_active"]
+        
+    
 
 
 class CourseRequirementSerializer(ModelSerializer):

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import { Button } from "../common";
 import {
-  createCategory,
+  createParentCategories,
   createSubCategory,
 } from "../../services/courseServices/categoryService";
 
@@ -26,7 +26,7 @@ const CourseCategoryForm = ({
     try {
       console.log("Category type: ", parentCategoryID)
       if (parentCategoryID === "Parent") {
-        await createCategory(name, description);
+        await createParentCategories(name, description);
       } else {
         await createSubCategory(name, description, parentCategoryID);
       }

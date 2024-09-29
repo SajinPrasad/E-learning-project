@@ -2,6 +2,7 @@ from decimal import Decimal
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, FileExtensionValidator
+from django.db.models import Q
 
 # Create your models here.
 
@@ -15,7 +16,7 @@ class Category(models.Model):
 
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
-    # Foreign key relation with self
+    # Self referencing foreign key relation
     parent = models.ForeignKey(
         "self",
         on_delete=models.CASCADE,
@@ -23,8 +24,13 @@ class Category(models.Model):
         blank=True,
         related_name="subcategories",
     )
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def sub_categories(self):
+        return self.subcategories.all()
 
     def __str__(self):
         return self.name
@@ -34,6 +40,17 @@ class Category(models.Model):
         if self.parent:
             return f"{self.parent.get_full_path()} > {self.name}"
         return self.name
+
+    def is_active_recursive(self):
+        """
+        Check if the category and all its parent categories are active.
+        """
+        current_category = self
+        while current_category:
+            if not current_category.is_active:
+                return False
+            current_category = current_category.parent
+        return True
 
 
 class Course(models.Model):

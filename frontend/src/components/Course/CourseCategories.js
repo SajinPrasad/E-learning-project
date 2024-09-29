@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { Card, Loading } from "../common";
-import {
-  deleteCategory,
-  getCategories,
-} from "../../services/courseServices/categoryService";
+import { getParentCategories } from "../../services/courseServices/categoryService";
 import { PlusIcon } from "../common/Icons";
 import CourseCategoryForm from "./CourseCategoryForm";
 import { AdminLayout } from "../Admin";
@@ -20,7 +17,7 @@ const CourseCategories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       setIsLoading(true);
-      const categoriesData = await getCategories(setIsLoading);
+      const categoriesData = await getParentCategories(setIsLoading);
       if (categoriesData) {
         setCategories(categoriesData);
       }
@@ -32,16 +29,11 @@ const CourseCategories = () => {
 
   // Function to refresh categories data
   const refreshCategories = async () => {
-    const categoriesData = await getCategories();
+    const categoriesData = await getParentCategories();
     if (categoriesData) {
       setCategories(categoriesData);
       setCategoryData(categoriesData); //Setting redux state for categories
     }
-  };
-
-  const handleDeleteCategory = async (categoryId) => {
-    await deleteCategory(categoryId);
-    refreshCategories();
   };
 
   const handleIsCategoryForm = () => {
@@ -90,13 +82,11 @@ const CourseCategories = () => {
               id={category.id}
               title={category.name}
               description={category.description}
-              onDelete={handleDeleteCategory}
               key={category.name}
-              subText={
-                category.parent
-                  ? `Sub category of ${category.parent}`
-                  : `Parent Category`
-              }
+              subText={`Parent Category`}
+              btn={true}
+              isActive={category.is_active}
+              subCategories={category.sub_categories}
             />
           ))}
         </div>

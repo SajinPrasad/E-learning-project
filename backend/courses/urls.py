@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
-    CategoryViewSet,
+    ParentCategoryViewSet,
     CourseListCreateView,
     LessonDetailViewAdminMentorOrPurchasedStudent,
     SubCategoryViewSet,
@@ -18,7 +18,7 @@ from .views import (
 router = DefaultRouter()
 
 # Register the viewsets with the router
-router.register(r"categories", CategoryViewSet, basename="category")
+router.register(r"parent-categories", ParentCategoryViewSet, basename="category")
 router.register(r"subcategories", SubCategoryViewSet, basename="subcategory")
 router.register(r"course/suggestions", CourseSuggestionView, basename="suggestion")
 

@@ -3,15 +3,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import RetrieveAPIView, UpdateAPIView, ListAPIView
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED, HTTP_200_OK
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 import logging
-from rest_framework.authentication import (
-    SessionAuthentication,
-    TokenAuthentication,
-    BasicAuthentication,
-)
+from rest_framework.exceptions import PermissionDenied
 
 from .permissions import (
     MentorOnlyPermission,
@@ -20,7 +16,7 @@ from .permissions import (
 )
 from .models import Category, Course, Enrollment, Lesson, Suggestion
 from .serializers import (
-    CategorySerializer,
+    ParentCategorySerializer,
     CourseUpdateSerializer,
     SubCategorySerializer,
     CourseDetailSerializer,
@@ -36,14 +32,22 @@ from .serializers import (
 logger = logging.getLogger(__name__)
 
 
-class CategoryViewSet(ModelViewSet):
+class ParentCategoryViewSet(ModelViewSet):
     """
     ViewSet for managing categories. Handles CRUD operations for both
     main categories and subcategories.
     """
 
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
+    queryset = Category.objects.filter(parent__isnull=True)
+    serializer_class = ParentCategorySerializer
+
+    def get_permissions(self):
+        """
+        Only admin can use methods otherthan "GET"
+        """
+        if self.request.method in ["GET"]:
+            return [AllowAny()]
+        return [IsAdminUser()]
 
 
 class SubCategoryViewSet(ModelViewSet):
@@ -55,6 +59,14 @@ class SubCategoryViewSet(ModelViewSet):
     queryset = Category.objects.filter(parent__isnull=False)
     serializer_class = SubCategorySerializer
 
+    def get_permissions(self):
+        """
+        Only admin can use methods otherthan "GET"
+        """
+        if self.request.method in ["GET"]:
+            return [AllowAny()]
+        return [IsAdminUser()]
+
     def perform_create(self, serializer):
         """
         Custom creation logic to ensure the parent category is correctly
@@ -63,16 +75,6 @@ class SubCategoryViewSet(ModelViewSet):
         parent_id = self.request.data.get("parent")
         # Ensure the parent category exists or raise a 404 error
         parent = get_object_or_404(Category, id=parent_id)
-        serializer.save(parent=parent)
-
-    def perform_update(self, serializer):
-        """
-        Custom update logic to handle updating the subcategory's parent if needed.
-        """
-        parent_id = self.request.data.get("parent")
-        # Ensure the parent category exists or raise a 404 error
-        parent = get_object_or_404(Category, id=parent_id)
-        # Update the subcategory with the new parent category
         serializer.save(parent=parent)
 
 
@@ -159,36 +161,49 @@ class CourseListCreateView(APIView):
 class CourseListView(ListAPIView):
     """
     Public course listing view.
-    Only listing approved courses.
+    Only listing approved courses where categories and parent categories are active.
     """
 
     permission_classes = [AllowAny]
     serializer_class = CourseListCreateSerializer
-    queryset = Course.objects.filter(status="approved")
+
+    def get_queryset(self):
+        queryset = Course.objects.filter(status="approved")
+
+        # Filter out courses whose categories or their ancestors are inactive
+        return [course for course in queryset if course.category.is_active_recursive()]
 
 
 class AuthenticatedCourseListView(ListAPIView):
-    """ """
+    """
+    View accessed only by authenticated student users.
+    Filtering the category wchich are active and approved courses.
+    """
 
     permission_classes = [IsAuthenticated]
     serializer_class = CourseListCreateSerializer
 
     def get_queryset(self):
         user = self.request.user
-        print("User auth: ", user.is_authenticated, user)
 
         # If the user is authenticated, filter out the courses they are enrolled in
         if user.is_authenticated:
             enrolled_courses_ids = Enrollment.objects.filter(user=user).values_list(
                 "course", flat=True
             )
-            print("Course id: ", enrolled_courses_ids)
-            return Course.objects.filter(status="approved").exclude(
+
+            queryset = Course.objects.filter(status="approved").exclude(
                 id__in=enrolled_courses_ids
             )
 
-        # If the user is not authenticated, return all approved courses
-        return Course.objects.filter(status="approved")
+            return [
+                course for course in queryset if course.category.is_active_recursive()
+            ]
+
+        queryset = Course.objects.filter(status="approved")
+
+        # Filter out courses whose categories or their ancestors are inactive
+        return [course for course in queryset if course.category.is_active_recursive()]
 
 
 class CourseUpdateView(UpdateAPIView):
@@ -209,7 +224,7 @@ class CourseUpdateView(UpdateAPIView):
         if user.is_authenticated and user.role == "mentor":
             return Course.objects.filter(mentor=user)
 
-        if user.is_authenticated and user.is_superuser:
+        if user.is_superuser:
             return Course.objects.all()
 
         return Course.objects.none()
@@ -224,17 +239,32 @@ class CourseDetailView(RetrieveAPIView):
     permission_classes = [AllowAny]
     serializer_class = CourseDetailSerializer
 
-    def get_queryset(self):
-        """
-        Filter queryset to only include courses owned by the requesting mentor.
-        Fetching all the courses for Admins.
-        """
+    def get_object(self):
+        course_id = self.kwargs.get("pk")
         user = self.request.user
 
         if user.is_authenticated and user.role == "mentor":
-            return Course.objects.filter(mentor=user)
-
-        return Course.objects.all()
+            # Mentor can only access their own courses if the category is active
+            queryset = Course.objects.filter(mentor=user)
+            course = get_object_or_404(queryset, pk=course_id)
+            if not course.category.is_active_recursive():
+                raise PermissionDenied("You don't have permission to access this course.")
+        
+        elif user.is_superuser:
+            # Admins can access any course but it must have active categories
+            queryset = Course.objects.all()
+            course = get_object_or_404(queryset, pk=course_id)
+            if not course.category.is_active_recursive():
+                raise PermissionDenied("This course is not available.")
+        
+        else:
+            # General users can access approved courses with active categories
+            queryset = Course.objects.filter(status="approved")
+            course = get_object_or_404(queryset, pk=course_id)
+            if not course.category.is_active_recursive():
+                raise PermissionDenied("This course is not available.")
+        
+        return course
 
 
 class LessonContentView(RetrieveAPIView):
