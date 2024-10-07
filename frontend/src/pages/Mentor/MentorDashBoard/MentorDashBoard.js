@@ -39,6 +39,7 @@ const MentorDashBoard = () => {
 
     fetchData();
   }, [role, navigate, dispatch]);
+  
   return (
     <MentorLayout>
       <MentorStats />

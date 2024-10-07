@@ -105,7 +105,7 @@ const getParentCategories = async (setIsLoading) => {
   }
 };
 
-const getSubCategories = async (parentCategoryID) => {
+const getSubCategoriesOfAParent = async (parentCategoryID) => {
   try {
     const response = await publicAxiosInstance.get(
       `/parent-categories/${parentCategoryID}/`,
@@ -137,12 +137,47 @@ const getSubCategories = async (parentCategoryID) => {
   }
 };
 
+const getSubCategories = async (setIsLoading) => {
+  try {
+    const response = await publicAxiosInstance.get("/subcategories/");
+    if (response.status >= 200 && response.status < 300) {
+      return response.data;
+    } else {
+      toast.error("Error while fetching categories!");
+      setIsLoading(false);
+    }
+  } catch (error) {
+    if (error.response) {
+      // Handle client or server errors
+      const statusCode = error.response.status;
+      if (statusCode >= 400 && statusCode < 500) {
+        toast.error("Request error. Please check your permissions.");
+        setIsLoading(false);
+      } else if (statusCode >= 500) {
+        toast.error("Server error. Please try again later.");
+        setIsLoading(false);
+      }
+    } else if (error.request) {
+      // Handle no response from server
+      toast.error(
+        "No response received from server. Please check your network connection.",
+      );
+      setIsLoading(false);
+    } else {
+      // Handle unexpected errors (e.g., network issues, etc.)
+      toast.error("An unexpected error occurred. Please try again.");
+      setIsLoading(false);
+    }
+    throw error; // Rethrow the error to be handled by the calling code if necessary
+  }
+};
+
 const updateCategory = async ({ categoryId, field, value, url }) => {
   console.log("Field:", field, "Value: ", value);
   try {
     // Create a dynamic object using computed property names
-    const payload = { [field]: value }; 
-    
+    const payload = { [field]: value };
+
     const response = await privateAxiosInstance.patch(
       `/${url}/${categoryId}/`,
       payload,
@@ -176,6 +211,7 @@ export {
   createParentCategories,
   getParentCategories,
   createSubCategory,
-  getSubCategories,
+  getSubCategoriesOfAParent,
   updateCategory,
+  getSubCategories,
 };

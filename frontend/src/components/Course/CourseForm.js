@@ -84,11 +84,14 @@ function confirmCourseSubmission() {
 
 const CourseForm = ({ setAddCourse, refreshCourses }) => {
   const courseCategories = useSelector((state) => state.courseCategory);
+  console.log("Coursecategories:", courseCategories)
 
   // Convert courseCategories from object to array
   const categoriesArray = Object.values(courseCategories).filter(
     (category) => category.id !== undefined,
   );
+
+  console.log("Categories array: ", categoriesArray)
 
   const [videoPreview, setVideoPreview] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Select category");

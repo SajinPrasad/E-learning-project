@@ -1,20 +1,32 @@
 import React, { useState, useEffect, useRef } from "react";
 import { DropDownArrow, RightArrow } from "./Icons";
+import {
+  getParentCategories,
+  getSubCategories,
+} from "../../services/courseServices/categoryService";
 
-const CategoryDropdown = ({ categories, selectedCategory, setSelectedCategory, setFieldValue }) => {
+const CategoryDropdown = ({
+  categories,
+  selectedCategory,
+  setSelectedCategory,
+  setFieldValue,
+}) => {
   const [dropdownOpen, setDropdownOpen] = useState(false); // State to manage dropdown visibility
   const [hoveredParent, setHoveredParent] = useState(null); // State to track the hovered parent category
   const dropdownRef = useRef(null); // Ref for the dropdown to detect outside clicks
 
   // Filter parent categories (categories without a parent)
-  const parentCategories = categories.filter(
-    (category) => category.parent === null
-  );
+  // const parentCategories = categories.filter(
+  //   (category) => category.parent === null
+  // );
 
   // Filter child categories (categories with a parent)
-  const childCategories = categories.filter(
-    (category) => category.parent !== null
-  );
+  // const childCategories = categories.filter(
+  //   (category) => category.parent !== null
+  // );
+
+  const [parentCategories, setParentCategories] = useState([]);
+  const [childCategories, setChildCategoriries] = useState([]);
 
   // Handle mouse hover over parent categories
   const handleMouseEnter = (parentId) => {
@@ -29,12 +41,21 @@ const CategoryDropdown = ({ categories, selectedCategory, setSelectedCategory, s
   // Handle category selection, close dropdown after selection
   const handleCategorySelect = (categoryName) => {
     setSelectedCategory(categoryName);
-    setFieldValue('courseCategory', categoryName);
+    setFieldValue("courseCategory", categoryName);
     setDropdownOpen(false); // Close the dropdown menu after selection
   };
 
   // Handle closing the dropdown when clicking outside of it
   useEffect(() => {
+    const fetchCategories = async () => {
+      const fetchedParentCategories = await getParentCategories();
+      const fetchedSubCategories = await getSubCategories();
+
+      setParentCategories(fetchedParentCategories);
+      setChildCategoriries(fetchedSubCategories);
+    };
+
+    fetchCategories();
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
@@ -57,7 +78,7 @@ const CategoryDropdown = ({ categories, selectedCategory, setSelectedCategory, s
         <button
           type="button"
           onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="items-center inline-flex h-11 w-full justify-between rounded border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="inline-flex h-11 w-full items-center justify-between rounded border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
         >
           {selectedCategory} {/* Display the selected category */}
           <DropDownArrow /> {/* Dropdown arrow icon */}
@@ -75,7 +96,7 @@ const CategoryDropdown = ({ categories, selectedCategory, setSelectedCategory, s
                 onMouseEnter={() => handleMouseEnter(parent.id)}
                 onMouseLeave={handleMouseLeave}
               >
-                <span className="w-full flex justify-between">
+                <span className="flex w-full justify-between">
                   {parent.name}
                   <RightArrow />
                 </span>

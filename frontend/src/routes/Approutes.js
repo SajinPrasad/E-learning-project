@@ -14,6 +14,7 @@ import {
   MenotrCourses,
   MentorCourseDetail,
   MentorDashBoard,
+  MentorInbox,
 } from "../pages/Mentor";
 import {
   AdminCourseDetail,
@@ -59,6 +60,7 @@ const AppRoutes = () => {
         <Route path="/profile" element={<StudentProfilePage />} />
         <Route path="/mentor/profile" element={<MentorProfilePage />} />
         <Route path="/inbox" element={<InboxPage />} />
+        <Route path="/mentor/inbox" element={<MentorInbox />} />
       </Route>
     </Routes>
   );

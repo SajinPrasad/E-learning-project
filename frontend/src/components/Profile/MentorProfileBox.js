@@ -74,8 +74,8 @@ const MentorProfileBox = ({ profile, is_enrolled = false }) => {
               onClick={handleInboxClick}
               className="mt-5 flex cursor-pointer gap-2 text-xs text-gray-500"
             >
-              <InboxIcon />
-              <span className="mt-1">Inbox</span>
+              <InboxIcon defaultColor />
+              <span>Inbox</span>
             </p>
           )}
         </div>

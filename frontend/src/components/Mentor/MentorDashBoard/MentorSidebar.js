@@ -6,6 +6,7 @@ import {
   CoursesIcon,
   DashboardIcon,
   HamBurger,
+  InboxIcon,
 } from "../../../components/common/Icons";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -22,6 +23,8 @@ const MentorSidebar = () => {
       setSelected("dashboard");
     } else if (path.startsWith("/mentor/course")) {
       setSelected("courses");
+    } else if (path.startsWith("/mentor/inbox")) {
+      setSelected("inbox");
     }
   }, [location.pathname]);
 
@@ -66,6 +69,7 @@ const MentorSidebar = () => {
               <DashboardIcon isSelected={selected === "dashboard"} />
               <a className={`flex items-start px-3 py-2`}>Dashboard</a>
             </div>
+
             {/* My Courses link */}
             <div
               className={`flex cursor-pointer items-center gap-1 ${styles.iconContainer} toggleCourseDropdown rounded px-2 ${
@@ -77,6 +81,19 @@ const MentorSidebar = () => {
             >
               <CoursesIcon isSelected={selected === "courses"} />
               <a className={`flex items-start px-3 py-2`}>My Courses</a>
+            </div>
+
+            {/* Inbox */}
+            <div
+              className={`flex cursor-pointer items-center gap-1 ${styles.iconContainer} toggleCourseDropdown rounded px-2 ${
+                selected === "inbox"
+                  ? "bg-theme-primary text-white" // Apply styles if selected
+                  : "hover:bg-purple-100"
+              }`}
+              onClick={() => handleClick("inbox", "/mentor/inbox")}
+            >
+              <InboxIcon isSelected={selected === "inbox"} />
+              <a className={`flex items-start px-3 py-2`}>Inbox</a>
             </div>
           </nav>
         </div>

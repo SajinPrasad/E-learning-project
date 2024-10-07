@@ -62,8 +62,6 @@ const Home = () => {
     fetchCourses();
   }, []);
 
-  console.log("Enrolled courses: ", enrolledCourses);
-
   if (isLoading) {
     return <Loading />;
   }
