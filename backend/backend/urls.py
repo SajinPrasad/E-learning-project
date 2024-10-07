@@ -28,4 +28,5 @@ urlpatterns = [
     path("", include("review.urls")),
     path("", include("paypal_payments.urls")),
     path("", include("chat.urls")),
+    path("", include("orders.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

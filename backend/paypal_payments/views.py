@@ -3,8 +3,10 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.conf import settings
 import paypalrestsdk
 
-from cart.models import Order, Payment, OrderCourse, CartItem
+from cart.models import Order, CartItem
 from courses.models import Enrollment
+from .models import Payment
+from orders.models import OrderCourse
 
 # Create your views here.
 

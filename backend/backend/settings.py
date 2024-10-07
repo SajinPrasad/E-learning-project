@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "paypal_payments",
     "review",
     "chat",
+    "orders",
 ]
 
 MIDDLEWARE = [
