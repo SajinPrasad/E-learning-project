@@ -77,3 +77,14 @@ export const updateProfileInformation = async (profileId, field, value) => {
   }
   return null;
 };
+
+
+// Function to generate initials for the chat profile avatars based on full names.
+export const getInitialsService = (fullName) => {
+  if (!fullName) return "";
+  const names = fullName.split(" ");
+  if (names.length < 2) return fullName.charAt(0); // Use the first character if there's only one name.
+  const firstInitial = names[0].charAt(0);
+  const lastInitial = names[names.length - 1].charAt(0);
+  return `${firstInitial}${lastInitial}`; // Concatenate the first and last initials.
+};

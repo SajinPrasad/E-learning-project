@@ -4,7 +4,7 @@ import { checkoutService } from "../../services/cartServices";
 import privateAxiosInstance from "../../api/axiosInstance";
 import { useDispatch } from "react-redux";
 import { clearCartItems } from "../../features/cartItem/cartItemSlice";
-import PaypalButtonSkeleton from "./PaypalButtonSkeleton";
+import { PaypalButtonSkeleton } from "../Skeletons";
 
 const PAYPAL_CLIENT_ID = process.env.REACT_APP_PAYPAL_CLIENT_ID;
 

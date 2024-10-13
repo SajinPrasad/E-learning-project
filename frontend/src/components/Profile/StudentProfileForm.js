@@ -4,11 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { EditIcon } from "../common/Icons";
 import {
   fetchStudentProfileInformation,
+  getInitialsService,
   updateProfileInformation,
 } from "../../services/profileServices";
 import { setUserInfo } from "../../features/tempUser/userSlice";
 import { Loading } from "../common";
 import { setProfileInfo } from "../../features/tempUser/profileSlice";
+import { ProfileSkeleton } from "../Skeletons";
 
 /**
  * For students profile.
@@ -121,7 +123,7 @@ const StudentProfileForm = () => {
   };
 
   if (isLoading) {
-    return <Loading />;
+    return <ProfileSkeleton />;
   }
 
   return (
@@ -135,16 +137,12 @@ const StudentProfileForm = () => {
 
       {/* Profile picture */}
       <div className="mb-6 mt-8 flex flex-col items-center">
-        <div className="h-28 w-28 overflow-hidden rounded-full border border-gray-300 md:h-28 md:w-28 lg:h-32 lg:w-32">
+        <div className="h-20 w-20 overflow-hidden rounded-full border border-gray-300 md:h-24 md:w-24 lg:h-28 lg:w-28">
           {image ? (
-            <img
-              src={image}
-              alt="Profile Preview"
-              className="h-full w-full object-cover"
-            />
+            <img src={image} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-gray-500">
-              No Image
+            <div className="flex h-full w-full items-center text-xl md:text-4xl sm:text-2xl font-bold bg-theme-primary justify-center text-white">
+              {getInitialsService(profile.first_name + " " + profile.last_name)}
             </div>
           )}
         </div>

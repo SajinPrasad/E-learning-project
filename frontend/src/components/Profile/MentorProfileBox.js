@@ -2,6 +2,7 @@ import React from "react";
 
 import { InboxIcon } from "../common/Icons";
 import { useNavigate } from "react-router-dom";
+import { getInitialsService } from "../../services/profileServices";
 
 /**
  * @param {*} param0 profile - Profile object of mentor
@@ -9,14 +10,6 @@ import { useNavigate } from "react-router-dom";
  */
 const MentorProfileBox = ({ profile, is_enrolled = false }) => {
   const navigate = useNavigate();
-
-  const getInitials = (fullName) => {
-    const names = fullName?.split(" ");
-    if (names.length < 2) return fullName?.charAt(0); // Handle case with no space
-    const firstInitial = names[0].charAt(0);
-    const lastInitial = names[names.length - 1].charAt(0);
-    return `${firstInitial}${lastInitial}`;
-  };
 
   // Setting user id in state and navigating to inbox
   const handleInboxClick = () => {
@@ -35,11 +28,17 @@ const MentorProfileBox = ({ profile, is_enrolled = false }) => {
 
       <div className="flex flex-col items-center text-center md:flex-row md:text-left">
         {/* Larger Mentor Image */}
-        <img
-          src={`http://localhost:8000/${profile.profile_picture}`}
-          alt={getInitials(profile.full_name)}
-          className="mb-4 h-32 w-32 rounded-full border-4 border-gray-300 object-cover shadow-md md:mb-0"
-        />
+        {profile.profile_picture ? (
+          <img
+            src={`http://localhost:8000/${profile.profile_picture}`}
+            className="mb-4 h-32 w-32 rounded-full border-4 border-gray-300 object-cover shadow-md md:mb-0"
+          />
+        ) : (
+          <div className="mb-4 flex h-32 w-32 items-center justify-center rounded-full  bg-theme-primary object-cover text-xl font-bold text-white sm:text-2xl md:mb-0 md:text-4xl">
+            {getInitialsService(profile.full_name)}
+          </div>
+        )}
+
         {/* Mentor Details */}
         <div className="ml-0 md:ml-6">
           {/* Full Name */}

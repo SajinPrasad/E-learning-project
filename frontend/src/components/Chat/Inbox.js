@@ -7,6 +7,7 @@ import {
   getChatProfileService,
   getReceiverProfileService,
 } from "../../services/chatServices/chatServices";
+import { getInitialsService } from "../../services/profileServices";
 
 const Inbox = () => {
   const location = useLocation();
@@ -129,18 +130,6 @@ const Inbox = () => {
     }
   };
 
-  // Function to generate initials for the chat profile avatars based on full names.
-  const getInitials = (fullName) => {
-    if (!fullName) return "";
-    const names = fullName.split(" ");
-    if (names.length < 2) return fullName.charAt(0); // Use the first character if there's only one name.
-    const firstInitial = names[0].charAt(0);
-    const lastInitial = names[names.length - 1].charAt(0);
-    return `${firstInitial}${lastInitial}`; // Concatenate the first and last initials.
-  };
-
-  console.log("Chat Messages: ", messages);
-
   return (
     <div className="m-10 mx-auto flex h-[78vh] w-5/6 rounded border border-gray-200">
       {/* User List */}
@@ -160,12 +149,11 @@ const Inbox = () => {
               {user.profile_picture ? (
                 <img
                   src={`http://127.0.0.1:8000${user.profile_picture}`}
-                  alt={""}
                   className="h-10 w-10 rounded-full object-cover"
                 />
               ) : (
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-lg font-bold text-white">
-                  {getInitials(user.full_name)}
+                  {getInitialsService(user.full_name)}
                 </div>
               )}
               <span className="text-md">{user.full_name}</span>
@@ -184,12 +172,11 @@ const Inbox = () => {
                 {receiverProfile?.profile_picture ? (
                   <img
                     src={`${receiverProfile?.profile_picture}`}
-                    alt={receiverProfile?.full_name}
                     className="mb-4 h-10 w-10 rounded-full border-2 border-gray-300 object-cover md:mb-0 md:h-14 md:w-14"
                   />
                 ) : (
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-theme-primary text-lg font-bold text-white md:h-14 md:w-14">
-                    {getInitials(receiverProfile?.full_name)}
+                    {getInitialsService(receiverProfile?.full_name)}
                   </div>
                 )}
                 <span className="ml-4 text-lg font-semibold">
