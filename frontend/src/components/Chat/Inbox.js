@@ -139,7 +139,7 @@ const Inbox = () => {
     return `${firstInitial}${lastInitial}`; // Concatenate the first and last initials.
   };
 
-  console.log("Chat Profiles: ", chatProfiles);
+  console.log("Chat Messages: ", messages);
 
   return (
     <div className="m-10 mx-auto flex h-[78vh] w-5/6 rounded border border-gray-200">
@@ -204,22 +204,79 @@ const Inbox = () => {
               className="flex-grow overflow-y-auto p-4"
             >
               <div className="mb-4 flex flex-col gap-4">
-                {messages?.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`flex ${msg.sender === receiverId ? "justify-start" : "justify-end"}`}
-                  >
-                    <div
-                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                        msg.sender === receiverId
-                          ? "bg-gray-100 text-gray-900"
-                          : "bg-theme-primary text-white"
-                      }`}
-                    >
-                      <p className="text-sm">{msg.message}</p>
+                {messages?.map((msg, index) => {
+                  // Convert message timestamp to date and check if it's today's date
+                  const messageDate = new Date(msg.timestamp);
+                  const today = new Date();
+
+                  // Helper function to format time
+                  const formatTime = (date) => {
+                    const hours = date.getHours().toString().padStart(2, "0");
+                    const minutes = date
+                      .getMinutes()
+                      .toString()
+                      .padStart(2, "0");
+                    return `${hours}:${minutes}`;
+                  };
+
+                  // Check if the message date is the same as today
+                  const isMessageToday =
+                    messageDate.getDate() === today.getDate() &&
+                    messageDate.getMonth() === today.getMonth() &&
+                    messageDate.getFullYear() === today.getFullYear();
+
+                  // Format date as "Today" or as a full date
+                  const formattedDate = isMessageToday
+                    ? "Today"
+                    : messageDate.toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      });
+
+                  // Check if this is the first message of the day or a different date
+                  // than the previous message
+                  const isFirstMessageOfDay =
+                    index === 0 ||
+                    new Date(
+                      messages[index - 1].timestamp,
+                    ).toLocaleDateString() !== messageDate.toLocaleDateString();
+
+                  return (
+                    <div key={index}>
+                      {/* Display the date or "Today" in the center of the chat box */}
+                      {isFirstMessageOfDay && (
+                        <div className="mb-2 flex justify-center">
+                          <div className="text-center text-xs text-gray-500">
+                            {formattedDate}
+                          </div>
+                        </div>
+                      )}
+
+                      <div
+                        className={`flex ${msg.sender === receiverId ? "justify-start" : "justify-end"}`}
+                      >
+                        <div
+                          className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                            msg.sender === receiverId
+                              ? "bg-gray-100 text-gray-900"
+                              : "bg-theme-primary text-white"
+                          }`}
+                        >
+                          <p className="text-sm">{msg.message}</p>
+                          {/* Display the time under each message */}
+                          <p
+                            className={`mt-1 text-right ${msg.sender === receiverId ? "text-gray-500" : "text-gray-200"}`}
+                            style={{ fontSize: "10px" }}
+                          >
+                            {formatTime(messageDate)}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
+
                 <div ref={messageEndRef} />
               </div>
             </div>
