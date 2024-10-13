@@ -32,7 +32,7 @@ const Cart = () => {
       </div>
     );
   }
-  console.log(cartItems)
+  
   if (isLoading) {
     return <Loading />;
   }
