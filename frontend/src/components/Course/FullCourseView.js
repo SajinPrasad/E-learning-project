@@ -10,6 +10,7 @@ import { ReviewForm, CourseRating } from "../Reviews";
 import CourseOverview from "./CourseOverview";
 import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
 import { toast } from "react-toastify";
+import { LessonSkeleton, VideoSkeleton } from "../Skeletons";
 
 const FullCourseView = () => {
   const { id } = useParams();
@@ -25,9 +26,13 @@ const FullCourseView = () => {
   const videoRef = useRef(null); // Ref to control video events
   let hideArrowsTimeout; // Timeout for hiding arrows
   const [reviewUpdated, setReviewUpdated] = useState(false);
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [isLessonLoading, setIsLessonLoading] = useState(false);
 
   useEffect(() => {
     const fetchLessonContent = async () => {
+      setIsLessonLoading(true)
+      setIsVideoLoading(true);
       const response = await getCourseDetails(id);
       if (response) {
         setCourseDetails(response);
@@ -37,6 +42,8 @@ const FullCourseView = () => {
         );
         setCurrentLesson(firstLessonData);
         setCurrentLessonIndex(0); // Set index to 0 for first lesson
+        setIsLessonLoading(false)
+        setIsVideoLoading(false);
       }
     };
 
@@ -162,12 +169,17 @@ const FullCourseView = () => {
     <div className="w-full">
       {/* Video Container */}
       <div className="relative mb-3 w-full">
-        <video
-          controls
-          src={currentLesson?.video_file}
-          className="h-auto max-h-[75vh] w-full rounded border border-gray-300 shadow-lg"
-          ref={videoRef} // Reference to video element
-        />
+        {isVideoLoading || !currentLesson?.video_file ? (
+          <VideoSkeleton />
+        ) : (
+          <video
+            controls
+            src={currentLesson?.video_file}
+            className="h-auto max-h-[75vh] w-full rounded border border-gray-300 shadow-lg"
+            ref={videoRef}
+          />
+        )}
+
         {/* Previous and Next Arrows */}
         {showArrows && (
           <>
@@ -251,22 +263,27 @@ const FullCourseView = () => {
 
       {/* Lessons Container */}
       {selected === "lessons" && (
-        <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-0">
-          {courseDetails.lessons?.map((lesson, index) => (
-            <div
-              onClick={() => handleChangingLessons(lesson.id, index)}
-              key={lesson.title}
-              className={`flex cursor-pointer items-center justify-between border ${currentLessonIndex === index ? "bg-indigo-200" : "bg-slate-50"} border-gray-300 p-4 hover:bg-purple-50 ${
-                index === courseDetails.lessons.length - 1 ? "" : "border-b-0"
-              } shadow-md`}
-            >
-              <h1 className="text-md font-semibold text-gray-700 hover:text-blue-950">
-                {lesson.title}
-              </h1>
-            </div>
-          ))}
+  <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-0">
+    {isLessonLoading ? (
+      <LessonSkeleton />
+    ) : (
+      courseDetails.lessons?.map((lesson, index) => (
+        <div
+          onClick={() => handleChangingLessons(lesson.id, index)}
+          key={lesson.title}
+          className={`flex cursor-pointer items-center justify-between border ${currentLessonIndex === index ? "bg-indigo-200" : "bg-slate-50"} border-gray-300 p-4 hover:bg-purple-50 ${
+            index === courseDetails.lessons.length - 1 ? "" : "border-b-0"
+          } shadow-md`}
+        >
+          <h1 className="text-md font-semibold text-gray-700 hover:text-blue-950">
+            {lesson.title}
+          </h1>
         </div>
-      )}
+      ))
+    )}
+  </div>
+)}
+
 
       {/* Course Overview */}
       {selected === "overview" && <CourseOverview course={courseDetails} />}
