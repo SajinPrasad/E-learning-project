@@ -33,7 +33,6 @@ import {
 import { CartPage, ConfirmOrderPage } from "../pages/Cart";
 import { MentorProfilePage, StudentProfilePage } from "../pages/Profile";
 import InboxPage from "../pages/Chat/InboxPage";
-import { EnrolledCoursesSkeleton } from "../components/Skeletons";
 
 const AppRoutes = () => {
   return (
@@ -48,7 +47,6 @@ const AppRoutes = () => {
       <Route path="/admin" element={<AdminLogin />} />
       <Route path="/course/:id" element={<CommonCourseDetails />} />
       <Route path="/cart/" element={<CartPage />} />
-      <Route path="/skeleton/" element={<EnrolledCoursesSkeleton />} />
       <Route element={<ProtectedRoutes />}>
         <Route path="/mentor" element={<MentorDashBoard />} />
         <Route path="/mentor/courses" element={<MenotrCourses />} />
