@@ -7,7 +7,6 @@ from django.conf import settings
 # Create your models here.
 
 
-
 class Category(models.Model):
     """
     Course category model with self foreign key relation for subcategories.
@@ -96,6 +95,8 @@ class Lesson(models.Model):
         null=True,
         validators=[FileExtensionValidator(["mp4"])],
     )
+    # Mark as true when the user finished watching the lesson
+    completed = models.BooleanField(default=False)
     # For sequential order of each lesson
     order = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -168,7 +169,9 @@ class Enrollment(models.Model):
     Model for storing purchased courses (enrollments) of each user
     """
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="enrollments")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="enrollments"
+    )
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="enrollments"
     )

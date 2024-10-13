@@ -68,7 +68,6 @@ const CourseDetail = ({ role }) => {
 
     const fetchCourseRating = async () => {
       const fetchedRating = await getAverageCourseRatingService(id);
-      console.log("Fetched rating: ", fetchedRating);
       setCourseRating(fetchedRating);
     };
 

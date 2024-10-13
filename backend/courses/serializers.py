@@ -58,8 +58,6 @@ class ParentCategorySerializer(ModelSerializer):
     class Meta:
         model = Category
         fields = ["id", "name", "description", "sub_categories", "is_active"]
-        
-    
 
 
 class CourseRequirementSerializer(ModelSerializer):
@@ -96,6 +94,18 @@ class FullURLImageField(ImageField):
         )
 
 
+class LessonCompletionSerializer(ModelSerializer):
+    """
+    For updating the completion status for lessons.
+    * Only accessible by users who are purchased the course.
+    """
+
+    class Meta:
+        model = Lesson
+        fields = ["completed"]
+        write_only_fields = ["completed"]
+
+
 class LessonSerializer(ModelSerializer):
     """
     Used for creating and retrieving purchased courses.
@@ -104,7 +114,7 @@ class LessonSerializer(ModelSerializer):
 
     class Meta:
         model = Lesson
-        fields = ["id", "title", "content", "video_file", "order"]
+        fields = ["id", "title", "content", "video_file", "completed", "order"]
 
 
 class CourseListCreateSerializer(ModelSerializer):

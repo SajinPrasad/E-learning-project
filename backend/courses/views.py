@@ -24,6 +24,7 @@ from .serializers import (
     CourseSuggestionSerializer,
     LessonContentSerializer,
     LessonSerializer,
+    LessonCompletionSerializer,
     CourseEnrollementSerializer,
 )
 
@@ -248,22 +249,24 @@ class CourseDetailView(RetrieveAPIView):
             queryset = Course.objects.filter(mentor=user)
             course = get_object_or_404(queryset, pk=course_id)
             if not course.category.is_active_recursive():
-                raise PermissionDenied("You don't have permission to access this course.")
-        
+                raise PermissionDenied(
+                    "You don't have permission to access this course."
+                )
+
         elif user.is_superuser:
             # Admins can access any course but it must have active categories
             queryset = Course.objects.all()
             course = get_object_or_404(queryset, pk=course_id)
             if not course.category.is_active_recursive():
                 raise PermissionDenied("This course is not available.")
-        
+
         else:
             # General users can access approved courses with active categories
             queryset = Course.objects.filter(status="approved")
             course = get_object_or_404(queryset, pk=course_id)
             if not course.category.is_active_recursive():
                 raise PermissionDenied("This course is not available.")
-        
+
         return course
 
 
@@ -276,6 +279,21 @@ class LessonContentView(RetrieveAPIView):
 
     permission_classes = [AllowAny]
     serializer_class = LessonContentSerializer
+
+    # Filtering the course only for the purticular course
+    def get_queryset(self):
+        course_id = self.request.query_params.get("course_id")
+        return Lesson.objects.filter(course__id=course_id)
+
+
+class LessonCompletionUpdateView(UpdateAPIView):
+    """
+    View for updating the course completion status.
+    Only accessed by users who are purchased the course.
+    """
+
+    permission_classes = [IsCoursePurchased]  # Custom permission
+    serializer_class = LessonCompletionSerializer
 
     # Filtering the course only for the purticular course
     def get_queryset(self):
@@ -300,8 +318,7 @@ class LessonDetailViewAdminMentorOrPurchasedStudent(RetrieveAPIView):
         elif user.is_superuser:
             return [IsAdminUser()]  # For Admin user
         else:
-            # return [IsCoursePurchased()]  # Custom permission
-            return [IsAuthenticated()]
+            return [IsCoursePurchased()]  # Custom permission
 
     def get_queryset(self):
         user = self.request.user
@@ -317,7 +334,6 @@ class LessonDetailViewAdminMentorOrPurchasedStudent(RetrieveAPIView):
 
         elif user.role == "student":
             if Enrollment.objects.filter(user=user, course=course).exists():
-                print("User enrolled the course: ", course)
                 return Lesson.objects.filter(course=course)
             else:
                 return None

@@ -259,7 +259,6 @@ const getFullLessonData = async (lessonId, courseId) => {
     const response = await privateAxiosInstance.get(
       `/lesson/${lessonId}?course_id=${courseId}`,
     );
-    console.log(response)
     // Check if the response indicates a successful retreval
     if (response.status >= 200 && response.status < 300) {
       return response.data; // Return the response data
@@ -268,6 +267,37 @@ const getFullLessonData = async (lessonId, courseId) => {
     }
   } catch (error) {
     handleError(error);
+  }
+};
+
+const updateLessonCompletionStatus = async (courseId, lessonId, status) => {
+  try {
+    const response = await privateAxiosInstance.patch(
+      `/lesson-completion/${lessonId}/?course_id=${courseId}`,
+      {
+        completed: status,
+      },
+    );
+    if (response.status >= 200 && response.status < 300) {
+      return response.data;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    // Handle specific error cases
+    if (error.response) {
+      // Server responded with a status other than 2xx
+      console.error("error:", error.response.data);
+      toast.error(
+        `Error: ${error.response.data.detail || "Something went wrong."}`,
+      );
+    } else if (error.request) {
+      toast.error("No response received from server.");
+    } else {
+      toast.error(`Request error: ${error.message}`);
+    }
+
+    return null;
   }
 };
 
@@ -461,6 +491,7 @@ export {
   getCourseDetails,
   validateVideoFile,
   getLessonContent,
+  updateLessonCompletionStatus,
   updateCourse,
   updateCourseStatus,
   updateCreateCourseSuggestion,

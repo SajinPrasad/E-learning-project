@@ -13,6 +13,7 @@ from .views import (
     CourseSuggestionUpdateView,
     EnrolledCoursesListView,
     AuthenticatedCourseListView,
+    LessonCompletionUpdateView,
 )
 
 router = DefaultRouter()
@@ -49,4 +50,9 @@ urlpatterns = [
         name="lesson-data",
     ),
     path("enrolledcourses/", EnrolledCoursesListView.as_view(), name="enrolledcourses"),
+    path(
+        "lesson-completion/<int:pk>/",
+        LessonCompletionUpdateView.as_view(),
+        name="lesson-completion",
+    ),
 ]
