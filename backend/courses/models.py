@@ -2,11 +2,10 @@ from decimal import Decimal
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, FileExtensionValidator
-from django.db.models import Q
+from django.conf import settings
 
 # Create your models here.
 
-User = get_user_model()
 
 
 class Category(models.Model):
@@ -74,7 +73,7 @@ class Course(models.Model):
         null=True,
     )
     # User (Mentor) submitted the course.
-    mentor = models.ForeignKey(User, on_delete=models.CASCADE)
+    mentor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -132,7 +131,7 @@ class Suggestion(models.Model):
         Course, on_delete=models.CASCADE, related_name="suggestions"
     )
     admin = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="suggestions"
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="suggestions"
     )
     suggestion_text = models.TextField()
     is_done = models.BooleanField(default=False)
@@ -169,7 +168,7 @@ class Enrollment(models.Model):
     Model for storing purchased courses (enrollments) of each user
     """
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="enrollments")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="enrollments")
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="enrollments"
     )

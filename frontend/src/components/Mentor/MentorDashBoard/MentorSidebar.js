@@ -5,6 +5,7 @@ import { styles } from "../../../components/common";
 import {
   CoursesIcon,
   DashboardIcon,
+  Documents,
   HamBurger,
   InboxIcon,
 } from "../../../components/common/Icons";
@@ -25,6 +26,8 @@ const MentorSidebar = () => {
       setSelected("courses");
     } else if (path.startsWith("/mentor/inbox")) {
       setSelected("inbox");
+    } else if (path.startsWith("/mentor/reports")) {
+      setSelected("reports");
     }
   }, [location.pathname]);
 
@@ -94,6 +97,19 @@ const MentorSidebar = () => {
             >
               <InboxIcon isSelected={selected === "inbox"} />
               <a className={`flex items-start px-3 py-2`}>Inbox</a>
+            </div>
+
+            {/* Reports */}
+            <div
+              className={`flex cursor-pointer items-center gap-1 ${styles.iconContainer} toggleCourseDropdown rounded px-2 ${
+                selected === "reports"
+                  ? "bg-theme-primary text-white" // Apply styles if selected
+                  : "hover:bg-purple-100"
+              }`}
+              onClick={() => handleClick("reports", "/mentor/reports")}
+            >
+              <Documents isSelected={selected === "reports"} />
+              <a className={`flex items-start px-3 py-2`}>Reports</a>
             </div>
           </nav>
         </div>

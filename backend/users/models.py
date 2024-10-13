@@ -10,8 +10,11 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.text import slugify
 import hashlib
+import logging
 
 # Create your models here.
+
+logger = logging.getLogger(__name__)
 
 
 class CustomUserManager(BaseUserManager):
@@ -208,26 +211,40 @@ class MentorProfile(ProfileBase):
 
 
 @receiver(post_save, sender=CustomUser)
-def create_user_profile(sender, instance, created, **kwargs):
+def create_user_profile_and_wallet(sender, instance, created, **kwargs):
     """
     Signal for creating user profile instance according to the roles.
+    Also creating wallet instance for mentors also.
     """
     if created:
         if instance.role == CustomUser.STUDENT:
             StudentProfile.objects.create(user=instance)
         elif instance.role == CustomUser.MENTOR:
             MentorProfile.objects.create(user=instance)
+            
+            from paypal_payments.models import MentorWallet
+            MentorWallet.objects.create(mentor=instance)
 
 
 @receiver(post_save, sender=CustomUser)
-def save_user_profile(sender, instance, **kwargs):
+def save_user_profile_and_wallet(sender, instance, **kwargs):
     """
-    Signal for saving the profiles.
+    Signal for saving the profiles and mentors wallet.
     """
-    if instance.role == CustomUser.STUDENT:
-        instance.studentprofile.save()
-    elif instance.role == CustomUser.MENTOR:
-        instance.mentorprofile.save()
+    if not instance.is_active:
+        return  # Don't save profiles for inactive users
+
+    try:
+        if instance.role == CustomUser.STUDENT:
+            if hasattr(instance, "studentprofile"):
+                instance.studentprofile.save()
+        elif instance.role == CustomUser.MENTOR:
+            if hasattr(instance, "mentorprofile"):
+                instance.mentorprofile.save()
+            if hasattr(instance, "mentorwallet"):
+                instance.mentorwallet.save()
+    except Exception as e:
+        logger.error(f"Error saving profiles for user {instance.id}: {str(e)}")
 
 
 class OTPManager(models.Manager):
