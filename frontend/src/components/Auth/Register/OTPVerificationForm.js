@@ -2,12 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
-import {
-  otpResendService,
-  otpVerificationService,
-} from "../../../services/authService";
 import { Loading } from "../../common";
 import { clearTempUser } from "../../../features/tempUser/tempUserSlice";
+import { otpResendService, otpVerificationService } from "../../../services/userManagementServices/authService";
 
 /**
  * Verifies the OTP and resending the OTP.

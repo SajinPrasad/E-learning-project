@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 import { Loading } from "../../common";
 import { formStyles } from ".";
-import { resetPasswordService } from "../../../services/authService";
+import { resetPasswordService } from "../../../services/userManagementServices/authService";
 
 // Validation schema for Formik
 const LoginSchema = Yup.object().shape({

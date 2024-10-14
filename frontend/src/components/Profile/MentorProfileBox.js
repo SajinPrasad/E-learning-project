@@ -2,7 +2,7 @@ import React from "react";
 
 import { InboxIcon } from "../common/Icons";
 import { useNavigate } from "react-router-dom";
-import { getInitialsService } from "../../services/profileServices";
+import { getInitialsService } from "../../services/userManagementServices/profileServices";
 
 /**
  * @param {*} param0 profile - Profile object of mentor
@@ -34,7 +34,7 @@ const MentorProfileBox = ({ profile, is_enrolled = false }) => {
             className="mb-4 h-32 w-32 rounded-full border-4 border-gray-300 object-cover shadow-md md:mb-0"
           />
         ) : (
-          <div className="mb-4 flex h-32 w-32 items-center justify-center rounded-full  bg-theme-primary object-cover text-xl font-bold text-white sm:text-2xl md:mb-0 md:text-4xl">
+          <div className="mb-4 flex h-32 w-32 items-center justify-center rounded-full bg-theme-primary object-cover text-xl font-bold text-white sm:text-2xl md:mb-0 md:text-4xl">
             {getInitialsService(profile.full_name)}
           </div>
         )}

@@ -90,6 +90,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(_("email address"), unique=True)
     phone_number = PhoneNumberField(blank=True)
     is_active = models.BooleanField(default=True)
+    is_blocked = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -221,8 +222,9 @@ def create_user_profile_and_wallet(sender, instance, created, **kwargs):
             StudentProfile.objects.create(user=instance)
         elif instance.role == CustomUser.MENTOR:
             MentorProfile.objects.create(user=instance)
-            
+
             from paypal_payments.models import MentorWallet
+
             MentorWallet.objects.create(mentor=instance)
 
 

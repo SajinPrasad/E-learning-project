@@ -4,10 +4,10 @@ import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
-import { registerService } from "../../../services/authService";
 import styles from "./Form.module.css";
 import { Loading } from "../../common";
 import { setTempUser } from "../../../features/tempUser/tempUserSlice";
+import { registerService } from "../../../services/userManagementServices/authService";
 
 // Validation schema for Formik
 const SignUpSchema = Yup.object().shape({

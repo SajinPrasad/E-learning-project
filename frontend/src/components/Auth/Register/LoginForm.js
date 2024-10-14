@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
 
-import { loginService } from "../../../services/authService";
 import { formStyles } from ".";
 import { setUserInfo } from "../../../features/tempUser/userSlice";
 import { Loading } from "../../common";
@@ -13,6 +12,7 @@ import { setToken } from "../../../features/auth/authSlice";
 import { getCartItems } from "../../../services/cartServices";
 import { setCartItems } from "../../../features/cartItem/cartItemSlice";
 import { setProfileInfo } from "../../../features/tempUser/profileSlice";
+import { loginService } from "../../../services/userManagementServices/authService";
 
 // Validation schema for Formik
 const LoginSchema = Yup.object().shape({

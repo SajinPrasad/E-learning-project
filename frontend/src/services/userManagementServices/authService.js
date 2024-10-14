@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import privateAxiosInstance, {
   publicAxiosInstance,
-} from "../api/axiosInstance";
+} from "../../api/axiosInstance";
 
 /**
  * Registers a new user by sending the registration data to the server.

@@ -6,9 +6,8 @@ import {
   fetchStudentProfileInformation,
   getInitialsService,
   updateProfileInformation,
-} from "../../services/profileServices";
+} from "../../services/userManagementServices/profileServices";
 import { setUserInfo } from "../../features/tempUser/userSlice";
-import { Loading } from "../common";
 import { setProfileInfo } from "../../features/tempUser/profileSlice";
 import { ProfileSkeleton } from "../Skeletons";
 
@@ -40,7 +39,7 @@ const StudentProfileForm = () => {
     profile_picture: null,
   });
   const [editingField, setEditingField] = useState(""); // Track which field is being edited
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const dispatch = useDispatch();
 
   const fileInputRef = useRef(null);
@@ -141,7 +140,7 @@ const StudentProfileForm = () => {
           {image ? (
             <img src={image} className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center text-xl md:text-4xl sm:text-2xl font-bold bg-theme-primary justify-center text-white">
+            <div className="flex h-full w-full items-center justify-center bg-theme-primary text-xl font-bold text-white sm:text-2xl md:text-4xl">
               {getInitialsService(profile.first_name + " " + profile.last_name)}
             </div>
           )}

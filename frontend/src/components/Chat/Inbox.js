@@ -7,7 +7,7 @@ import {
   getChatProfileService,
   getReceiverProfileService,
 } from "../../services/chatServices/chatServices";
-import { getInitialsService } from "../../services/profileServices";
+import { getInitialsService } from "../../services/userManagementServices/profileServices";
 
 const Inbox = () => {
   const location = useLocation();
