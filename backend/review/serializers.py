@@ -40,6 +40,9 @@ class ReviewSerializer(ModelSerializer):
 
 
 class ReviewStatsSerializer(ModelSerializer):
+    """
+    Serializer for providing only course average rating and course rating
+    """
 
     class Meta:
         model = CourseReviewStats

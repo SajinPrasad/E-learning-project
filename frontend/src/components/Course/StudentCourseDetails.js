@@ -14,8 +14,11 @@ import { getAverageCourseRatingService } from "../../services/courseServices/rev
 import { ListReviews } from "../Reviews";
 import { MentorProfileBox } from "../Profile";
 
+/**
+ * Component which renders the course details for students
+ */
 const StudentCourseDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // Course id which is fetched from url
   const [course, setCourse] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [expandedLessonIds, setExpandedLessonIds] = useState([]);
@@ -84,7 +87,7 @@ const StudentCourseDetails = () => {
       }
     }
   };
-  
+
   // Handle loading state
   if (isLoading) {
     return <Loading />; // Optional loading component
@@ -117,6 +120,7 @@ const StudentCourseDetails = () => {
 
         {/* Left Section: Title and Mentor Info */}
         <div className="flex w-full flex-col gap-1 md:ml-14 md:w-2/3">
+          <p className="text-sm text-white">{course.category_path}</p>
           <h1 className="text-2xl font-bold text-gray-800 md:text-4xl md:text-white">
             {course.title}
           </h1>
@@ -137,7 +141,11 @@ const StudentCourseDetails = () => {
               </a>
               <span className="self-center text-xs text-blue-100">
                 <a href="#reviews">
-                  ({courseRating.total_reviews ? "ratings" : "No ratings yet"})
+                  (
+                  {courseRating.total_reviews
+                    ? `${courseRating.total_reviews} ratings`
+                    : "No ratings yet"}
+                  )
                 </a>
               </span>
             </div>

@@ -69,13 +69,17 @@ class ReviewListView(ListAPIView):
             user.is_authenticated
             and Enrollment.objects.filter(user=user, course=course).exists()
         ):
-            return Review.objects.exclude(user=user, course=course)
+            return Review.objects.exclude(user=user).filter(course=course)
 
         # If user is not authenticated, return all reviews for the course
         return Review.objects.filter(course=course)
 
 
 class ReviewStatsView(RetrieveAPIView):
+    """
+    View for returning the course rating, total reviews
+    """
+
     permission_classes = [AllowAny]
     serializer_class = ReviewStatsSerializer
 

@@ -89,7 +89,7 @@ const HomeLayout = () => {
 
       <div className="m-3 mt-3 rounded border border-gray-200 p-3 md:p-8">
         <ContentHeading text={"Courses"} />
-        <div className="mt-6 grid gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="mt-6 grid gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {isLoading
             ? [...Array(5)].map((_, index) => (
                 <CourseCardSkeleton key={index} />

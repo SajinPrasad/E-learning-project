@@ -155,14 +155,14 @@ const ReviewForm = ({ courseId, setReviewUpdated }) => {
               <label className="mb-2 block text-xs font-semibold text-gray-500 md:text-sm">
                 Add your review
               </label>
-              <input
+              <textarea
                 type="text"
                 name="reviewText"
                 value={formik.values.reviewText}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 placeholder="Write your review..."
-                className={`w-full rounded border p-3 text-sm ${
+                className={`w-full rounded border p-3 h-32 text-sm ${
                   formik.touched.reviewText && formik.errors.reviewText
                     ? "border-red-500"
                     : "border-gray-300"

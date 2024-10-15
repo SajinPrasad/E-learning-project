@@ -130,6 +130,8 @@ class CourseListCreateSerializer(ModelSerializer):
     price = PriceSerializer(required=True)
     preview_image = FullURLImageField(required=True)
     mentor_name = SerializerMethodField(read_only=True)
+    # Parent and sub category path
+    category_path = SerializerMethodField(read_only=True)
 
     class Meta:
         model = Course
@@ -139,6 +141,7 @@ class CourseListCreateSerializer(ModelSerializer):
             "description",
             "preview_image",
             "category",
+            "category_path",
             "preview_image",
             "mentor",
             "status",
@@ -190,6 +193,10 @@ class CourseListCreateSerializer(ModelSerializer):
     def get_mentor_name(self, obj):
         # Return the fullname of mentor
         return f"{obj.mentor.first_name} {obj.mentor.last_name}" if obj.mentor else None
+
+    def get_category_path(self, obj):
+        # Return the full path of category
+        return obj.category.get_full_path()
 
 
 class CourseUpdateSerializer(ModelSerializer):
@@ -262,6 +269,8 @@ class CourseDetailSerializer(ModelSerializer):
     preview_image = FullURLImageField(read_only=True)
     mentor_name = SerializerMethodField(read_only=True)
     mentor_profile = SerializerMethodField(read_only=True)
+    # Parent and sub category path
+    category_path = SerializerMethodField(read_only=True)
 
     class Meta:
         model = Course
@@ -271,6 +280,7 @@ class CourseDetailSerializer(ModelSerializer):
             "description",
             "preview_image",
             "category",
+            "category_path",
             "mentor_name",
             "mentor_profile",
             "lessons",
@@ -299,6 +309,10 @@ class CourseDetailSerializer(ModelSerializer):
             "experience": obj.mentor.mentorprofile.experience,
         }
         return mentor_profile
+
+    def get_category_path(self, obj):
+        # Return the full path of category
+        return obj.category.get_full_path()
 
 
 class CourseStatusUpdateSerializer(ModelSerializer):

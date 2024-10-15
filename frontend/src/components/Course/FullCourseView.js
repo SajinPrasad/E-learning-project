@@ -6,12 +6,16 @@ import {
   updateLessonCompletionStatus,
 } from "../../services/courseServices/courseService";
 import { useParams } from "react-router-dom";
-import { ReviewForm, CourseRating } from "../Reviews";
+import { ReviewForm, CourseRating, ListReviews } from "../Reviews";
 import CourseOverview from "./CourseOverview";
 import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
 import { toast } from "react-toastify";
 import { LessonSkeleton, VideoSkeleton } from "../Skeletons";
 
+/**
+ * @returns The component which renders the full course view (Including videos).
+ * Only accessed by users who purchased the courses
+ */
 const FullCourseView = () => {
   const { id } = useParams();
   const [courseDetails, setCourseDetails] = useState({});
@@ -31,7 +35,7 @@ const FullCourseView = () => {
 
   useEffect(() => {
     const fetchLessonContent = async () => {
-      setIsLessonLoading(true)
+      setIsLessonLoading(true);
       setIsVideoLoading(true);
       const response = await getCourseDetails(id);
       if (response) {
@@ -42,7 +46,7 @@ const FullCourseView = () => {
         );
         setCurrentLesson(firstLessonData);
         setCurrentLessonIndex(0); // Set index to 0 for first lesson
-        setIsLessonLoading(false)
+        setIsLessonLoading(false);
         setIsVideoLoading(false);
       }
     };
@@ -263,27 +267,26 @@ const FullCourseView = () => {
 
       {/* Lessons Container */}
       {selected === "lessons" && (
-  <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-0">
-    {isLessonLoading ? (
-      <LessonSkeleton />
-    ) : (
-      courseDetails.lessons?.map((lesson, index) => (
-        <div
-          onClick={() => handleChangingLessons(lesson.id, index)}
-          key={lesson.title}
-          className={`flex cursor-pointer items-center justify-between border ${currentLessonIndex === index ? "bg-indigo-200" : "bg-slate-50"} border-gray-300 p-4 hover:bg-purple-50 ${
-            index === courseDetails.lessons.length - 1 ? "" : "border-b-0"
-          } shadow-md`}
-        >
-          <h1 className="text-md font-semibold text-gray-700 hover:text-blue-950">
-            {lesson.title}
-          </h1>
+        <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-0">
+          {isLessonLoading ? (
+            <LessonSkeleton />
+          ) : (
+            courseDetails.lessons?.map((lesson, index) => (
+              <div
+                onClick={() => handleChangingLessons(lesson.id, index)}
+                key={lesson.title}
+                className={`flex cursor-pointer items-center justify-between border ${currentLessonIndex === index ? "bg-indigo-200" : "bg-slate-50"} border-gray-300 p-4 hover:bg-purple-50 ${
+                  index === courseDetails.lessons.length - 1 ? "" : "border-b-0"
+                } shadow-md`}
+              >
+                <h1 className="text-md font-semibold text-gray-700 hover:text-blue-950">
+                  {lesson.title}
+                </h1>
+              </div>
+            ))
+          )}
         </div>
-      ))
-    )}
-  </div>
-)}
-
+      )}
 
       {/* Course Overview */}
       {selected === "overview" && <CourseOverview course={courseDetails} />}
@@ -300,6 +303,9 @@ const FullCourseView = () => {
             setReviewUpdated={setReviewUpdated}
             courseId={courseDetails.id}
           />
+          <div className="mx-auto w-2/3">
+            <ListReviews courseId={courseDetails.id} />
+          </div>
         </>
       )}
     </div>
