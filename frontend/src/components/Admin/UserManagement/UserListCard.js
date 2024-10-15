@@ -57,7 +57,7 @@ const UserListCard = ({ user }) => {
     <>
       <div
         onClick={() => setIsExpanded((prev) => !prev)}
-        className="mx-auto flex h-auto max-w-xs cursor-pointer flex-col items-center rounded-lg bg-white p-4 shadow-lg"
+        className="mx-auto flex h-auto w-5/6 cursor-pointer flex-col items-center rounded-lg bg-white p-4 shadow-lg"
       >
         {userIsBlocked && (
           <span className="self-start rounded bg-red-50 px-2 text-xs italic text-red-400">
