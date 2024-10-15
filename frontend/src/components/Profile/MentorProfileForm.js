@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchStudentProfileInformation,
   updateProfileInformation,
-} from "../../services/profileServices";
+} from "../../services/userManagementServices/profileServices";
 import { setUserInfo } from "../../features/tempUser/userSlice";
 import { setProfileInfo } from "../../features/tempUser/profileSlice";
 import { Loading } from "../common";

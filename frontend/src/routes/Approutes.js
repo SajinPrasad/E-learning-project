@@ -21,6 +21,7 @@ import {
   AdminCourseDetail,
   AdminCourses,
   AdminDashBoard,
+  UserListPage,
 } from "../pages/Adimin";
 import ProtectedRoutes from "./ProtectedRoutes";
 import { CourseCategories } from "../components/Course";
@@ -63,6 +64,7 @@ const AppRoutes = () => {
         <Route path="/inbox" element={<InboxPage />} />
         <Route path="/mentor/inbox" element={<MentorInbox />} />
         <Route path="/mentor/reports" element={<MentorReportsPage />} />
+        <Route path="/admin/users" element={<UserListPage />} />
       </Route>
     </Routes>
   );

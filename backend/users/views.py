@@ -1,8 +1,9 @@
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_201_CREATED
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.exceptions import NotFound, PermissionDenied
 import logging
@@ -16,6 +17,7 @@ from .serializer import (
     UserLoginSerializer,
     StudentProfileSerializer,
     OTPVerificationSerializer,
+    AdminUserSerializer,
 )
 from .models import StudentProfile, MentorProfile
 from .permissions import IsProfileOwner
@@ -169,3 +171,15 @@ class ProfileView(RetrieveUpdateAPIView):
             return StudentProfile.objects.filter(user=self.request.user)
         elif self.request.user.role == "mentor":
             return MentorProfile.objects.filter(user=self.request.user)
+
+
+class AdminUserManagementViewSet(ModelViewSet):
+    """
+    View for accessing user and user profiles.
+    * Only accessed by admins for user management.
+    * Admin can block and unblock a user.
+    """
+
+    permission_classes = [IsAdminUser]
+    serializer_class = AdminUserSerializer
+    queryset = User.objects.exclude(role="admin")

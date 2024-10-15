@@ -6,6 +6,7 @@ from rest_framework.serializers import (
     Serializer,
     EmailField,
     DateField,
+    SerializerMethodField,
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
@@ -16,7 +17,7 @@ from .utils import (
     password_validation,
 )
 from .services.otp import verify_otp
-from .models import StudentProfile, MentorProfile, CustomUser
+from .models import StudentProfile, MentorProfile
 
 
 User = get_user_model()
@@ -108,17 +109,15 @@ class UserLoginSerializer(Serializer):
         if password is None:
             raise ValidationError("A password is required to log in.")
 
-        try:
-            user = User.objects.get(email=email)  # Checking the user exist or not.
-        except User.DoesNotExist:
-            raise ValidationError("A user with this email is not found.")
-
         user = authenticate(email=email, password=password)
         if not user:
-            raise ValidationError("Invalid password!")
+            raise ValidationError("Invalid credentials!")
 
         if not user.is_active:
-            raise ValidationError("This user is not currently activated.")
+            raise ValidationError("This user is currently not allowed.")
+        
+        if user.is_blocked:
+            raise ValidationError("User not permitted!")
 
         if not user.is_verified and not user.is_superuser:
             raise ValidationError("Account not verified")
@@ -420,3 +419,45 @@ class MentorProfileSerializer(ModelSerializer):
         instance.save()
 
         return instance
+
+
+class AdminUserSerializer(ModelSerializer):
+    """
+    Serializer for getting the userinformation and profiles for users.
+    * Only Accessed by admins for usermanagement.
+    * Admin can block and unblock the user the user.
+    """
+
+    profile = SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ["is_blocked", "is_verified", "role", "profile"]
+        read_only_fields = ["is_verified", "role", "profile"]
+
+    def get_profile(self, obj):
+        """
+        Dynamically include the student or mentor profile based on user role
+        """
+
+        if obj.role == User.STUDENT:
+            # Return the student's profile
+            student_profile = StudentProfile.objects.filter(user=obj).first()
+            if student_profile:
+                return StudentProfileSerializer(student_profile).data
+        elif obj.role == User.MENTOR:
+            # Return the mentor's profile
+            mentor_profile = MentorProfile.objects.filter(user=obj).first()
+            if mentor_profile:
+                return MentorProfileSerializer(mentor_profile).data
+
+        return None
+
+    def to_representation(self, instance):
+        # Serialize the user object and add nested profiles
+        representation = super().to_representation(instance)
+
+        # Add the profile data based on role
+        representation["profile"] = self.get_profile(instance)
+
+        return representation

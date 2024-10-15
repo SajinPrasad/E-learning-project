@@ -1,5 +1,5 @@
 import { toast } from "react-toastify";
-import privateAxiosInstance from "../api/axiosInstance";
+import privateAxiosInstance from "../../api/axiosInstance";
 
 /**
  * Fetches the student profile information based on the provided profile ID.
