@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+
 import { ReactStarsWrapper } from "../common";
 import { CloseIcon } from "../common/Icons";
 
@@ -13,7 +14,7 @@ const ReviewCard = ({ review }) => {
 
   // Function to truncate the text to 55 words
   const getTruncatedText = (text) => {
-    return text.split(" ").slice(0, 56).join(" ");
+    return text.split(" ").slice(0, 26).join(" ");
   };
 
   const handleSeeMore = () => {
@@ -27,13 +28,12 @@ const ReviewCard = ({ review }) => {
   return (
     <div>
       {/* Main review card */}
-      <div className="flex h-80 items-start space-x-4 rounded-lg bg-white p-3 shadow-md">
+      <div className="flex h-60 items-start space-x-4 rounded-lg bg-white p-3 shadow-md">
         <div className="flex-shrink-0">
           {profile_picture ? (
             <img
               className="h-11 w-11 rounded-full object-cover"
-              src={`http://localhost:8000/${profile_picture}`}
-              alt={getInitials(user_fullname)}
+              src={`http://localhost:8000${profile_picture}`}
             />
           ) : (
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-500 font-bold text-white">
@@ -56,10 +56,10 @@ const ReviewCard = ({ review }) => {
             {getTruncatedText(review_text)}
             {review_text.split(" ").length > 75 && (
               <button
-                className="ml-2 text-xs font-semibold text-gray-500"
+                className="ml-2 text-xs font-semibold text-gray-600"
                 onClick={handleSeeMore}
               >
-                See More
+                ... See More
               </button>
             )}
           </p>
@@ -83,8 +83,7 @@ const ReviewCard = ({ review }) => {
                 {profile_picture ? (
                   <img
                     className="h-11 w-11 rounded-full object-cover"
-                    src={`http://localhost:8000/${profile_picture}`}
-                    alt={getInitials(user_fullname)}
+                    src={`http://localhost:8000${profile_picture}`}
                   />
                 ) : (
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-500 font-bold text-white">

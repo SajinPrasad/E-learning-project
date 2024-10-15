@@ -10,6 +10,9 @@ venv/
 # Local database files
 backend/*.sqlite3
 
+# Scripts
+backend/script.py
+
 # Media folder
 backend/media/
 

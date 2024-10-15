@@ -57,7 +57,7 @@ const UserListCard = ({ user }) => {
     <>
       <div
         onClick={() => setIsExpanded((prev) => !prev)}
-        className="mx-auto flex h-auto w-5/6 cursor-pointer flex-col items-center rounded-lg bg-white p-4 shadow-lg"
+        className="mx-auto flex h-auto w-full cursor-pointer flex-col items-center rounded-lg bg-white p-3 shadow-lg"
       >
         {userIsBlocked && (
           <span className="self-start rounded bg-red-50 px-2 text-xs italic text-red-400">
@@ -67,17 +67,17 @@ const UserListCard = ({ user }) => {
         {profile_picture ? (
           <img
             src={`http://localhost:8000${profile_picture}`}
-            className="h-16 w-16 rounded-full md:h-20 md:w-20 lg:h-24 lg:w-24"
+            className="h-14 w-14 rounded-full md:h-16 md:w-16 lg:h-20 lg:w-20"
           />
         ) : (
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-theme-primary text-xl font-bold text-white md:h-20 md:w-20 md:text-2xl lg:h-24 lg:w-24">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-theme-primary text-lg font-bold text-white md:h-16 md:w-16 md:text-xl lg:h-20 lg:w-20">
             {getInitialsService(first_name + " " + last_name)}
           </div>
         )}
-        <h1 className="mt-4 text-center text-xl font-semibold">
+        <h1 className="mt-2 text-center text-lg font-semibold">
           {first_name + " " + last_name}
         </h1>
-        <h4 className="text-center text-gray-600">{email}</h4>
+        <h4 className="text-center text-sm text-gray-600">{email}</h4>
       </div>
 
       {/* Expanded view of user details */}

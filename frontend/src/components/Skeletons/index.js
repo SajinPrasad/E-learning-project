@@ -6,3 +6,4 @@ export { default as VideoSkeleton } from "./VideoSkeleton";
 export { default as LessonSkeleton } from "./LessonSkeleton";
 export { default as UserCardSkeleton } from "./UserCardSkeleton";
 export { default as UserDetailsSkeleton } from "./UserDetailSkeleton";
+export { default as ReviewCardSkeleton } from "./ReviewCardSkeleton";

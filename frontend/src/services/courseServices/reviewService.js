@@ -1,6 +1,15 @@
 import { toast } from "react-toastify";
 import privateAxiosInstance from "../../api/axiosInstance";
 
+/**
+ * Creates a new review for a specified course.
+ *
+ * @param {number} courseId - The ID of the course to which the review belongs.
+ * @param {number} reviewRating - The rating assigned to the review (e.g., 1-5 stars).
+ * @param {string} reviewText - The textual content of the review.
+ *
+ * @returns {Promise<object>} A promise that resolves with the newly created review object.
+ */
 export const createReviewService = async ({
   courseId,
   reviewRating,
@@ -75,6 +84,16 @@ export const getOwnersReviewService = async (courseId) => {
   }
 };
 
+/**
+ * Updates an existing review.
+ *
+ * @param {number} reviewId - The ID of the review to be updated.
+ * @param {number} courseId - The ID of the course associated with the review.
+ * @param {number} reviewRating - The updated review rating (e.g., 1-5 stars).
+ * @param {string} reviewText - The updated review text.
+ *
+ * @returns {Promise<void>} A promise that resolves when the review is successfully updated.
+ */
 export const updateReviewService = async ({
   reviewId,
   courseId,
@@ -122,6 +141,11 @@ export const updateReviewService = async ({
   }
 };
 
+/**
+ * Function to fetch and return the course rating.
+ * @param {*} courseId
+ * @returns Course rating
+ */
 export const getAverageCourseRatingService = async (courseId) => {
   try {
     const response = await privateAxiosInstance.get(

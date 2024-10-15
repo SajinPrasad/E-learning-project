@@ -18,6 +18,10 @@ import { styles } from "../common";
 import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
 import { ListReviews } from "../Reviews";
 
+/**
+ * @param {*} newStatus - The updated status.
+ * @returns Alert box to confirm the status change of the course by admin.
+ */
 async function confirmCourseStatusChange(newStatus) {
   return Swal.fire({
     title: "Are you sure?",
@@ -37,6 +41,11 @@ async function confirmCourseStatusChange(newStatus) {
   }).then((result) => result.isConfirmed);
 }
 
+/**
+ * @param {*} param0 role - User role to identify admin or mentor
+ * @returns Component which renders the course details for the admins and Mentors
+ * Renders course according to role
+ */
 const CourseDetail = ({ role }) => {
   const { id } = useParams(); // Course id fetching.
   const [course, setCourse] = useState(null);
@@ -116,7 +125,8 @@ const CourseDetail = ({ role }) => {
     }
     handleCloseStatusChange();
   };
-
+  
+  // Function to update or create the course suggestions
   const handleUpdateCreateCourseSuggestion = async () => {
     try {
       let updatedSuggestion;
@@ -213,6 +223,7 @@ const CourseDetail = ({ role }) => {
 
         {/* Left Section: Title and Mentor Info */}
         <div className="ml-4 flex w-full flex-col gap-1 md:w-1/2">
+          <p className="text-white text-sm">{course.category_path}</p>
           <h1 className="text-3xl font-bold text-white md:text-4xl">
             {course.title}
           </h1>
@@ -231,7 +242,7 @@ const CourseDetail = ({ role }) => {
               </a>
               <span className="self-center text-xs text-blue-100">
                 <a href="#reviews">
-                  ({courseRating.total_reviews ? "ratings" : "No ratings yet"})
+                  ({courseRating.total_reviews ? `${courseRating.total_reviews} ratings` : "No ratings yet"})
                 </a>
               </span>
             </div>
