@@ -11,7 +11,7 @@ import {
   StudentRegister,
 } from "../pages/Auth";
 import {
-  MenotrCourses,
+  MentorCoursesPage,
   MentorCourseDetail,
   MentorDashBoard,
   MentorInbox,
@@ -27,6 +27,7 @@ import ProtectedRoutes from "./ProtectedRoutes";
 import { CourseCategories } from "../components/Course";
 import {
   CommonCourseDetails,
+  CoursesPage,
   EnrolledCoursesPage,
   FullCoursePage,
   Home,
@@ -47,10 +48,11 @@ const AppRoutes = () => {
       <Route path="/" element={<Home />} />
       <Route path="/admin" element={<AdminLogin />} />
       <Route path="/course/:id" element={<CommonCourseDetails />} />
-      <Route path="/cart/" element={<CartPage />} />
+      <Route path="/cart" element={<CartPage />} />
+      <Route path="/courses" element={<CoursesPage />} />
       <Route element={<ProtectedRoutes />}>
         <Route path="/mentor" element={<MentorDashBoard />} />
-        <Route path="/mentor/courses" element={<MenotrCourses />} />
+        <Route path="/mentor/courses" element={<MentorCoursesPage />} />
         <Route path="/mentor/course/:id" element={<MentorCourseDetail />} />
         <Route path="/admin/dashboard" element={<AdminDashBoard />} />
         <Route path="/admin/coursecategories" element={<CourseCategories />} />

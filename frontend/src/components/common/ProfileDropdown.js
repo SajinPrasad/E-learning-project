@@ -10,7 +10,7 @@ import { clearCartItems } from "../../features/cartItem/cartItemSlice";
 /**
  * Renders the dropdown from the profile icon on header.
  */
-const ProfileDropdown = ({role}) => {
+const ProfileDropdown = ({ role }) => {
   const { firstName, lastName } = useSelector((state) => state.user);
   const { profilePicture } = useSelector((state) => state.profile);
   const dispatch = useDispatch();
@@ -26,24 +26,32 @@ const ProfileDropdown = ({role}) => {
 
   const handleNavigate = () => {
     if (role == "student") {
-      navigate("/profile")
+      navigate("/profile");
     } else if (role === "mentor") {
-      console.log("YEs ist")
-      navigate("/mentor/profile")
+      console.log("YEs ist");
+      navigate("/mentor/profile");
     }
-  }
+  };
 
   return (
     <>
       <article className="rounded bg-white px-4 pb-4 drop-shadow-lg">
         <ul className="mt-4 flex flex-col gap-4 pl-2">
           <li className="flex gap-2">
-            <span className="flex gap-2">
-              <img
-                className="h-6 w-6 rounded-lg"
-                src={`http://localhost:8000${profilePicture}`}
-                alt=""
-              />
+            <span className="flex gap-2 items-center">
+              {profilePicture ? (
+                <img
+                  className="h-6 w-6 rounded-lg"
+                  src={`http://localhost:8000${profilePicture}`}
+                />
+              ) : (
+                <div className="flex aspect-square w-8 cursor-pointer items-center justify-center rounded-full bg-theme-primary text-white">
+                  <p className="text-center font-sentinent-bold text-xs">
+                    {firstName[0]}
+                    {lastName[0]}
+                  </p>
+                </div>
+              )}
 
               <span className={`text-sm font-bold`}>
                 {firstName} {lastName}

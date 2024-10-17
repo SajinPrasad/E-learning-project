@@ -1,6 +1,5 @@
 import React from "react";
 
-import { Banner, Header } from "../../components/common";
 import HomeLayout from "../../components/Home/HomeLayout";
 
 /**
@@ -9,8 +8,6 @@ import HomeLayout from "../../components/Home/HomeLayout";
 const Home = () => {
   return (
     <>
-      <Header />
-      <Banner />
       <HomeLayout />
     </>
   );

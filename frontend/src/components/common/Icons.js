@@ -485,7 +485,7 @@ const Documents = ({ isSelected, defaultColor }) => {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 20 20"
       fill="currentColor"
-      className={`${defaultColor ? "size-4" : "size-6"}`}
+      className={`${defaultColor ? "size-5" : "size-7"}`}
     >
       <path
         className={
@@ -510,6 +510,22 @@ const Documents = ({ isSelected, defaultColor }) => {
     </svg>
   );
 };
+
+const SearchIcon = () => (
+  <svg
+    className="h-5 w-5 text-gray-400"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+);
 
 export {
   IconProfile,
@@ -537,4 +553,5 @@ export {
   EditIcon,
   InboxIcon,
   Documents,
+  SearchIcon,
 };
