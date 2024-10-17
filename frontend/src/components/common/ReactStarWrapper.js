@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactStars from "react-rating-stars-component";
 
 const ReactStarsWrapper = ({
@@ -14,6 +14,7 @@ const ReactStarsWrapper = ({
   onChange = () => {},
   ...props
 }) => {
+  useEffect(() => {}, [value]);
   return (
     <ReactStars
       count={count}

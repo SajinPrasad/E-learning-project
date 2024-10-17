@@ -6,7 +6,7 @@ import {
   updateLessonCompletionStatus,
 } from "../../services/courseServices/courseService";
 import { useParams } from "react-router-dom";
-import { ReviewForm, CourseRating, ListReviews } from "../Reviews";
+import { ReviewForm, CourseRating, ListReviews, Rating } from "../Reviews";
 import CourseOverview from "./CourseOverview";
 import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
 import { toast } from "react-toastify";
@@ -294,12 +294,10 @@ const FullCourseView = () => {
       {/* Course Review */}
       {selected === "reviews" && (
         <>
-          <CourseRating
+          <ReviewForm
             reviewUpdated={reviewUpdated}
             size={80}
             courseRating={courseRating}
-          />
-          <ReviewForm
             setReviewUpdated={setReviewUpdated}
             courseId={courseDetails.id}
           />
