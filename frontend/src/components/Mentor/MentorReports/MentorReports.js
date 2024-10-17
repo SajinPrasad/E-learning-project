@@ -25,7 +25,7 @@ const MentorReports = () => {
             <th className="py-3 px-6 text-left">Course Title</th>
             <th className="py-3 px-6 text-left">Number of Purchases</th>
             <th className="py-3 px-6 text-left">Profit</th>
-            <th className="py-3 px-6 text-left">Admin Profit</th>
+            <th className="py-3 px-6 text-left">Admin Share</th>
           </tr>
         </thead>
         <tbody className="text-gray-600 text-sm font-light">

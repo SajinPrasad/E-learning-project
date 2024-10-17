@@ -7,6 +7,7 @@ import {
   CategoryIcon,
   CoursesIcon,
   DashboardIcon,
+  Documents,
   HamBurger,
   UsersIcon,
 } from "../../../components/common/Icons";
@@ -29,6 +30,7 @@ const AdminSidebar = () => {
       setSelected("course category");
     else if (path.includes("/admin/course")) setSelected("courses");
     else if (path.includes("/admin/user")) setSelected("users");
+    else if (path.includes("/admin/reports")) setSelected("reports");
   }, [location]);
 
   // Function to handle clicks on menu items
@@ -114,6 +116,19 @@ const AdminSidebar = () => {
             >
               <UsersIcon isSelected={selected === "users"} />
               <a className="flex items-start px-3 py-2">Users</a>
+            </div>
+
+            {/* Reports */}
+            <div
+              className={`flex cursor-pointer items-center gap-1 ${styles.iconContainer} toggleCourseDropdown rounded px-2 ${
+                selected === "reports"
+                  ? "bg-theme-primary text-white" // Apply styles if selected
+                  : "hover:bg-purple-100"
+              }`}
+              onClick={() => handleClick("reports", "/admin/reports")}
+            >
+              <Documents isSelected={selected === "reports"} />
+              <a className={`flex items-start px-3 py-2`}>Reports</a>
             </div>
           </nav>
         </div>

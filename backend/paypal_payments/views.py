@@ -134,9 +134,11 @@ class WalletRetrievalView(APIView):
     def get(self, request, *args, **kwargs):
         if self.request.user.role == "mentor":
             wallet = MentorWallet.objects.get(mentor=self.request.user)
-        else:
+        elif self.request.user.role == "admin":
             # There is only one common wallet instance for the admin.
             wallet = AdminWallet.objects.get(id=1)
+            
+        else: return None
 
         # Construct and return the response manually
         return Response({"balance": wallet.balance})
