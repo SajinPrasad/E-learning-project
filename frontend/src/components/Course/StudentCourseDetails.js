@@ -245,7 +245,7 @@ const StudentCourseDetails = () => {
                   edit={false}
                 />
                 <span className="text-sm text-blue-500">
-                  ({courseRating.total_reviews ? "ratings" : "No ratings yet"})
+                  ({courseRating.total_reviews ? `${courseRating.total_reviews} ratings` : "No ratings yet"})
                 </span>
               </div>
               <h2 className="text-xl font-bold text-yellow-700 sm:text-2xl md:text-3xl">

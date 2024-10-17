@@ -19,7 +19,7 @@ const CourseRating = ({ size, courseRating, reviewUpdated }) => {
           Course Rating
         </h2>
         <span className="text-sm font-normal text-gray-600">
-          ({courseRating.total_reviews ? "Ratings" : "No ratings yet"})
+          ({courseRating.total_reviews ? `${courseRating.total_reviews} Ratings` : "No ratings yet"})
         </span>
       </div>
     </div>

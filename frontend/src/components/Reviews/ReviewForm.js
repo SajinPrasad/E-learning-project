@@ -9,6 +9,8 @@ import {
 } from "../../services/courseServices/reviewService";
 import { Button, ReactStarsWrapper } from "../common";
 import { EditIcon } from "../common/Icons";
+import CourseRating from "./CourseRating";
+import Rating from "./Rating";
 
 // Validation schema using Yup
 const reviewSchema = Yup.object({
@@ -21,7 +23,12 @@ const reviewSchema = Yup.object({
     .required("Review text is required."),
 });
 
-const ReviewForm = ({ courseId, setReviewUpdated }) => {
+const ReviewForm = ({
+  courseRating,
+  reviewUpdated,
+  courseId,
+  setReviewUpdated,
+}) => {
   const [review, setReview] = useState(null); // Store user's review
   const [isEditing, setIsEditing] = useState(false); // Toggle between view and edit mode
   const [isExpanded, setIsExpanded] = useState(false);
@@ -40,7 +47,7 @@ const ReviewForm = ({ courseId, setReviewUpdated }) => {
     };
 
     fetchOwnersReview();
-  }, [courseId]);
+  }, [courseId, reviewUpdated]);
 
   // Use Formik to manage the form state and validation
   const formik = useFormik({
@@ -99,99 +106,108 @@ const ReviewForm = ({ courseId, setReviewUpdated }) => {
   };
 
   return (
-    <div className="mx-auto md:w-2/3">
-      {/* Conditionally render the form or the display mode */}
-      {!isEditing && review ? (
-        // Display mode (showing review and rating)
-        <div className="mb-5 border-b-2 border-gray-300 pb-7 md:w-4/5">
-          <div className="flex w-auto gap-2">
-            <h3 className="text-sm font-semibold text-gray-500">Your Review</h3>
-            {!isEditing && (
-              <button type="button" onClick={() => setIsEditing(true)}>
-                <EditIcon />
-              </button>
-            )}
-          </div>
+    <>
+      <Rating
+        rating={courseRating.average_rating}
+        totalRatings={courseRating.total_reviews}
+      />
 
-          <p>
-            <ReactStarsWrapper edit={false} value={review?.rating} />
-            {isExpanded
-              ? review.review_text
-              : getTruncatedText(review.review_text)}
-            {review.review_text.split(" ").length > 75 && (
-              <button
-                className="ml-2 text-xs font-semibold text-gray-500"
-                onClick={() => setIsExpanded(!isExpanded)}
-              >
-                {isExpanded ? "See Less" : "See More"}
-              </button>
-            )}
-          </p>
-        </div>
-      ) : (
-        // Form mode (create or edit review)
-        <form onSubmit={formik.handleSubmit} className="w-full">
-          {/* Rating input */}
-          <div className="">
-            <label className="block text-sm font-bold text-gray-700 md:text-lg">
-              Rate this course
-            </label>
-            <ReactStarsWrapper
-              onChange={(newRating) =>
-                formik.setFieldValue("reviewRating", newRating)
-              }
-              value={review?.rating}
-            />
-            {formik.touched.reviewRating && formik.errors.reviewRating && (
-              <div className="text-sm text-red-500">
-                {formik.errors.reviewRating}
-              </div>
-            )}
-          </div>
+      <div className="mx-auto md:w-2/3">
+        {/* Conditionally render the form or the display mode */}
+        {!isEditing && review ? (
+          // Display mode (showing review and rating)
+          <div className="mb-5 border-b-2 border-gray-300 pb-7 md:w-4/5">
+            <div className="flex w-auto gap-2">
+              <h3 className="text-sm font-semibold text-gray-500">
+                Your Review
+              </h3>
+              {!isEditing && (
+                <button type="button" onClick={() => setIsEditing(true)}>
+                  <EditIcon />
+                </button>
+              )}
+            </div>
 
-          {/* Review text input */}
-          <div className="mb-5 border-b-2 border-gray-200 pb-7">
-            <div className="mb-3">
-              <label className="mb-2 block text-xs font-semibold text-gray-500 md:text-sm">
-                Add your review
+            <p>
+              <ReactStarsWrapper edit={false} value={review?.rating} />
+              {isExpanded
+                ? review.review_text
+                : getTruncatedText(review.review_text)}
+              {review.review_text.split(" ").length > 75 && (
+                <button
+                  className="ml-2 text-xs font-semibold text-gray-500"
+                  onClick={() => setIsExpanded(!isExpanded)}
+                >
+                  {isExpanded ? "See Less" : "See More"}
+                </button>
+              )}
+            </p>
+          </div>
+        ) : (
+          // Form mode (create or edit review)
+          <form onSubmit={formik.handleSubmit} className="w-full">
+            {/* Rating input */}
+            <div className="">
+              <label className="block text-sm font-bold text-gray-700 md:text-lg">
+                Rate this course
               </label>
-              <textarea
-                type="text"
-                name="reviewText"
-                value={formik.values.reviewText}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                placeholder="Write your review..."
-                className={`w-full rounded border p-3 h-32 text-sm ${
-                  formik.touched.reviewText && formik.errors.reviewText
-                    ? "border-red-500"
-                    : "border-gray-300"
-                }`}
+              <ReactStarsWrapper
+                onChange={(newRating) =>
+                  formik.setFieldValue("reviewRating", newRating)
+                }
+                value={review?.rating}
               />
-              {formik.touched.reviewText && formik.errors.reviewText && (
+              {formik.touched.reviewRating && formik.errors.reviewRating && (
                 <div className="text-sm text-red-500">
-                  {formik.errors.reviewText}
+                  {formik.errors.reviewRating}
                 </div>
               )}
             </div>
 
-            <div className="flex gap-2">
-              {/* Submit button */}
-              <button type="submit" disabled={formik.isSubmitting}>
-                <Button text={review ? "Update Review" : "Submit Review"} />
-              </button>
+            {/* Review text input */}
+            <div className="mb-5 border-b-2 border-gray-200 pb-7">
+              <div className="mb-3">
+                <label className="mb-2 block text-xs font-semibold text-gray-500 md:text-sm">
+                  Add your review
+                </label>
+                <textarea
+                  type="text"
+                  name="reviewText"
+                  value={formik.values.reviewText}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  placeholder="Write your review..."
+                  className={`h-32 w-full rounded border p-3 text-sm ${
+                    formik.touched.reviewText && formik.errors.reviewText
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
+                />
+                {formik.touched.reviewText && formik.errors.reviewText && (
+                  <div className="text-sm text-red-500">
+                    {formik.errors.reviewText}
+                  </div>
+                )}
+              </div>
 
-              {/* Cancel button only shown when editing */}
-              {isEditing && (
-                <button type="button" onClick={handleCancelEdit}>
-                  <Button bg={false} text={"Cancel"} />
+              <div className="flex gap-2">
+                {/* Submit button */}
+                <button type="submit" disabled={formik.isSubmitting}>
+                  <Button text={review ? "Update Review" : "Submit Review"} />
                 </button>
-              )}
+
+                {/* Cancel button only shown when editing */}
+                {isEditing && (
+                  <button type="button" onClick={handleCancelEdit}>
+                    <Button bg={false} text={"Cancel"} />
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        </form>
-      )}
-    </div>
+          </form>
+        )}
+      </div>
+    </>
   );
 };
 

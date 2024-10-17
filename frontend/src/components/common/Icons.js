@@ -527,6 +527,27 @@ const SearchIcon = () => (
   </svg>
 );
 
+const StarIcon = ({ filled }) => {
+  return (
+    <svg
+      className={`h-10 w-10 ${filled ? "text-yellow-400" : "text-gray-400"} mx-1`} // Added mx-1 for horizontal margin
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth="1.5"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ overflow: "visible" }} // Ensures no parts of the star are cut off
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l2.26 6.914a1 1 0 00.95.69h7.28c.967 0 1.371 1.24.588 1.81l-5.9 4.28a1 1 0 00-.364 1.118l2.26 6.914c.3.921-.755 1.688-1.538 1.118l-5.9-4.28a1 1 0 00-1.176 0l-5.9 4.28c-.783.57-1.838-.197-1.538-1.118l2.26-6.914a1 1 0 00-.364-1.118l-5.9-4.28c-.783-.57-.379-1.81.588-1.81h7.28a1 1 0 00.95-.69l2.26-6.914z"
+      ></path>
+    </svg>
+  );
+};
+
+
 export {
   IconProfile,
   SavedItems,
@@ -554,4 +575,5 @@ export {
   InboxIcon,
   Documents,
   SearchIcon,
+  StarIcon,
 };
