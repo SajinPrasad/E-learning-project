@@ -21,6 +21,7 @@ import {
   AdminCourseDetail,
   AdminCourses,
   AdminDashBoard,
+  AdminReportsPage,
   UserListPage,
 } from "../pages/Adimin";
 import ProtectedRoutes from "./ProtectedRoutes";
@@ -67,6 +68,7 @@ const AppRoutes = () => {
         <Route path="/mentor/inbox" element={<MentorInbox />} />
         <Route path="/mentor/reports" element={<MentorReportsPage />} />
         <Route path="/admin/users" element={<UserListPage />} />
+        <Route path="/admin/reports" element={<AdminReportsPage />} />
       </Route>
     </Routes>
   );
