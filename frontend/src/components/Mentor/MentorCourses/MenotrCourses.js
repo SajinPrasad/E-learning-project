@@ -3,7 +3,11 @@ import { useSelector } from "react-redux";
 
 import { PlusIcon } from "../../common/Icons";
 import CourseForm from "../../Course/CourseForm";
-import { filterCourseWithCategoryService, getCourses, searchCourseService } from "../../../services/courseServices/courseService";
+import {
+  filterCourseWithCategoryService,
+  getCourses,
+  searchCourseService,
+} from "../../../services/courseServices/courseService";
 import { CourseCard } from "../../Course";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { CourseCardSkeleton } from "../../Skeletons";
@@ -78,6 +82,8 @@ const MentorCourses = () => {
     setAddCourse((prevState) => !prevState);
   };
 
+  console.log("Role fetched: ", role);
+
   return (
     <>
       <div className="ml-1 flex-1 justify-center overflow-auto md:ml-0">
@@ -107,22 +113,20 @@ const MentorCourses = () => {
               refreshCourses={refreshCourses}
             />
           )}
-          
+
           {/* Pending Courses */}
           <div className="mt-3 rounded border border-gray-200 p-3">
             <h5 className="text-blue-gray-900 text-md font-semibold sm:text-lg">
               Pending Approval
             </h5>
             <div className="mt-6 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {isLoading
-              ? [...Array(4)].map((_, index) => (
-                  <CourseCardSkeleton key={index} />
-                ))
-              : Array.isArray(pendingCourses)
-                ? pendingCourses.map((course) => (
-                    <CourseCard key={course.id} course={course} />
+              {isLoading
+                ? [...Array(4)].map((_, index) => (
+                    <CourseCardSkeleton key={index} />
                   ))
-                : null}
+                : pendingCourses.map((course) => (
+                    <CourseCard key={course.id} course={course} role={role} />
+                  ))}
             </div>
           </div>
 
@@ -132,15 +136,13 @@ const MentorCourses = () => {
               Active Courses
             </h5>
             <div className="mt-6 grid gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {isLoading
-              ? [...Array(4)].map((_, index) => (
-                  <CourseCardSkeleton key={index} />
-                ))
-              : Array.isArray(approvedCourses)
-                ? approvedCourses.map((course) => (
-                    <CourseCard key={course.id} course={course} />
+              {isLoading
+                ? [...Array(4)].map((_, index) => (
+                    <CourseCardSkeleton key={index} />
                   ))
-                : null}
+                : approvedCourses.map((course) => (
+                    <CourseCard key={course.id} course={course} role={role} />
+                  ))}
             </div>
           </div>
         </div>

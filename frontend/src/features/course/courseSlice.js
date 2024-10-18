@@ -5,7 +5,6 @@ const courseSlice = createSlice({
   initialState: [],
   reducers: {
     setCoursesState(state, action) {
-      console.log("Coruses setting in state: ", action.payload)
       return action.payload;
     },
     clearCoursesState() {

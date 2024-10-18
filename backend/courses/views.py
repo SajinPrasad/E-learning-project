@@ -28,7 +28,6 @@ from .serializers import (
     LessonCompletionSerializer,
     CourseEnrollementSerializer,
 )
-from .documents import CourseDocument
 
 # Create your views here.
 
@@ -99,9 +98,9 @@ class CourseListCreateView(APIView):
         user = request.user
 
         if user.is_superuser:
-            courses = Course.objects.all()
+            courses = Course.objects.filter(is_deleted=False)
         elif user.role == "mentor":
-            courses = Course.objects.filter(mentor=user)
+            courses = Course.objects.filter(mentor=user, is_deleted=False)
 
         serializer = self.serializer_class(
             courses, many=True, context={"request": request}
@@ -171,7 +170,7 @@ class CourseListView(ListAPIView):
     serializer_class = CourseListCreateSerializer
 
     def get_queryset(self):
-        queryset = Course.objects.filter(status="approved")
+        queryset = Course.objects.filter(status="approved", is_deleted=False)
 
         # Filter out courses whose categories or their ancestors are inactive
         return [course for course in queryset if course.category.is_active_recursive()]
@@ -195,15 +194,15 @@ class AuthenticatedCourseListView(ListAPIView):
                 "course", flat=True
             )
 
-            queryset = Course.objects.filter(status="approved").exclude(
-                id__in=enrolled_courses_ids
-            )
+            queryset = Course.objects.filter(
+                status="approved", is_deleted=False
+            ).exclude(id__in=enrolled_courses_ids)
 
             return [
                 course for course in queryset if course.category.is_active_recursive()
             ]
 
-        queryset = Course.objects.filter(status="approved")
+        queryset = Course.objects.filter(status="approved", is_deleted=False)
 
         # Filter out courses whose categories or their ancestors are inactive
         return [course for course in queryset if course.category.is_active_recursive()]
@@ -225,10 +224,10 @@ class CourseUpdateView(UpdateAPIView):
         user = self.request.user
 
         if user.is_authenticated and user.role == "mentor":
-            return Course.objects.filter(mentor=user)
+            return Course.objects.filter(mentor=user, is_deleted=False)
 
         if user.is_superuser:
-            return Course.objects.all()
+            return Course.objects.all(is_deleted=False)
 
         return Course.objects.none()
 
@@ -257,7 +256,7 @@ class CourseDetailView(RetrieveAPIView):
 
         elif user.is_superuser:
             # Admins can access any course but it must have active categories
-            queryset = Course.objects.all()
+            queryset = Course.objects.filter(is_deleted=False)
             course = get_object_or_404(queryset, pk=course_id)
             if not course.category.is_active_recursive():
                 raise PermissionDenied("This course is not available.")
@@ -377,11 +376,6 @@ class EnrolledCoursesListView(ListAPIView):
     permission_classes = [IsAuthenticated, IsCoursePurchased]
 
     def get_queryset(self):
-        print(
-            "User auth in enrolled caurse: ",
-            self.request.user,
-            self.request.user.is_authenticated,
-        )
         return Enrollment.objects.filter(user=self.request.user, is_active=True)
 
 
@@ -418,7 +412,7 @@ class CourseSearchView(ListAPIView):
         if query:
             if user.is_authenticated:
                 if user.role == "admin":
-                    queryset = Course.objects.filter(
+                    queryset = Course.objects.filter(is_deleted=False).filter(
                         Q(title__icontains=query)
                         | Q(description__icontains=query)
                         | Q(category__name__icontains=query)
@@ -426,7 +420,9 @@ class CourseSearchView(ListAPIView):
                     )
 
                 elif user.role == "mentor":
-                    queryset = Course.objects.filter(mentor=user).filter(
+                    queryset = Course.objects.filter(
+                        mentor=user, is_deleted=False
+                    ).filter(
                         Q(title__icontains=query)
                         | Q(description__icontains=query)
                         | Q(category__name__icontains=query)
@@ -439,9 +435,7 @@ class CourseSearchView(ListAPIView):
                     ).values_list("course", flat=True)
 
                     queryset = (
-                        Course.objects.filter(
-                            status="approved",
-                        )
+                        Course.objects.filter(status="approved", is_deleted=False)
                         .filter(
                             Q(title__icontains=query)
                             | Q(description__icontains=query)
@@ -458,7 +452,7 @@ class CourseSearchView(ListAPIView):
                 ]
 
             queryset = Course.objects.filter(
-                status="approved",
+                status="approved", is_deleted=False
             ).filter(
                 Q(title__icontains=query)
                 | Q(description__icontains=query)
@@ -513,11 +507,13 @@ class CourseCategoryFilterView(ListAPIView):
                     ).values_list("course", flat=True)
                     queryset = Course.objects.filter(
                         status="approved",
+                        is_deleted=False,
                         category__in=categories,
                     ).exclude(id__in=enrolled_courses_ids)
             else:
                 queryset = Course.objects.filter(
                     status="approved",
+                    is_deleted=False,
                     category__in=categories,
                 )
 

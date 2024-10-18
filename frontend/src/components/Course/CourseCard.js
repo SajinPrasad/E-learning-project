@@ -17,6 +17,7 @@ const CourseCard = ({ course, role }) => {
   const navigate = useNavigate();
 
   const handleNavigation = () => {
+    console.log("Role: ", role)
     if (role) {
       navigate(`/${role}/course/${id}`);
     } else {
