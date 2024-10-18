@@ -8,10 +8,16 @@ import {
   updateCourseStatus,
   mentorChangingSuggestionStatus,
   getFullLessonData,
+  courseDeleteService,
 } from "../../services/courseServices/courseService";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button, Loading, ReactStarsWrapper } from "../common";
-import { DropDownArrow, DropUpArrow, PlusIcon } from "../common/Icons";
+import {
+  DeleteIcon,
+  DropDownArrow,
+  DropUpArrow,
+  PlusIcon,
+} from "../common/Icons";
 import { CourseStatusChange, courseStyles } from "./";
 import { toast } from "react-toastify";
 import { styles } from "../common";
@@ -41,6 +47,26 @@ async function confirmCourseStatusChange(newStatus) {
   }).then((result) => result.isConfirmed);
 }
 
+async function confirmCourseDeletion() {
+  return Swal.fire({
+    title: "Are you sure?",
+    text: `After deletion course will not be available for purchase. 
+          Users who are purchased already will still recieve the course.`,
+    icon: "warning",
+    showConfirmButton: true,
+    showCancelButton: true,
+    confirmButtonText: `Delete`,
+    cancelButtonText: "Cancel",
+    background: "#fffff",
+    customClass: {
+      title: "text-black",
+      popup: "my-popup-class",
+      confirmButton: `${styles.confirmbutton}`,
+      cancelButton: `${styles.cancelbutton}`,
+    },
+  }).then((result) => result.isConfirmed);
+}
+
 /**
  * @param {*} param0 role - User role to identify admin or mentor
  * @returns Component which renders the course details for the admins and Mentors
@@ -56,6 +82,7 @@ const CourseDetail = ({ role }) => {
   const [suggestion, setSuggestion] = useState({});
   const [suggestionStatus, setSuggestionStatus] = useState(false);
   const [courseRating, setCourseRating] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCourseDetail = async () => {
@@ -125,7 +152,25 @@ const CourseDetail = ({ role }) => {
     }
     handleCloseStatusChange();
   };
-  
+
+  const handleCourseDeletion = async () => {
+    const submit = await confirmCourseDeletion();
+
+    if (submit) {
+      setIsLoading(true);
+      const courseDeleted = await courseDeleteService(id);
+
+      if (courseDeleted) {
+        setIsLoading(false);
+        navigate("/mentor/courses");
+      } else {
+        return;
+      }
+    } else {
+      return;
+    }
+  };
+
   // Function to update or create the course suggestions
   const handleUpdateCreateCourseSuggestion = async () => {
     try {
@@ -223,7 +268,7 @@ const CourseDetail = ({ role }) => {
 
         {/* Left Section: Title and Mentor Info */}
         <div className="ml-4 flex w-full flex-col gap-1 md:w-1/2">
-          <p className="text-white text-sm">{course.category_path}</p>
+          <p className="text-sm text-white">{course.category_path}</p>
           <h1 className="text-3xl font-bold text-white md:text-4xl">
             {course.title}
           </h1>
@@ -242,7 +287,11 @@ const CourseDetail = ({ role }) => {
               </a>
               <span className="self-center text-xs text-blue-100">
                 <a href="#reviews">
-                  ({courseRating.total_reviews ? `${courseRating.total_reviews} ratings` : "No ratings yet"})
+                  (
+                  {courseRating.total_reviews
+                    ? `${courseRating.total_reviews} ratings`
+                    : "No ratings yet"}
+                  )
                 </a>
               </span>
             </div>
@@ -399,6 +448,13 @@ const CourseDetail = ({ role }) => {
             </div>
           )}
         </div>
+      )}
+
+      {role === "mentor" && (
+        <button onClick={handleCourseDeletion} className="mt-5 flex cursor-pointer items-center justify-center gap-2 rounded bg-slate-300 p-2 text-xs font-semibold text-gray-600">
+          <span>{<DeleteIcon />}</span>
+          Delete this course
+        </button>
       )}
 
       <div className="mx-auto mt-1 bg-white p-6 shadow-md md:mt-4">

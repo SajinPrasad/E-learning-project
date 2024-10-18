@@ -1,9 +1,6 @@
 from rest_framework.serializers import (
     ModelSerializer,
     ValidationError,
-    IntegerField,
-    DictField,
-    Serializer,
     ImageField,
     CharField,
     SerializerMethodField,
@@ -214,6 +211,7 @@ class CourseUpdateSerializer(ModelSerializer):
             "category",
             "preview_image",
             "status",
+            "is_deleted",
             "updated_at",
         ]
 
@@ -342,23 +340,23 @@ class CourseEnrollementSerializer(ModelSerializer):
         fields = ["course", "purchased_at"]
 
 
-class CourseSearchSerializer(Serializer):
-    id = IntegerField()
-    title = CharField()
-    description = CharField()
-    category = (
-        DictField()
-    )  # Assuming Elasticsearch returns the category as a nested dict
-    mentor = DictField()
-    status = CharField()
-    preview_image = CharField()
-    category_path = SerializerMethodField()
+# class CourseSearchSerializer(Serializer):
+#     id = IntegerField()
+#     title = CharField()
+#     description = CharField()
+#     category = (
+#         DictField()
+#     )  # Assuming Elasticsearch returns the category as a nested dict
+#     mentor = DictField()
+#     status = CharField()
+#     preview_image = CharField()
+#     category_path = SerializerMethodField()
 
-    def get_category_path(self, obj):
-        # Handle category path from Elasticsearch result
-        category = obj.get("category", {})
-        return category.full_path()
+#     def get_category_path(self, obj):
+#         # Handle category path from Elasticsearch result
+#         category = obj.get("category", {})
+#         return category.full_path()
 
-    def get_mentor_name(self, obj):
-        mentor = obj.get("mentor", {})
-        return f"{mentor.get('first_name', '')} {mentor.get('last_name', '')}"
+#     def get_mentor_name(self, obj):
+#         mentor = obj.get("mentor", {})
+#         return f"{mentor.get('first_name', '')} {mentor.get('last_name', '')}"

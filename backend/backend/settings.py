@@ -212,11 +212,11 @@ REST_FRAMEWORK = {
     ],
 }
 
-ELASTICSEARCH_DSL = {
-    'default': {
-        'hosts': 'elasticsearch:9200'
-    },
-}
+# ELASTICSEARCH_DSL = {
+#     'default': {
+#         'hosts': 'elasticsearch:9200'
+#     },
+# }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),

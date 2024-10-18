@@ -484,6 +484,16 @@ const searchCourseService = async (queryParams) => {
   }
 };
 
+const courseDeleteService = async (courseId) => {
+  const response = await privateAxiosInstance.patch(
+    `course-update/${courseId}/`,
+    { is_deleted: true },
+  );
+  if (response && response.status >= 200 && response.status < 300) {
+    return response.data;
+  }
+};
+
 // Separate function to handle different error cases
 const handleError = (error) => {
   if (error.response) {
@@ -520,4 +530,5 @@ export {
   getCoursesForAuthenticatedUser,
   filterCourseWithCategoryService,
   searchCourseService,
+  courseDeleteService,
 };
