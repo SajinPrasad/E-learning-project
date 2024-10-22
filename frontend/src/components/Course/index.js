@@ -11,3 +11,5 @@ export { default as EnrolledCourses } from "./EnrolledCourses";
 export { default as FullCourseView } from "./FullCourseView";
 export { default as CourseOverview } from "./CourseOverview";
 export { default as Courses } from "./Coures";
+export { default as Lessons } from "./Lessons";
+export { default as AddLessonForm } from "./AddLessonForm";

@@ -306,8 +306,8 @@ const updateCourse = async (id, field, value) => {
   formData.append(field, value);
 
   try {
-    const response = privateAxiosInstance.patch(
-      `/course-update/${id}`,
+    const response = await privateAxiosInstance.patch(
+      `/course-update/${id}/`,
       formData,
       {
         headers: {
@@ -315,7 +315,118 @@ const updateCourse = async (id, field, value) => {
         },
       },
     );
+
+    if (response.status >= 200 && response.status < 301) {
+      toast.success("Course updated");
+      return response.data;
+    }
   } catch (error) {}
+};
+
+/**
+ *
+ * @param {number} courseId
+ * @param {number} lessonId
+ * @param {*} field - Field which is updating eng: contnet, video_file
+ * @param {*} value - Updated value of the field
+ * @returns - Object with updated lesson
+ */
+const updateLessonService = async (courseId, lessonId, field, value) => {
+  const formData = new FormData();
+  formData.append(field, value);
+
+  try {
+    const response = await privateAxiosInstance.patch(
+      `/lesson/${lessonId}/?course_id=${courseId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+
+    if (response.status >= 200 && response.status < 301) {
+      return response.data;
+    }
+  } catch (error) {
+    // Handle errors from the backend or network issues
+    if (error.response) {
+      // Check for validation errors
+      const errors = error.response.data;
+      if (errors) {
+        // Print all validation error messages
+        Object.keys(errors).forEach((key) => {
+          errors[key].forEach((errMessage) => {
+            toast.error(errMessage);
+          });
+        });
+      } else {
+        toast.error(
+          error.response.data.detail ||
+            "An error occurred while updating the lesson",
+        );
+      }
+    } else if (error.request) {
+      // The request was made but no response was received
+      toast.error("Network error, please try again later.");
+    } else {
+      // Something happened in setting up the request
+      toast.error("Error: " + error.message);
+    }
+  }
+};
+
+
+const addNewLessonsService = async (courseId, lessons) => {
+  const formData = new FormData();
+  formData.append("course_id", courseId);
+
+  lessons.forEach((lesson, index) => {
+    formData.append(`lessons[${index}][title]`, lesson.title);
+    formData.append(`lessons[${index}][content]`, lesson.content);
+    formData.append(`lessons[${index}][video_file]`, lesson.video_file);
+  });
+
+  try {
+    const response = await privateAxiosInstance.post(
+      `/create-lessons/`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+
+    if (response.status >= 200 && response.status < 301) {
+      toast.success("New lessons added");
+      return response.data;
+    }
+  } catch (error) {
+    // Check if it's a network error
+    if (!error.response) {
+      toast.error("Network error: Please check your connection.");
+    } else {
+      // Backend error
+      const backendErrors = error.response.data;
+
+      // Loop through the error object to display each message
+      if (backendErrors) {
+        for (const [field, messages] of Object.entries(backendErrors)) {
+          if (Array.isArray(messages)) {
+            messages.forEach((msg) => {
+              toast.error(`${field}: ${msg}`);
+            });
+          } else {
+            toast.error(`${field}: ${backendErrors[field]}`);
+          }
+        }
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
+    }
+  }
 };
 
 /**
@@ -531,4 +642,6 @@ export {
   filterCourseWithCategoryService,
   searchCourseService,
   courseDeleteService,
+  updateLessonService,
+  addNewLessonsService,
 };

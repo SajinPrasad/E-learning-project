@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 
 import { Button, CategoryDropdown, Loading } from "../common";
 import { Camera, CloseIcon, VideoIcon } from "../common/Icons";
@@ -11,7 +12,6 @@ import {
   validateVideoFile,
 } from "../../services/courseServices/courseService";
 import { styles } from "../common";
-import { toast } from "react-toastify";
 
 // Validation schema using Yup
 const validationSchema = Yup.object({
@@ -84,14 +84,11 @@ async function confirmCourseSubmission() {
 
 const CourseForm = ({ setAddCourse, refreshCourses }) => {
   const courseCategories = useSelector((state) => state.courseCategory);
-  console.log("Coursecategories:", courseCategories)
 
   // Convert courseCategories from object to array
   const categoriesArray = Object.values(courseCategories).filter(
     (category) => category.id !== undefined,
   );
-
-  console.log("Categories array: ", categoriesArray)
 
   const [videoPreview, setVideoPreview] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Select category");
@@ -408,6 +405,8 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
             </div>
           </div>
         </div>
+
+        {/* Listing the lessons */}
         <h5 className="text-blue-gray-900 text-lg font-semibold sm:text-xl">
           Lessons
         </h5>
@@ -457,6 +456,8 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
             )}
           </div>
         )}
+
+        {/* Add lesson */}
         <div className="mb-6 flex flex-col items-end gap-4">
           <div className="w-full">
             <label className="text-blue-gray-800 mb-2 text-sm font-medium">
@@ -538,6 +539,7 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
             )}
           </div>
         </div>
+
         <div className="mb-6 w-full">
           <label className="flex items-center space-x-2">
             <input
