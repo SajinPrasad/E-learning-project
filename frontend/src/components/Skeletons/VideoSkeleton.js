@@ -1,10 +1,13 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 const VideoSkeleton = () => {
+  const role = useSelector((state) => state.user.role)
+
   return (
     <div className="relative mb-3 w-full">
       {/* Video Skeleton Placeholder */}
-      <div className="h-[400px] max-h-[75vh] w-full animate-pulse bg-gray-300 border border-gray-400 shadow-lg rounded relative">
+      <div className={` ${role === "student" ? "h-[405px]" : "h-[500px]"} max-h-[75vh] w-full animate-pulse bg-gray-300 border border-gray-400 shadow-lg rounded relative`}>
         {/* Play Button (Skeleton) */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="w-16 h-16 rounded-full bg-gray-400 flex items-center justify-center shadow-lg">

@@ -19,7 +19,7 @@ from .models import (
     Suggestion,
     Enrollment,
 )
-from .utils import validate_course
+from .utils import validate_course, validate_lesson_video
 
 logger = logging.getLogger(__name__)
 
@@ -107,13 +107,51 @@ class LessonCompletionSerializer(ModelSerializer):
 
 class LessonSerializer(ModelSerializer):
     """
-    Used for creating and retrieving purchased courses.
+    Used for creating lessons and retrieving lessons for purchased courses.
     * Only used for retrieval if the course is purchased or free.
+    * Used for updating and creating Lessons for courses by mentors.
     """
 
     class Meta:
         model = Lesson
-        fields = ["id", "title", "content", "video_file", "completed", "order"]
+        fields = [
+            "id",
+            "course",
+            "title",
+            "content",
+            "video_file",
+            "completed",
+            "order",
+        ]
+        extra_kwargs = {
+            "course": {"write_only": True},  # Making `course` field write-only
+        }
+
+    def validate(self, attrs):
+        lesson_video = attrs.get("video_file", None)
+        lesson_title = attrs.get("title", "")
+        lesson_content = attrs.get("content", "")
+
+        errors = {}
+
+        if lesson_video:
+            try:
+                validate_lesson_video(lesson_video)
+            except ValidationError as e:
+                errors["video_file"] = str(e)
+
+        if lesson_title:
+            if Lesson.objects.filter(title=lesson_title).exists():
+                raise ValidationError("Lesson title must be unique")
+
+        if lesson_content:
+            if len(lesson_content) < 200:
+                errors["content"] = "Lesson content must be at least 200 characters"
+
+        if errors:
+            raise ValidationError(errors)
+
+        return super().validate(attrs)
 
 
 class CourseListCreateSerializer(ModelSerializer):
@@ -203,17 +241,37 @@ class CourseUpdateSerializer(ModelSerializer):
     Specifically for updating course and related objects except Lesson data.
     """
 
+    requirements = CharField()
+
     class Meta:
         model = Course
         fields = [
+            "id",
             "title",
             "description",
             "category",
             "preview_image",
+            "requirements",
             "status",
             "is_deleted",
             "updated_at",
         ]
+
+    def update(self, instance, validated_data):
+        requirement_description = validated_data.pop("requirements", None)
+
+        # Handle course requirement
+        if requirement_description:
+            try:
+                course_requirement = CourseRequirement.objects.get(course=instance)
+                course_requirement.description = requirement_description
+                course_requirement.save()
+            except CourseRequirement.DoesNotExist:
+                CourseRequirement.objects.create(
+                    course=instance, description=requirement_description
+                )
+
+        return super().update(instance, validated_data)
 
 
 class LessonContentSerializer(ModelSerializer):
@@ -233,7 +291,7 @@ class LessonContentSerializer(ModelSerializer):
         """
         Trimming the content to 205 characters maximum.
         """
-        return obj.content[:205] + "..." if len(obj.content) > 205 else obj.contnet
+        return obj.content[:205] + "..." if len(obj.content) > 205 else obj.content
 
 
 class LessonTitleSerializer(ModelSerializer):

@@ -16,6 +16,7 @@ from .views import (
     LessonCompletionUpdateView,
     CourseSearchView,
     CourseCategoryFilterView,
+    AddNewLessonsView,
 )
 
 router = DefaultRouter()
@@ -59,4 +60,5 @@ urlpatterns = [
     ),
     path("course/search/", CourseSearchView.as_view(), name="course-search"),
     path("course/category/filter/", CourseCategoryFilterView.as_view(), name="course-filter"),
+    path("create-lessons/", AddNewLessonsView.as_view(), name="create-lesson"),
 ]

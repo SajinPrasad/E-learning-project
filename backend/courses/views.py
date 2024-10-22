@@ -1,13 +1,18 @@
 import json
 from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import RetrieveAPIView, UpdateAPIView, ListAPIView
+from rest_framework.generics import (
+    RetrieveAPIView,
+    UpdateAPIView,
+    ListAPIView,
+    RetrieveUpdateAPIView,
+)
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_201_CREATED
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 import logging
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, NotFound
 from django.db.models import Q
 
 from .permissions import (
@@ -227,7 +232,7 @@ class CourseUpdateView(UpdateAPIView):
             return Course.objects.filter(mentor=user, is_deleted=False)
 
         if user.is_superuser:
-            return Course.objects.all(is_deleted=False)
+            return Course.objects.filter(is_deleted=False)
 
         return Course.objects.none()
 
@@ -302,10 +307,11 @@ class LessonCompletionUpdateView(UpdateAPIView):
         return Lesson.objects.filter(course__id=course_id)
 
 
-class LessonDetailViewAdminMentorOrPurchasedStudent(RetrieveAPIView):
+class LessonDetailViewAdminMentorOrPurchasedStudent(RetrieveUpdateAPIView):
     """
-    Accessed by admins, mentors and students for lesson retrieval.
+    Accessed by admins, mentors, and students for lesson retrieval.
     * Admins and mentors who created the course can access the lesson data.
+    * Mentors can update the lessons
     * Students who purchased the course can access the lesson data.
     """
 
@@ -328,7 +334,7 @@ class LessonDetailViewAdminMentorOrPurchasedStudent(RetrieveAPIView):
         try:
             course = Course.objects.get(id=course_id)
         except Course.DoesNotExist:
-            return None  # Handle the case when the course doesn't exist
+            raise NotFound({"detail": "Course not found"})  # Return a 404 response
 
         if user.is_superuser:
             return Lesson.objects.filter(course=course)
@@ -337,13 +343,83 @@ class LessonDetailViewAdminMentorOrPurchasedStudent(RetrieveAPIView):
             if Enrollment.objects.filter(user=user, course=course).exists():
                 return Lesson.objects.filter(course=course)
             else:
-                return None
+                raise PermissionDenied(
+                    {"detail": "You have not purchased this course"}
+                )  # Return 403 if not enrolled
 
         elif user.role == "mentor":
             if course.mentor == user:
                 return Lesson.objects.filter(course=course)
             else:
-                return None
+                raise PermissionDenied(
+                    {"detail": "You are not permitted to access these lessons"}
+                )  # Return 403 for unauthorized mentor
+
+
+class AddNewLessonsView(APIView):
+    """
+    View for adding New lessons for purticular courses.
+    * Only accessible by mentors
+    """
+
+    permission_classes = [MentorOnlyPermission]
+    serializer_class = LessonSerializer
+
+    def post(self, request):
+        print("Data: ", request.data)
+        course_id = request.data.get("course_id")
+
+        lessons_data = []  # For appending all the lessons for a single course
+        index = 0
+
+        # Fetching all the lesson data which is present in the request data.
+        # Creating map with lesson data and appending to the array.
+        while f"lessons[{index}][title]" in request.data:
+            lesson_data = {
+                "title": request.data.get(f"lessons[{index}][title]"),
+                "content": request.data.get(f"lessons[{index}][content]"),
+                "video_file": request.FILES.get(f"lessons[{index}][video_file]"),
+            }
+            lessons_data.append(lesson_data)
+            index += 1
+
+        # Ensure course exists
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            raise NotFound("Course not found")
+
+        if course:
+            if not course.mentor == request.user:
+                raise PermissionDenied("You are not permitted to edit this course")
+
+        # Get the current max order number for the given course
+        current_order = Lesson.objects.filter(course=course).order_by("-order").first()
+        current_order = current_order.order if current_order else 0
+
+        created_lessons = []
+        for lesson_data in lessons_data:
+            current_order += 1
+            lesson_data = {
+                "course": course.id,  # Use course id for serialization
+                "order": current_order,
+                **lesson_data,
+            }
+
+            # Initialize the serializer with the data
+            serializer = self.serializer_class(data=lesson_data)
+
+            # Validate the data
+            if serializer.is_valid():
+                # Save the lesson
+                serializer.save()
+                created_lessons.append(serializer.data)
+            else:
+                # If one of the lessons has invalid data, return a 400 response
+                return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+        # Return the list of created lessons upon success
+        return Response({"lessons": created_lessons}, status=HTTP_201_CREATED)
 
 
 class CourseSuggestionView(ModelViewSet):
@@ -402,6 +478,10 @@ class EnrolledCoursesListView(ListAPIView):
 
 
 class CourseSearchView(ListAPIView):
+    """
+    View for searching the courses according to the keyword fetched from url.
+    """
+
     permission_classes = [AllowAny]
     serializer_class = CourseListCreateSerializer
 
@@ -429,7 +509,7 @@ class CourseSearchView(ListAPIView):
                         | Q(category__description__icontains=query)
                     )
                 else:
-
+                    # For student users excluding the enrolled courses.
                     enrolled_courses_ids = Enrollment.objects.filter(
                         user=user
                     ).values_list("course", flat=True)
@@ -468,6 +548,11 @@ class CourseSearchView(ListAPIView):
 
 
 class CourseCategoryFilterView(ListAPIView):
+    """
+    Filtering courses according to the category.
+    Fetching the category name from url.
+    """
+
     permission_classes = [AllowAny]
     serializer_class = CourseListCreateSerializer
 
