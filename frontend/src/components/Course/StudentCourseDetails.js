@@ -13,6 +13,7 @@ import { useDispatch } from "react-redux";
 import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
 import { ListReviews } from "../Reviews";
 import { MentorProfileBox } from "../Profile";
+import { CommentsPage } from "../../pages/Comments";
 
 /**
  * Component which renders the course details for students
@@ -24,6 +25,7 @@ const StudentCourseDetails = () => {
   const [expandedLessonIds, setExpandedLessonIds] = useState([]);
   const dispatch = useDispatch();
   const [courseRating, setCourseRating] = useState({});
+  const [selectedItem, setSelectedItem] = useState("reviews");
 
   useEffect(() => {
     const fetchCourseDetail = async () => {
@@ -233,30 +235,66 @@ const StudentCourseDetails = () => {
               </h5>
             </div>
 
+            <div className="flex justify-around font-semibold">
+              <h4
+                onClick={() => setSelectedItem("reviews")}
+                className={`${selectedItem === "reviews" ? "border-b-2 border-gray-700 text-gray-700" : "text-gray-400"} cursor-pointer`}
+              >
+                Reviews
+              </h4>
+
+              <h4
+                onClick={() => setSelectedItem("comments")}
+                className={`${selectedItem === "comments" ? "border-b-2 border-gray-700 text-gray-700" : "text-gray-400"} cursor-pointer`}
+              >
+                Comments
+              </h4>
+            </div>
+
             {/* Reviews and rating */}
-            <div id="reviews" className="mb-5 bg-white p-8 shadow-md">
+            {selectedItem === "reviews" && (
+              <div id="reviews" className="mb-5 bg-white p-8 shadow-md">
+                <h2 className="mb-3 text-lg font-bold md:text-2xl">
+                  Reviews and rating
+                </h2>
+                <div className="flex items-center gap-2">
+                  <ReactStarsWrapper
+                    size={50}
+                    value={courseRating.average_rating}
+                    edit={false}
+                  />
+                  <span className="text-sm text-blue-500">
+                    (
+                    {courseRating.total_reviews
+                      ? `${courseRating.total_reviews} ratings`
+                      : "No ratings yet"}
+                    )
+                  </span>
+                </div>
+                <h2 className="text-xl font-bold text-yellow-700 sm:text-2xl md:text-3xl">
+                  {courseRating.average_rating} Course Ratings
+                </h2>
+
+                <div className="mt-8">
+                  <ListReviews courseId={id} />
+                </div>
+              </div>
+            )}
+
+            {/* Comments */}
+            {selectedItem === "comments" && (
+            <div className="mb-5 bg-white p-8 shadow-md">
               <h2 className="mb-3 text-lg font-bold md:text-2xl">
                 Reviews and rating
               </h2>
-              <div className="flex items-center gap-2">
-                <ReactStarsWrapper
-                  size={50}
-                  value={courseRating.average_rating}
-                  edit={false}
-                />
-                <span className="text-sm text-blue-500">
-                  ({courseRating.total_reviews ? `${courseRating.total_reviews} ratings` : "No ratings yet"})
-                </span>
-              </div>
-              <h2 className="text-xl font-bold text-yellow-700 sm:text-2xl md:text-3xl">
-                {courseRating.average_rating} Course Ratings
-              </h2>
-
               <div className="mt-8">
-                <ListReviews courseId={id} />
+                <CommentsPage courseId={id} />
               </div>
             </div>
+          )}
           </div>
+
+          
 
           {/* Right side: Fixed Add to Cart Box */}
           <div className="sticky col-span-1 hidden flex-col md:mr-4 md:mt-2 md:block">
