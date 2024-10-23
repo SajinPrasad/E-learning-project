@@ -51,3 +51,38 @@ export const getCourseProfitServices = async () => {
     }
   }
 };
+
+export const courseProfitDateFilter = async (from = null, to = null) => {
+  try {
+    let response;
+    if (from && to) {
+      response = await privateAxiosInstance.get(
+        `/course-profits/date-filter?from=${from}&to=${to}`,
+      );
+    } else if (from) {
+      response = await privateAxiosInstance.get(
+        `/course-profits/date-filter?from=${from}`,
+      );
+    } else if (to) {
+      response = await privateAxiosInstance.get(
+        `/course-profits/date-filter?to=${to}`,
+      );
+    }
+
+    return response.data;
+    
+  } catch (error) {
+    if (error.response) {
+      const status = error.response.status;
+      if (status >= 500) {
+        toast.error("Server error, please try again later.");
+      } else if (status >= 400) {
+        toast.error("Client error, please check your request.");
+      }
+    } else if (error.request) {
+      toast.error("Network error, please check your connection.");
+    } else {
+      toast.error("An unexpected error occurred.");
+    }
+  }
+};
