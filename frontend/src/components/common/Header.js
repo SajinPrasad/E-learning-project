@@ -6,8 +6,9 @@ import ProfileDropdown from "./ProfileDropdown";
 import { CartIcon } from "./Icons";
 import CategoryDropdown from "./CategoryDropdown";
 import SearchBar from "./SearchBar";
+import { getCartItems } from "../../services/cartServices";
 
-const Header = () => {
+const Header = ({cartItemNumbers}) => {
   const navigate = useNavigate();
   const { isAuthenticated, firstName, lastName, role } = useSelector(
     (state) => state.user,
@@ -18,6 +19,7 @@ const Header = () => {
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [cartItems, setCartItems] = useState([]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
@@ -29,7 +31,17 @@ const Header = () => {
     }
   };
 
-  const cartItems = useSelector((state) => state.cartItem.items);
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      const fetchedCartItems = await getCartItems();
+
+      if (fetchedCartItems) {
+        setCartItems(fetchedCartItems);
+      }
+    };
+
+    fetchCartItems();
+  }, [cartItemNumbers]);
 
   useEffect(() => {
     if (selectedCategory) {
