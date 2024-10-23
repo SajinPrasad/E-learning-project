@@ -5,8 +5,8 @@ from django.conf import settings
 import paypalrestsdk
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
+from datetime import datetime
 
 from cart.models import Order, CartItem
 from courses.models import Enrollment
@@ -137,8 +137,9 @@ class WalletRetrievalView(APIView):
         elif self.request.user.role == "admin":
             # There is only one common wallet instance for the admin.
             wallet = AdminWallet.objects.get(id=1)
-            
-        else: return None
+
+        else:
+            return None
 
         # Construct and return the response manually
         return Response({"balance": wallet.balance})
@@ -156,3 +157,48 @@ class CourseProfitInfoAdminMentor(ListAPIView):
         if self.request.user.role == "mentor":
             return CourseProfit.objects.filter(course__mentor=self.request.user)
         return CourseProfit.objects.all()
+
+
+class CourseProfitDateFilter(ListAPIView):
+    """
+    Filtering course profits according to dates.
+    """
+
+    permission_classes = [MentorOrAdminPermission]  # Custom Permission
+    serializer_class = CourseProfitSeralizer
+
+    def get_queryset(self):
+        queryset = CourseProfit.objects.all()
+        from_date = self.request.query_params.get("from", None)
+        to_date = self.request.query_params.get("to", None)
+
+        # Validate and filter the date range
+        if from_date:
+            try:
+                from_date = datetime.strptime(from_date, "%Y-%m-%d").date()
+                # Filter from the provided from_date onward
+                queryset = queryset.filter(timestamp__gte=from_date)
+            except ValueError:
+                # Handle invalid date format
+                return Response(
+                    {"error": "Invalid date format for 'from'. Use YYYY-MM-DD."},
+                    status=400,
+                )
+
+        if to_date:
+            try:
+                to_date = datetime.strptime(to_date, "%Y-%m-%d").date()
+                # Filter up to the provided to_date
+                queryset = queryset.filter(timestamp__lte=to_date)
+            except ValueError:
+                # Handle invalid date format
+                return Response(
+                    {"error": "Invalid date format for 'to'. Use YYYY-MM-DD."},
+                    status=400,
+                )
+
+        # If both dates are provided, filter between them
+        if from_date and to_date:
+            queryset = queryset.filter(timestamp__range=[from_date, to_date])
+
+        return queryset
