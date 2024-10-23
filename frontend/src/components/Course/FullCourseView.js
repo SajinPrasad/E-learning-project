@@ -11,6 +11,7 @@ import CourseOverview from "./CourseOverview";
 import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
 import { toast } from "react-toastify";
 import { LessonSkeleton, VideoSkeleton } from "../Skeletons";
+import { CommentsPage } from "../../pages/Comments";
 
 /**
  * @returns The component which renders the full course view (Including videos).
@@ -251,12 +252,21 @@ const FullCourseView = () => {
         >
           Overview
         </h3>
+
+        <h3
+          onClick={() => setSelected("comments")}
+          className={`cursor-pointer ${selected === "comments" && "text-gray-600"}`}
+        >
+          Comments
+        </h3>
+
         <h3
           onClick={() => setSelected("reviews")}
           className={`cursor-pointer ${selected === "reviews" && "text-gray-600"}`}
         >
           Reviews
         </h3>
+
         <h3
           onClick={() => setSelected("lessons")}
           className={`cursor-pointer ${selected === "lessons" && "text-gray-600"}`}
@@ -304,6 +314,13 @@ const FullCourseView = () => {
           <div className="mx-auto w-2/3">
             <ListReviews courseId={courseDetails.id} />
           </div>
+        </>
+      )}
+
+      {/* Comments */}
+      {selected === "comments" && (
+        <>
+          <CommentsPage courseId={courseDetails.id} />
         </>
       )}
     </div>
