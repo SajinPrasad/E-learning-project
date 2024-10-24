@@ -24,13 +24,24 @@ export const postCommentService = async (courseId, comment) => {
 };
 
 export const getCommentsService = async (courseId) => {
-  console.log("Course id: ", courseId)
   try {
     const response = await privateAxiosInstance.get(
       `/comments/?course_id=${courseId}`,
     );
 
-    console.log("Response: ", response)
+    if (response.status >= 200 && response.status < 301) {
+      return response.data;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const getProfilePictureService = async (userId) => {
+  try {
+    const response = await publicAxiosInstance.get(
+      `/profile-picture/?user_id=${userId}`,
+    );
 
     if (response.status >= 200 && response.status < 301) {
       return response.data;
