@@ -1,9 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
-import { getCourseProfitServices } from "../../../services/walletAndReportServices/walletServices";
+import {
+  courseProfitDateFilter,
+  getCourseProfitServices,
+} from "../../../services/walletAndReportServices/walletServices";
 import { PrintIcon } from "../../common/Icons";
 import CourseProfitsTableSkeleton from "../../Skeletons/CourseProfitsTableSkeleton";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import DatePicker from "react-datepicker";
 
 const AdminReports = () => {
   const [courseProfits, setCourseProfits] = useState([]);
@@ -118,6 +122,32 @@ const AdminReports = () => {
         <CourseProfitsTableSkeleton role={"Admin"} />
       ) : (
         <>
+          <div className="flex justify-around">
+            <div className="flex justify-around">
+              <DatePicker
+                selected={startDate}
+                onChange={(date) => setStartDate(date)}
+                className="focus:border-primary w-2/4 rounded border border-gray-200 p-1 text-sm"
+                placeholderText="From"
+                dateFormat="dd/MM/yyyy" // Optional: Format of the date
+              />
+              <DatePicker
+                selected={endDate}
+                onChange={(date) => setEndDate(date)}
+                className="focus:border-primary w-2/4 rounded border border-gray-200 p-1 text-sm"
+                placeholderText="To"
+                dateFormat="dd/MM/yyyy" // Optional: Format of the date
+              />
+
+              <button
+                onClick={handleFilterCourse}
+                className="w-2/6 cursor-pointer rounded bg-slate-600 text-white hover:bg-slate-400"
+              >
+                Filter
+              </button>
+            </div>
+          </div>
+
           <div ref={reportRef} className="bg-white p-4">
             {/* PDF Header */}
             <div className={`mb-8 text-center ${!isGeneratingPDF && "hidden"}`}>
