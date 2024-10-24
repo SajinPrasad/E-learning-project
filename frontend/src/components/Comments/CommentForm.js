@@ -9,6 +9,7 @@ const CommentForm = ({ courseId }) => {
   const [comment, setComment] = useState("");
   const [ws, setWs] = useState(null); // Store WebSocket connection
   const wsRef = useRef(null);
+  const [parentComment, setParentComment] = useState(null);
 
   useEffect(() => {
     if (accessToken) {
@@ -36,9 +37,18 @@ const CommentForm = ({ courseId }) => {
 
   const handlePostingComment = () => {
     if (comment.trim() && ws && ws.readyState === WebSocket.OPEN) {
-      const message = JSON.stringify({
-        comment: comment, // Sending the comment payload
-      });
+      let message;
+      if (parentComment) {
+        message = JSON.stringify({
+          comment: comment, // Sending the comment payload
+          parent_comment_id: parentComment.id,
+        });
+      } else {
+        message = JSON.stringify({
+          comment: comment, // Sending the comment payload
+        });
+      }
+
       ws.send(message);
       setComment(""); // Clear the input after sending
     }
@@ -56,7 +66,7 @@ const CommentForm = ({ courseId }) => {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Enter..."
-            className="w-full h-24 rounded-md border border-gray-300 px-4 py-2 placeholder-gray-400 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+            className="h-24 w-full rounded-md border border-gray-300 px-4 py-2 placeholder-gray-400 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
           />
           <div className="flex justify-end">
             <span onClick={handlePostingComment} className="inline-block">
@@ -64,9 +74,21 @@ const CommentForm = ({ courseId }) => {
             </span>
           </div>
         </div>
+        {parentComment && (
+          <div className="my-2 w-1/3 border border-gray-200">
+            <p className="text-sm">Replaying to</p>
+            <p className="text-xs font-semibold text-gray-600">
+              @{parentComment.user_fullname}
+            </p>
+          </div>
+        )}
       </div>
 
-      <CommentList courseId={courseId} ws={wsRef.current} />
+      <CommentList
+        courseId={courseId}
+        ws={wsRef.current}
+        setParentComment={setParentComment}
+      />
     </>
   );
 };

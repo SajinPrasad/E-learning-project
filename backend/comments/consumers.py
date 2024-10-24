@@ -64,10 +64,17 @@ class CommentConsumer(AsyncWebsocketConsumer):
         try:
             data = json.loads(text_data)
             comment_text = data["comment"]
+            parent_comment_id = data.get(
+                "parent_comment_id"
+            )  # Get parent comment ID if provided
             user = self.scope["user"]
 
-            # Save the comment to the database
-            comment = await self.create_comment(user.id, self.course_id, comment_text)
+            print("Parent id:", parent_comment_id)
+
+            # Save the comment (or reply) to the database
+            comment = await self.create_comment(
+                user.id, self.course_id, comment_text, parent_comment_id
+            )
 
             # Broadcast the comment to the room group
             await self.channel_layer.group_send(
@@ -102,14 +109,23 @@ class CommentConsumer(AsyncWebsocketConsumer):
         )
 
     @sync_to_async
-    def create_comment(self, user_id, course_id, comment_text):
+    def create_comment(self, user_id, course_id, comment_text, parent_comment_id=None):
         """
-        Create and save a comment to the database asynchronously.
+        Create and save a comment (or reply) to the database asynchronously.
         """
+        print("Parent comment id recieved: ", parent_comment_id)
         try:
             user = User.objects.get(id=user_id)
             course = Course.objects.get(id=course_id)
-        except (User.DoesNotExist, Course.DoesNotExist):
-            raise NotFound("User or Course not found")
+            parent_comment = None
 
-        return Comment.objects.create(user=user, course=course, comment=comment_text)
+            # If parent_comment_id is provided, fetch the parent comment
+            if parent_comment_id:
+                parent_comment = Comment.objects.get(id=parent_comment_id)
+        except (User.DoesNotExist, Course.DoesNotExist, Comment.DoesNotExist):
+            raise NotFound("User, Course, or Parent Comment not found")
+
+        # Create the comment, setting the parent if provided
+        return Comment.objects.create(
+            user=user, course=course, comment=comment_text, parent=parent_comment
+        )

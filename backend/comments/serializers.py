@@ -13,16 +13,19 @@ class CommentSerializer(ModelSerializer):
 
     user_fullname = SerializerMethodField()
     user_profile_picture = SerializerMethodField()
+    replay_count = SerializerMethodField()
 
     class Meta:
         model = Comment
         fields = [
             "id",
+            "parent",
             "user",
             "course",
             "comment",
             "user_fullname",
             "user_profile_picture",
+            "replay_count",
             "created_at",
         ]
         extra_kwargs = {
@@ -73,3 +76,7 @@ class CommentSerializer(ModelSerializer):
             profile_picture = user.mentorprofile.profile_picture.url
 
         return profile_picture
+
+    def get_replay_count(self, obj):
+        """Returning the number of replies"""
+        return obj.get_replies_count()
