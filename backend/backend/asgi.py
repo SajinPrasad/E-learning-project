@@ -13,16 +13,22 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 
-from chat.route import websocket_urlpatterns
+from chat.route import websocket_urlpatterns as chat_websocket_urlpatterns
+from comments.route import websocket_urlpatterns as comment_websocket_urlpatterns
 from chat.channels_middleware import JWTAuthMiddleware
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 
+# Merge both chat and comment websocket_urlpatterns
+
+# Configure the ASGI application with combined routes
 application = ProtocolTypeRouter(
     {
         "http": get_asgi_application(),
         "websocket": JWTAuthMiddleware(
-            AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
+            AuthMiddlewareStack(
+                URLRouter(chat_websocket_urlpatterns + comment_websocket_urlpatterns)
+            )
         ),
     }
 )
