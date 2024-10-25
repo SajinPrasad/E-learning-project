@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 
 import { Button } from "../common";
 import CommentList from "./CommentList";
+import { CloseIcon } from "../common/Icons";
 
 const CommentForm = ({ courseId }) => {
   const { accessToken } = useSelector((state) => state.auth);
@@ -10,6 +11,7 @@ const CommentForm = ({ courseId }) => {
   const [ws, setWs] = useState(null); // Store WebSocket connection
   const wsRef = useRef(null);
   const [parentComment, setParentComment] = useState(null);
+  const commentInputRef = useRef(null);
 
   useEffect(() => {
     if (accessToken) {
@@ -38,6 +40,7 @@ const CommentForm = ({ courseId }) => {
   const handlePostingComment = () => {
     if (comment.trim() && ws && ws.readyState === WebSocket.OPEN) {
       let message;
+
       if (parentComment) {
         message = JSON.stringify({
           comment: comment, // Sending the comment payload
@@ -50,7 +53,15 @@ const CommentForm = ({ courseId }) => {
       }
 
       ws.send(message);
+      setParentComment(null);
       setComment(""); // Clear the input after sending
+    }
+  };
+
+  const handleSetParentComment = (comment) => {
+    setParentComment(comment);
+    if (commentInputRef.current) {
+      commentInputRef.current.focus();
     }
   };
 
@@ -62,6 +73,7 @@ const CommentForm = ({ courseId }) => {
         </h4>
         <div className="flex flex-col space-y-4">
           <textarea
+            ref={commentInputRef}
             name="comment"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
@@ -76,7 +88,15 @@ const CommentForm = ({ courseId }) => {
         </div>
         {parentComment && (
           <div className="my-2 w-1/3 border border-gray-200">
-            <p className="text-sm">Replaying to</p>
+            <div className="flex gap-2">
+              <p className="text-sm">Replaying to</p>
+              <span
+                className="cursor-pointer"
+                onClick={() => setParentComment(null)}
+              >
+                <CloseIcon />
+              </span>
+            </div>
             <p className="text-xs font-semibold text-gray-600">
               @{parentComment.user_fullname}
             </p>
@@ -87,7 +107,7 @@ const CommentForm = ({ courseId }) => {
       <CommentList
         courseId={courseId}
         ws={wsRef.current}
-        setParentComment={setParentComment}
+        setParentComment={handleSetParentComment}
       />
     </>
   );
