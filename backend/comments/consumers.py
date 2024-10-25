@@ -81,6 +81,8 @@ class CommentConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 {
                     "type": "comment_message",
+                    "id": comment.id,
+                    "parent_id": parent_comment_id,
                     "comment": comment_text,
                     "user_id": user.id,
                     "user_fullname": user.get_full_name(),
@@ -99,7 +101,9 @@ class CommentConsumer(AsyncWebsocketConsumer):
         await self.send(
             text_data=json.dumps(
                 {
+                    "id": event["id"],
                     "comment": event["comment"],
+                    "parent_id": event["parent_id"],
                     "user_id": event["user_id"],
                     "user_fullname": event["user_fullname"],
                     "timestamp": event["timestamp"],
