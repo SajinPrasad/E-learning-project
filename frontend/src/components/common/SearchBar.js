@@ -16,7 +16,7 @@ const SearchBar = ({ handleSearch }) => {
         className="absolute bottom-2.5 right-3 cursor-pointer"
         onClick={() => handleSearch(searchKeyword)}
       >
-        <SearchIcon className="h-5 w-5 text-gray-400" />
+        <SearchIcon />
       </span>
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { ContentHeading } from "../../components/common";
+import { Banner, ContentHeading, Header } from "../../components/common";
 import {
   getActiveCourses,
   getCoursesForAuthenticatedUser,
@@ -56,6 +56,9 @@ const HomeLayout = () => {
 
   return (
     <>
+      <Header />
+      <Banner />
+
       {/** Courses */}
       {enrolledCourses && (
         <div className="m-3 mt-3 rounded border border-gray-200 p-3 md:p-8">
@@ -88,7 +91,10 @@ const HomeLayout = () => {
       )}
 
       <div className="m-3 mt-3 rounded border border-gray-200 p-3 md:p-8">
-        <ContentHeading text={"Courses"} />
+        <span className="cursor-pointer" onClick={() => navigate("/courses")}>
+          <ContentHeading text={"Courses"} />
+        </span>
+
         <div className="mt-6 grid gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {isLoading
             ? [...Array(5)].map((_, index) => (

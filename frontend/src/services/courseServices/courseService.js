@@ -466,6 +466,24 @@ const getEnrolledCourses = async () => {
   }
 };
 
+const filterCourseWithCategoryService = async (category) => {
+  const response = await publicAxiosInstance.get(
+    `/course/category/filter/?category=${category}`,
+  );
+  if (response && response.status >= 200 && response.status < 300) {
+    return response.data;
+  }
+};
+
+const searchCourseService = async (queryParams) => {
+  const response = await publicAxiosInstance.get(
+    `/course/search/?q=${queryParams}`,
+  );
+  if (response && response.status >= 200 && response.status < 300) {
+    return response.data;
+  }
+};
+
 // Separate function to handle different error cases
 const handleError = (error) => {
   if (error.response) {
@@ -500,4 +518,6 @@ export {
   getFullLessonData,
   getEnrolledCourses,
   getCoursesForAuthenticatedUser,
+  filterCourseWithCategoryService,
+  searchCourseService,
 };

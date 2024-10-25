@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 import logging
 from rest_framework.exceptions import PermissionDenied
+from django.db.models import Q
 
 from .permissions import (
     MentorOnlyPermission,
@@ -27,6 +28,7 @@ from .serializers import (
     LessonCompletionSerializer,
     CourseEnrollementSerializer,
 )
+from .documents import CourseDocument
 
 # Create your views here.
 
@@ -381,3 +383,146 @@ class EnrolledCoursesListView(ListAPIView):
             self.request.user.is_authenticated,
         )
         return Enrollment.objects.filter(user=self.request.user, is_active=True)
+
+
+# class CourseSearchView(ListAPIView):
+#     permission_classes = [AllowAny]
+#     serializer_class = CourseSearchSerializer
+
+#     def get_queryset(self):
+#         query = self.request.GET.get("q")
+
+#         if query:
+#             return CourseDocument.search().query(
+#                 "multi_match",
+#                 query=query,
+#                 fields=[
+#                     "title",
+#                     "description",
+#                     "category.name",
+#                     "category.description",
+#                 ],
+#             )
+#         else:
+#             return CourseDocument.search().all()
+
+
+class CourseSearchView(ListAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = CourseListCreateSerializer
+
+    def get_queryset(self):
+        query = self.request.query_params.get("q", None)
+        user = self.request.user
+
+        if query:
+            if user.is_authenticated:
+                if user.role == "admin":
+                    queryset = Course.objects.filter(
+                        Q(title__icontains=query)
+                        | Q(description__icontains=query)
+                        | Q(category__name__icontains=query)
+                        | Q(category__description__icontains=query)
+                    )
+
+                elif user.role == "mentor":
+                    queryset = Course.objects.filter(mentor=user).filter(
+                        Q(title__icontains=query)
+                        | Q(description__icontains=query)
+                        | Q(category__name__icontains=query)
+                        | Q(category__description__icontains=query)
+                    )
+                else:
+
+                    enrolled_courses_ids = Enrollment.objects.filter(
+                        user=user
+                    ).values_list("course", flat=True)
+
+                    queryset = (
+                        Course.objects.filter(
+                            status="approved",
+                        )
+                        .filter(
+                            Q(title__icontains=query)
+                            | Q(description__icontains=query)
+                            | Q(category__name__icontains=query)
+                            | Q(category__description__icontains=query)
+                        )
+                        .exclude(id__in=enrolled_courses_ids)
+                    )
+
+                return [
+                    course
+                    for course in queryset
+                    if course.category.is_active_recursive()
+                ]
+
+            queryset = Course.objects.filter(
+                status="approved",
+            ).filter(
+                Q(title__icontains=query)
+                | Q(description__icontains=query)
+                | Q(category__name__icontains=query)
+                | Q(category__description__icontains=query)
+            )
+
+            return [
+                course for course in queryset if course.category.is_active_recursive()
+            ]
+        else:
+            return Course.objects.none()
+
+
+class CourseCategoryFilterView(ListAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = CourseListCreateSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        category_name = self.request.query_params.get("category", None)
+
+        if category_name:
+            try:
+                category = Category.objects.get(name=category_name)
+            except Category.DoesNotExist:
+                raise ValueError("Category not found")
+
+            # Get all subcategories recursively
+            def get_subcategories(cat):
+                subcats = list(cat.subcategories.all())
+                for subcat in subcats:
+                    subcats.extend(get_subcategories(subcat))
+                return subcats
+
+            # Include the main category and all its subcategories
+            categories = [category] + get_subcategories(category)
+
+            if user.is_authenticated:
+                if user.role == "admin":
+                    queryset = Course.objects.filter(
+                        category__in=categories,
+                    )
+                elif user.role == "mentor":
+                    queryset = Course.objects.filter(
+                        mentor=user,
+                        category__in=categories,
+                    )
+                else:
+                    enrolled_courses_ids = Enrollment.objects.filter(
+                        user=user
+                    ).values_list("course", flat=True)
+                    queryset = Course.objects.filter(
+                        status="approved",
+                        category__in=categories,
+                    ).exclude(id__in=enrolled_courses_ids)
+            else:
+                queryset = Course.objects.filter(
+                    status="approved",
+                    category__in=categories,
+                )
+
+            return [
+                course for course in queryset if course.category.is_active_recursive()
+            ]
+        else:
+            return Course.objects.none()

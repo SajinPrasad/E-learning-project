@@ -44,7 +44,7 @@ const validationSchema = Yup.object({
     .min(0.0, "Course price must be at least $0.00"),
 });
 
-function showConfirmFreeCourseAlert() {
+async function showConfirmFreeCourseAlert() {
   return Swal.fire({
     title: "Are you sure?",
     text: "You are adding the course as a free course!",
@@ -63,7 +63,7 @@ function showConfirmFreeCourseAlert() {
   }).then((result) => result.isConfirmed);
 }
 
-function confirmCourseSubmission() {
+async function confirmCourseSubmission() {
   return Swal.fire({
     title: "Are you sure?",
     text: "You are about to submit a new course, make sure that everything perfect.",

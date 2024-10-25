@@ -2,11 +2,19 @@ import React, { useEffect, useState } from "react";
 
 import { AdminLayout } from "../../../components/Admin";
 import { CourseCard } from "../../../components/Course";
-import { getCourses } from "../../../services/courseServices/courseService";
+import {
+  filterCourseWithCategoryService,
+  getCourses,
+  searchCourseService,
+} from "../../../services/courseServices/courseService";
 import { useSelector } from "react-redux";
 import { Loading } from "../../../components/common";
+import { useSearchParams } from "react-router-dom";
 
 const AdminCourses = () => {
+  const [searchParams] = useSearchParams();
+  const category = searchParams.get("category");
+  const queryParams = searchParams.get("q");
   const [courses, setCourses] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const role = useSelector((state) => state.user.role);
@@ -20,9 +28,30 @@ const AdminCourses = () => {
       }
       setIsLoading(false);
     };
+    
+    const fetchCoursesWithCategoryFilter = async () => {
+      setIsLoading(true);
+      const fetchedCoursesWithCategory =
+        await filterCourseWithCategoryService(category);
+      setCourses(fetchedCoursesWithCategory);
+      setIsLoading(false);
+    };
 
-    fetchCourses();
-  }, []);
+    const fetchSearchingCourses = async () => {
+      setIsLoading(true);
+      const fetchedSearchingCourses = await searchCourseService(queryParams);
+      setCourses(fetchedSearchingCourses);
+      setIsLoading(false);
+    };
+
+    if (category) {
+      fetchCoursesWithCategoryFilter();
+    } else if (queryParams) {
+      fetchSearchingCourses();
+    } else {
+      fetchCourses();
+    }
+  }, [category, queryParams]);
 
   const pendingCourses = courses.filter(
     (course) => course.status === "pending",
