@@ -9,3 +9,4 @@ export { default as ContentHeading } from "./ContentHeading";
 export { default as PayPalButton } from "./PayPalButton";
 export { default as ProfileSkeleton } from "./ProfileSkeleton";
 export { default as ReactStarsWrapper } from "./ReactStarWrapper";
+export { default as SearchBar } from "./SearchBar";

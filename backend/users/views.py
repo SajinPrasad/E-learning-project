@@ -4,9 +4,10 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_201_CR
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, ListAPIView
 from rest_framework.exceptions import NotFound, PermissionDenied
 import logging
+from django.db.models import Q
 
 from .serializer import (
     MentorProfileSerializer,
@@ -183,3 +184,23 @@ class AdminUserManagementViewSet(ModelViewSet):
     permission_classes = [IsAdminUser]
     serializer_class = AdminUserSerializer
     queryset = User.objects.exclude(role="admin")
+
+
+class AdminUserSearchView(ListAPIView):
+    permission_classes = [IsAdminUser]
+    serializer_class = AdminUserSerializer
+
+    def get_queryset(self):
+        query = self.request.query_params.get("q", None)
+        queryset = []
+
+        if query:
+            queryset = User.objects.filter(
+                Q(first_name__icontains=query)
+                | Q(last_name__icontains=query)
+                | Q(email__icontains=query)
+            )
+        else:
+            queryset = User.objects.none()
+
+        return queryset

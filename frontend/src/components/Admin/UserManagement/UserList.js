@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 
-import { getUsersAndProfileService } from "../../../services/userManagementServices/userManagementServices";
+import {
+  getUsersAndProfileService,
+  userSearchService,
+} from "../../../services/userManagementServices/userManagementServices";
 import UserListCard from "./UserListCard";
 import { UserCardSkeleton } from "../../Skeletons";
+import SearchBar from "../../common/SearchBar";
 
 const UserList = () => {
   const [userList, setUserList] = useState([]);
@@ -22,9 +26,17 @@ const UserList = () => {
         setError("Failed to fetch user data.");
       }
     };
-    
+
     fetchUserList();
   }, []);
+
+  const handleUserSearch = async (searchKeyword) => {
+    const filteredUsers = await userSearchService(searchKeyword);
+
+    if (filteredUsers) {
+      setUserList(filteredUsers);
+    }
+  };
 
   const handleClick = (role) => {
     setSelectedRole(role);
@@ -37,6 +49,7 @@ const UserList = () => {
   if (isLoading) {
     return (
       <>
+        <SearchBar />
         <div className="text-md mt-3 flex justify-evenly pb-2 font-bold md:text-lg">
           <p
             onClick={() => handleClick("student")}
@@ -67,6 +80,7 @@ const UserList = () => {
 
   return (
     <>
+      <SearchBar handleSearch={handleUserSearch} />
       <div className="text-md mt-3 flex justify-evenly pb-2 font-bold md:text-lg">
         <p
           onClick={() => handleClick("student")}

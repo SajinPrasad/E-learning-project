@@ -10,6 +10,7 @@ from .views import (
     UserRegistrationView,
     ProfileView,
     AdminUserManagementViewSet,
+    AdminUserSearchView,
 )
 
 router = DefaultRouter()
@@ -25,4 +26,5 @@ urlpatterns = [
     path("otp/resend/", OTPResendView.as_view(), name="otp_resend"),
     path("reset/password/", ResetPasswordView.as_view(), name="password-reset"),
     path("studentprofile/<int:pk>/", ProfileView.as_view(), name="studentprofile"),
+    path("user-search/", AdminUserSearchView.as_view(), name="user-search"),
 ]
