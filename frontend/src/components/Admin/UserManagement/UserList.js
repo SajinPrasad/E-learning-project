@@ -6,7 +6,7 @@ import {
 } from "../../../services/userManagementServices/userManagementServices";
 import UserListCard from "./UserListCard";
 import { UserCardSkeleton } from "../../Skeletons";
-import SearchBar from "../../common/SearchBar";
+import { InsideSearchBar } from "../../common";
 
 const UserList = () => {
   const [userList, setUserList] = useState([]);
@@ -49,7 +49,7 @@ const UserList = () => {
   if (isLoading) {
     return (
       <>
-        <SearchBar />
+        <InsideSearchBar />
         <div className="text-md mt-3 flex justify-evenly pb-2 font-bold md:text-lg">
           <p
             onClick={() => handleClick("student")}
@@ -80,7 +80,7 @@ const UserList = () => {
 
   return (
     <>
-      <SearchBar handleSearch={handleUserSearch} />
+      <InsideSearchBar handleSearch={handleUserSearch} />
       <div className="text-md mt-3 flex justify-evenly pb-2 font-bold md:text-lg">
         <p
           onClick={() => handleClick("student")}

@@ -10,3 +10,4 @@ export { default as PayPalButton } from "./PayPalButton";
 export { default as ProfileSkeleton } from "./ProfileSkeleton";
 export { default as ReactStarsWrapper } from "./ReactStarWrapper";
 export { default as SearchBar } from "./SearchBar";
+export { default as InsideSearchBar } from "./InsideSearchBar";
