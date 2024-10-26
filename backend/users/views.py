@@ -1,6 +1,11 @@
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_201_CREATED
+from rest_framework.status import (
+    HTTP_400_BAD_REQUEST,
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_205_RESET_CONTENT,
+)
 from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -8,6 +13,7 @@ from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, ListAP
 from rest_framework.exceptions import NotFound, PermissionDenied
 import logging
 from django.db.models import Q
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializer import (
     MentorProfileSerializer,
@@ -140,6 +146,30 @@ class ResetPasswordView(APIView):
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
+class LogoutView(APIView):
+    """
+    Logout view
+    Blacklisting the token.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            print("Request data; ", request.data)
+            refresh_token = request.data.get("refresh")
+
+            if refresh_token:
+                # Blacklist the token
+                token = RefreshToken(refresh_token)
+                token.blacklist()
+
+            return Response(HTTP_205_RESET_CONTENT)
+
+        except Exception as e:
+            return Response(HTTP_400_BAD_REQUEST)
+
+
 class ProfileView(RetrieveUpdateAPIView):
     """
     For updating and retrieving the profile object for both students and mentors.
@@ -187,6 +217,11 @@ class AdminUserManagementViewSet(ModelViewSet):
 
 
 class AdminUserSearchView(ListAPIView):
+    """
+    Admins can search users.
+    * Only accessible by admins.
+    """
+
     permission_classes = [IsAdminUser]
     serializer_class = AdminUserSerializer
 

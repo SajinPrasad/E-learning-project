@@ -11,6 +11,7 @@ from .views import (
     ProfileView,
     AdminUserManagementViewSet,
     AdminUserSearchView,
+    LogoutView,
 )
 
 router = DefaultRouter()
@@ -27,4 +28,5 @@ urlpatterns = [
     path("reset/password/", ResetPasswordView.as_view(), name="password-reset"),
     path("studentprofile/<int:pk>/", ProfileView.as_view(), name="studentprofile"),
     path("user-search/", AdminUserSearchView.as_view(), name="user-search"),
+    path("logout/", LogoutView.as_view(), name="logout"),
 ]
