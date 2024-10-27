@@ -8,7 +8,7 @@ import CategoryDropdown from "./CategoryDropdown";
 import SearchBar from "./SearchBar";
 import { getCartItems } from "../../services/cartServices";
 
-const Header = ({cartItemNumbers}) => {
+const Header = (cartItemNumbers = 0) => {
   const navigate = useNavigate();
   const { isAuthenticated, firstName, lastName, role } = useSelector(
     (state) => state.user,

@@ -8,3 +8,4 @@ export { default as UserCardSkeleton } from "./UserCardSkeleton";
 export { default as UserDetailsSkeleton } from "./UserDetailSkeleton";
 export { default as ReviewCardSkeleton } from "./ReviewCardSkeleton";
 export { default as CourseProfitsTableSkeleton } from "./CourseProfitsTableSkeleton";
+export { default as CartSkeleton } from "./CartSkeleton";
