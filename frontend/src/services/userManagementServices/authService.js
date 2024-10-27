@@ -2,6 +2,13 @@ import { toast } from "react-toastify";
 import privateAxiosInstance, {
   publicAxiosInstance,
 } from "../../api/axiosInstance";
+import { clearToken } from "../../features/auth/authSlice";
+import { clearUserInfo } from "../../features/tempUser/userSlice";
+import { clearTempUser } from "../../features/tempUser/tempUserSlice";
+import { clearCartItems } from "../../features/cartItem/cartItemSlice";
+import { clearCategory } from "../../features/course/categorySlice";
+import { clearCoursesState } from "../../features/course/courseSlice";
+import { clearEnrolledCoursesState } from "../../features/course/enrolledCoursesState";
 
 /**
  * Registers a new user by sending the registration data to the server.
@@ -259,10 +266,41 @@ const resetPasswordService = async (formData) => {
   }
 };
 
+/**
+ * Logout function.
+ * Sends the refresh token to the backend to blacklist the token.
+ * @param {string} refreshToken - The user's refresh token
+ * @returns {Object | undefined} - Response data if any, or undefined
+ */
+const userLogoutService = async (refreshToken) => {
+  console.log("Executing logout");
+  try {
+    const response = await privateAxiosInstance.post(`/logout/`, {
+      refresh: refreshToken,
+    });
+
+    console.log("Response: ", response);
+
+    // No data is expected, but just in case the backend returns a success message
+    if (response.status >= 200 && response.status < 301) {
+      return response.data;
+    }
+  } catch (error) {
+    if (!error.response) {
+      toast.error("Network error: Please check your connection.");
+    } else if (error.response.status >= 500) {
+      toast.error("Internal server error: ", error.response.statusText);
+    } else {
+      console.log("Error: ", error.response.data || "Something went wrong.");
+    }
+  }
+};
+
 export {
   registerService,
   otpVerificationService,
   loginService,
   otpResendService,
   resetPasswordService,
+  userLogoutService,
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -6,6 +6,12 @@ import { IconProfile, Logout, Settings } from "./Icons";
 import { clearUserInfo } from "../../features/tempUser/userSlice";
 import { clearToken } from "../../features/auth/authSlice";
 import { clearCartItems } from "../../features/cartItem/cartItemSlice";
+import { userLogoutService } from "../../services/userManagementServices/authService";
+import { clearCoursesState } from "../../features/course/courseSlice";
+import { clearTempUser } from "../../features/tempUser/tempUserSlice";
+import { clearEnrolledCoursesState } from "../../features/course/enrolledCoursesState";
+import { clearProfileInfo } from "../../features/tempUser/profileSlice";
+import Loading from "./Loading";
 
 /**
  * Renders the dropdown from the profile icon on header.
@@ -15,13 +21,27 @@ const ProfileDropdown = ({ role }) => {
   const { profilePicture } = useSelector((state) => state.profile);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const refreshToken = useSelector((state) => state.auth.refreshToken);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Function to handle logout.
-  const handleLogout = () => {
-    // Clearing the user information from state.
-    dispatch(clearToken());
-    dispatch(clearUserInfo());
-    dispatch(clearCartItems());
+  const handleLogout = async () => {
+    setIsLoading(true);
+    const loggedOut = await userLogoutService(refreshToken);
+
+    if (loggedOut) {
+      // Clearing all states and navigating to home
+
+      dispatch(clearUserInfo());
+      dispatch(clearToken());
+      dispatch(clearCartItems());
+      dispatch(clearCoursesState());
+      dispatch(clearTempUser());
+      dispatch(clearEnrolledCoursesState());
+      dispatch(clearProfileInfo());
+      navigate("/");
+      setIsLoading(false);
+    }
   };
 
   const handleNavigate = () => {
@@ -33,12 +53,16 @@ const ProfileDropdown = ({ role }) => {
     }
   };
 
+  if (isLoading) {
+    return <Loading />;
+  }
+
   return (
     <>
       <article className="rounded bg-white px-4 pb-4 drop-shadow-lg">
         <ul className="mt-4 flex flex-col gap-4 pl-2">
           <li className="flex gap-2">
-            <span className="flex gap-2 items-center">
+            <span className="flex items-center gap-2">
               {profilePicture ? (
                 <img
                   className="h-6 w-6 rounded-lg"
@@ -74,9 +98,9 @@ const ProfileDropdown = ({ role }) => {
           </li>
           <li className="flex gap-2 hover:text-theme-primary">
             <Logout />
-            <a onClick={handleLogout} href="">
+            <p className="cursor-pointer" onClick={handleLogout}>
               Logout
-            </a>
+            </p>
           </li>
         </ul>
       </article>
