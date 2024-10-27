@@ -3,7 +3,8 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { getCartItems, removeCartItem } from "../../services/cartServices";
-import { Header, Loading } from "../common";
+import { Header } from "../common";
+import { CartSkeleton } from "../Skeletons";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -14,11 +15,15 @@ const Cart = () => {
 
   useEffect(() => {
     const fetchCartItems = async () => {
+      setIsLoading(true);
       const fetchedCartItems = await getCartItems();
 
       if (fetchedCartItems) {
         setCartItems(fetchedCartItems);
         updateTotalPrice(fetchedCartItems);
+        setIsLoading(false);
+      } else {
+        setIsLoading(false);
       }
     };
 
@@ -42,23 +47,31 @@ const Cart = () => {
     setIsLoading(false);
   };
 
-  console.log("Cart Items: ", cartItems)
+  console.log("Cart Items: ", cartItems);
 
   if (!isAuthenticated) {
     return (
-      <div
-        onClick={() => navigate("/login")}
-        className="flex h-screen items-center justify-center"
-      >
-        <p className="cursor-pointer text-center font-bold hover:text-gray-700 sm:text-2xl md:text-3xl lg:text-4xl">
-          Please login to access cart
-        </p>
-      </div>
+      <>
+        <Header />
+        <div
+          onClick={() => navigate("/login")}
+          className="flex h-screen items-center justify-center"
+        >
+          <p className="cursor-pointer text-center font-bold hover:text-gray-700 sm:text-2xl md:text-3xl lg:text-4xl">
+            Please login to access cart
+          </p>
+        </div>
+      </>
     );
   }
 
   if (isLoading) {
-    return <Loading />;
+    return (
+      <>
+        <Header />
+        <CartSkeleton />
+      </>
+    );
   }
 
   return (
@@ -131,7 +144,7 @@ const Cart = () => {
           </div>
 
           {/* Summary and Promotions (Spanning 1 column on larger screens) */}
-          {cartItems && (
+          {cartItems.length > 0 ? (
             <div className="self-start rounded bg-white p-4 shadow-md md:p-8">
               <h2 className="mb-4 text-xl font-semibold">
                 Total: ₹{totalPrice}
@@ -142,20 +155,18 @@ const Cart = () => {
               >
                 Checkout
               </button>
-
-              {/* <div className="mt-4">
-            <h3 className="mb-2 text-lg font-semibold">Promotions</h3>
-            <div className="flex">
-              <input
-                type="text"
-                placeholder="Enter Coupon"
-                className="flex-1 rounded-l border border-gray-300 px-4 py-2"
-              />
-              <button className="rounded-r bg-theme-primary px-4 py-2 text-white hover:bg-purple-700">
-                Apply
-              </button>
             </div>
-          </div> */}
+          ) : (
+            <div className="self-start rounded bg-white p-4 shadow-md md:p-8">
+              <h2 className="mb-4 text-xl font-semibold">
+                Add items to purchase
+              </h2>
+              <button
+                onClick={() => navigate("/courses")}
+                className="w-full rounded bg-theme-primary py-2 text-lg font-semibold text-white hover:bg-purple-700"
+              >
+                Browse Courses
+              </button>
             </div>
           )}
         </div>
