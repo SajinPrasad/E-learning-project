@@ -4,22 +4,81 @@ import {
   publicAxiosInstance,
 } from "../../api/axiosInstance";
 
+/**
+ * Fetching the active courses for students
+ * @param {function} setIsLoading - State for handling loading
+ * @returns List - Active Courses
+ */
 const getActiveCourses = async (setIsLoading) => {
   try {
     const response = await publicAxiosInstance.get("/courses/");
-    if (response.status >= 200 && response.status < 300) {
+    if (response.status === 200) {
       return response.data;
-    } else {
-      toast.error("Error while fetching Courses!");
     }
   } catch (error) {
-    handleError(error);
+    // Handle different types of errors appropriately
+    if (!error.response) {
+      // Network error (no response received)
+      toast.error(
+        "Unable to connect to server. Please check your internet connection.",
+      );
+      return null;
+    }
+
+    // Get status code and error details from response
+    const status = error.response?.status;
+    const errorMessage =
+      error.response?.data?.message || error.response?.data?.error;
+
+    // Handle specific status codes
+    switch (status) {
+      case 400:
+        // Bad request - only show if it's a validation error
+        if (errorMessage && !errorMessage.includes("token")) {
+          toast.error(errorMessage || "Invalid request");
+        }
+        break;
+
+      case 403:
+        // Forbidden
+        toast.error("You don't have permission to access this resource");
+        break;
+
+      case 404:
+        // Not Found
+        toast.error("Courses not found");
+        break;
+
+      case 500:
+        // Server error
+        toast.error("Internal server error. Please try again later.");
+        break;
+
+      default:
+        // Only show generic error for unknown error cases
+        if (status >= 500) {
+          toast.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    // Log error for debugging
+    console.error("Error fetching courses:", {
+      status,
+      message: errorMessage,
+      error: error,
+    });
+
+    return null;
   } finally {
     setIsLoading(false);
   }
 };
 
-// Service for creating courses.
+/**
+ * Calling the endpoint to create the course. Passing the necessary data.
+ * @param {object} courseData - Object with necessary course data
+ * @returns - Created course object
+ */
 const createCourse = async (courseData) => {
   const {
     courseTitle,
@@ -77,96 +136,208 @@ const createCourse = async (courseData) => {
   }
 };
 
-// Service for fetching Courses.
+/**
+ * Fetching the courses for admin and mentor
+ * @param {function} setIsLoading - Handling the loading status
+ * @returns - Array of fetched courses
+ */
 const getCourses = async (setIsLoading) => {
   try {
     const response = await privateAxiosInstance.get("/course/");
-    if (response.status >= 200 && response.status < 300) {
+    if (response.status === 200) {
       return response.data;
-    } else {
-      toast.error("Error while fetching Courses!");
-      setIsLoading(false);
     }
   } catch (error) {
-    if (error.response) {
-      // Handle client or server errors
-      const statusCode = error.response.status;
-      if (statusCode >= 400 && statusCode < 500) {
-        toast.error("Request error. Please check your permissions.");
-        setIsLoading(false);
-      } else if (statusCode >= 500) {
-        toast.error("Server error. Please try again later.");
-        setIsLoading(false);
-      }
-    } else if (error.request) {
-      // Handle no response from server
+    // Handle different types of errors appropriately
+    if (!error.response) {
+      // Network error (no response received)
       toast.error(
-        "No response received from server. Please check your network connection.",
+        "Unable to connect to server. Please check your internet connection.",
       );
-      setIsLoading(false);
-    } else {
-      // Handle unexpected errors (e.g., network issues, etc.)
-      toast.error("An unexpected error occurred. Please try again.");
-      setIsLoading(false);
+      return null;
     }
-    throw error; // Rethrow the error to be handled by the calling code if necessary
+
+    // Get status code and error details from response
+    const status = error.response?.status;
+    const errorMessage =
+      error.response?.data?.message || error.response?.data?.error;
+
+    // Handle specific status codes
+    switch (status) {
+      case 400:
+        // Bad request - only show if it's a validation error
+        if (errorMessage && !errorMessage.includes("token")) {
+          toast.error(errorMessage || "Invalid request");
+        }
+        break;
+
+      case 403:
+        // Forbidden
+        toast.error("You don't have permission to access this resource");
+        break;
+
+      case 404:
+        // Not Found
+        toast.error("Courses not found");
+        break;
+
+      case 500:
+        // Server error
+        toast.error("Internal server error. Please try again later.");
+        break;
+
+      default:
+        // Only show generic error for unknown error cases
+        if (status >= 500) {
+          toast.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    // Log error for debugging
+    console.error("Error fetching courses:", {
+      status,
+      message: errorMessage,
+      error: error,
+    });
+
+    return null;
+  } finally {
+    setIsLoading(false);
   }
 };
 
+/**
+ * Fetching the courses of authenticated users.
+ * Avoiding the enrolled courses and fetching rest of the courses.
+ * (Enrolled courses are fetched seperately)
+ * @param {function} setIsLoading - Handling the loading status
+ * @returns - Array of fetched courses
+ */
 const getCoursesForAuthenticatedUser = async (setIsLoading) => {
   try {
     const response = await privateAxiosInstance.get("courses-authenticated/");
-    if (response.status >= 200 && response.status < 300) {
+    if (response.status === 200) {
       return response.data;
-    } else {
-      toast.error("Error while fetching Courses!");
-      setIsLoading(false);
     }
   } catch (error) {
-    if (error.response) {
-      // Handle client or server errors
-      const statusCode = error.response.status;
-      if (statusCode >= 400 && statusCode < 500) {
-        toast.error("Request error. Please check your permissions.");
-        setIsLoading(false);
-      } else if (statusCode >= 500) {
-        toast.error("Server error. Please try again later.");
-        setIsLoading(false);
-      }
-    } else if (error.request) {
-      // Handle no response from server
+    // Handle different types of errors appropriately
+    if (!error.response) {
+      // Network error (no response received)
       toast.error(
-        "No response received from server. Please check your network connection.",
+        "Unable to connect to server. Please check your internet connection.",
       );
-      setIsLoading(false);
-    } else {
-      // Handle unexpected errors (e.g., network issues, etc.)
-      toast.error("An unexpected error occurred. Please try again.");
-      setIsLoading(false);
+      return null;
     }
-    throw error; // Rethrow the error to be handled by the calling code if necessary
+
+    // Get status code and error details from response
+    const status = error.response?.status;
+    const errorMessage =
+      error.response?.data?.message || error.response?.data?.error;
+
+    // Handle specific status codes
+    switch (status) {
+      case 400:
+        // Bad request - only show if it's a validation error
+        if (errorMessage && !errorMessage.includes("token")) {
+          toast.error(errorMessage || "Invalid request");
+        }
+        break;
+
+      case 403:
+        // Forbidden
+        toast.error("You don't have permission to access this resource");
+        break;
+
+      case 404:
+        // Not Found
+        toast.error("Courses not found");
+        break;
+
+      case 500:
+        // Server error
+        toast.error("Internal server error. Please try again later.");
+        break;
+
+      default:
+        // Only show generic error for unknown error cases
+        if (status >= 500) {
+          toast.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    // Log error for debugging
+    console.error("Error fetching courses:", {
+      status,
+      message: errorMessage,
+      error: error,
+    });
+
+    return null;
+  } finally {
+    setIsLoading(false);
   }
 };
 
 /**
  * Fetching the course details only for admins and mentors.
  * Contains additional information like suggestion and status.
- * @param {*} id - Id of the course
+ * @param {number} id - Id of the course
  */
 const getCourseDetails = async (id) => {
   try {
     const response = await privateAxiosInstance.get(`/course/${id}/`);
     // Check if the response indicates a successful retreval
-    if (response.status >= 200 && response.status < 300) {
-      return response.data; // Return the response data including tokens and user information
-    } else {
-      toast.error("Unexpected error!");
+    if (response.status === 200) {
+      return response.data;
     }
   } catch (error) {
-    handleError(error);
+    if (!error.response) {
+      toast.error(
+        "Unable to connect to server. Please check your internet connection.",
+      );
+      return null;
+    }
+
+    const status = error.response?.status;
+    const errorMessage =
+      error.response?.data?.message || error.response?.data?.error;
+
+    switch (status) {
+      case 400:
+        if (errorMessage && !errorMessage.includes("token")) {
+          toast.error(errorMessage || "Invalid search query");
+        }
+        break;
+
+      case 404:
+        toast.error("No courses found matching your search");
+        break;
+
+      case 500:
+        toast.error("Internal server error. Please try again later.");
+        break;
+
+      default:
+        if (status >= 500) {
+          toast.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    console.error("Error searching courses:", {
+      status,
+      message: errorMessage,
+      error: error,
+    });
+
+    return null;
   }
 };
 
+/**
+ * Function for validating video.
+ * @param {file} file - Video file for validation
+ * @param {function} setIsLoading - Function to handle loading status
+ */
 const validateVideoFile = ({ file, setIsLoading }) => {
   return new Promise((resolve, reject) => {
     setIsLoading(true);
@@ -254,19 +425,75 @@ const getLessonContent = async (lessonId, courseId) => {
   }
 };
 
+/**
+ * Fetching the complete lesson data, including the video
+ * @param {number} lessonId
+ * @param {number} courseId
+ * @returns - Object with the lesson data
+ */
 const getFullLessonData = async (lessonId, courseId) => {
   try {
     const response = await privateAxiosInstance.get(
       `/lesson/${lessonId}?course_id=${courseId}`,
     );
     // Check if the response indicates a successful retreval
-    if (response.status >= 200 && response.status < 300) {
-      return response.data; // Return the response data
-    } else {
-      toast.error("Unexpected error!");
+    if (response.status === 200) {
+      return response.data;
     }
   } catch (error) {
-    handleError(error);
+    // Handle different types of errors appropriately
+    if (!error.response) {
+      // Network error (no response received)
+      toast.error(
+        "Unable to connect to server. Please check your internet connection.",
+      );
+      return null;
+    }
+
+    // Get status code and error details from response
+    const status = error.response?.status;
+    const errorMessage =
+      error.response?.data?.message || error.response?.data?.error;
+
+    // Handle specific status codes
+    switch (status) {
+      case 400:
+        // Bad request - only show if it's a validation error
+        if (errorMessage && !errorMessage.includes("token")) {
+          toast.error(errorMessage || "Invalid request");
+        }
+        break;
+
+      case 403:
+        // Forbidden
+        toast.error("You don't have permission to access this resource");
+        break;
+
+      case 404:
+        // Not Found
+        toast.error("Courses not found");
+        break;
+
+      case 500:
+        // Server error
+        toast.error("Internal server error. Please try again later.");
+        break;
+
+      default:
+        // Only show generic error for unknown error cases
+        if (status >= 500) {
+          toast.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    // Log error for debugging
+    console.error("Error fetching courses:", {
+      status,
+      message: errorMessage,
+      error: error,
+    });
+
+    return null;
   }
 };
 
@@ -301,6 +528,13 @@ const updateLessonCompletionStatus = async (courseId, lessonId, status) => {
   }
 };
 
+/**
+ * Sending the necessary data to the endpoint for updating the course.
+ * @param {number} id - Course id
+ * @param {string} field - Field for updating the course
+ * @param {*} value - Can be string or preview image (Any updated data)
+ * @returns Updated course object
+ */
 const updateCourse = async (id, field, value) => {
   const formData = new FormData();
   formData.append(field, value);
@@ -324,10 +558,10 @@ const updateCourse = async (id, field, value) => {
 };
 
 /**
- *
+ *Sending the Updated lesson data to the endpoint.
  * @param {number} courseId
  * @param {number} lessonId
- * @param {*} field - Field which is updating eng: contnet, video_file
+ * @param {string} field - Field which is updating eng: contnet, video_file
  * @param {*} value - Updated value of the field
  * @returns - Object with updated lesson
  */
@@ -377,11 +611,17 @@ const updateLessonService = async (courseId, lessonId, field, value) => {
   }
 };
 
-
+/**
+ * Sending new lessons to the endpint for adding new lessons to a course.
+ * @param {number} courseId
+ * @param {Array} lessons  - Array with newly adding lessons
+ * @returns
+ */
 const addNewLessonsService = async (courseId, lessons) => {
   const formData = new FormData();
   formData.append("course_id", courseId);
 
+  // Appending the lessons to the formdata seperately
   lessons.forEach((lesson, index) => {
     formData.append(`lessons[${index}][title]`, lesson.title);
     formData.append(`lessons[${index}][content]`, lesson.content);
@@ -570,38 +810,236 @@ const mentorChangingSuggestionStatus = async (suggestion) => {
   }
 };
 
+/**
+ * Fetching enrolled courses for loginned users.
+ * @returns Array of enrolled courses
+ */
 const getEnrolledCourses = async () => {
-  const response = await privateAxiosInstance.get("/enrolledcourses/");
-  if (response && response.status >= 200 && response.status < 300) {
-    return response.data;
+  try {
+    const response = await privateAxiosInstance.get("/enrolledcourses/");
+    if (response.status === 200) {
+      return response.data;
+    }
+  } catch (error) {
+    if (!error.response) {
+      toast.error(
+        "Unable to connect to server. Please check your internet connection.",
+      );
+      return null;
+    }
+
+    const status = error.response?.status;
+    const errorMessage =
+      error.response?.data?.message || error.response?.data?.error;
+
+    switch (status) {
+      case 400:
+        if (errorMessage && !errorMessage.includes("token")) {
+          toast.error(errorMessage || "Invalid request");
+        }
+        break;
+
+      case 403:
+        toast.error("You don't have permission to view enrolled courses");
+        break;
+
+      case 404:
+        toast.error("No enrolled courses found");
+        break;
+
+      case 500:
+        toast.error("Internal server error. Please try again later.");
+        break;
+
+      default:
+        if (status >= 500) {
+          toast.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    console.error("Error fetching enrolled courses:", {
+      status,
+      message: errorMessage,
+      error: error,
+    });
+
+    return null;
   }
 };
 
+/**
+ * Sending the selected category to the endpoint to filter the courses based on that
+ * @param {string} category - Selected category to filter the courses
+ * @returns - Array of filtered courses
+ */
 const filterCourseWithCategoryService = async (category) => {
-  const response = await publicAxiosInstance.get(
-    `/course/category/filter/?category=${category}`,
-  );
-  if (response && response.status >= 200 && response.status < 300) {
-    return response.data;
+  try {
+    const response = await publicAxiosInstance.get(
+      `/course/category/filter/?category=${category}`,
+    );
+    if (response.status === 200) {
+      return response.data;
+    }
+  } catch (error) {
+    if (!error.response) {
+      toast.error(
+        "Unable to connect to server. Please check your internet connection.",
+      );
+      return null;
+    }
+
+    const status = error.response?.status;
+    const errorMessage =
+      error.response?.data?.message || error.response?.data?.error;
+
+    switch (status) {
+      case 400:
+        if (errorMessage && !errorMessage.includes("token")) {
+          toast.error(errorMessage || "Invalid category filter");
+        }
+        break;
+
+      case 404:
+        toast.error("No courses found for this category");
+        break;
+
+      case 500:
+        toast.error("Internal server error. Please try again later.");
+        break;
+
+      default:
+        if (status >= 500) {
+          toast.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    console.error("Error filtering courses by category:", {
+      status,
+      message: errorMessage,
+      error: error,
+      category,
+    });
+
+    return null;
   }
 };
 
+/**
+ * Sending the query params to the endpoint to filter courses based on that
+ * @param {string} queryParams
+ * @returns - Array of filtered courses based on the queryparams.
+ */
 const searchCourseService = async (queryParams) => {
-  const response = await publicAxiosInstance.get(
-    `/course/search/?q=${queryParams}`,
-  );
-  if (response && response.status >= 200 && response.status < 300) {
-    return response.data;
+  try {
+    const response = await publicAxiosInstance.get(
+      `/course/search/?q=${queryParams}`,
+    );
+    if (response.status === 200) {
+      return response.data;
+    }
+  } catch (error) {
+    if (!error.response) {
+      toast.error(
+        "Unable to connect to server. Please check your internet connection.",
+      );
+      return null;
+    }
+
+    const status = error.response?.status;
+    const errorMessage =
+      error.response?.data?.message || error.response?.data?.error;
+
+    switch (status) {
+      case 400:
+        if (errorMessage && !errorMessage.includes("token")) {
+          toast.error(errorMessage || "Invalid search query");
+        }
+        break;
+
+      case 404:
+        toast.error("No courses found matching your search");
+        break;
+
+      case 500:
+        toast.error("Internal server error. Please try again later.");
+        break;
+
+      default:
+        if (status >= 500) {
+          toast.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    console.error("Error searching courses:", {
+      status,
+      message: errorMessage,
+      error: error,
+      queryParams,
+    });
+
+    return null;
   }
 };
 
+/**
+ * Deleting the course
+ * @param {string} courseId
+ */
 const courseDeleteService = async (courseId) => {
-  const response = await privateAxiosInstance.patch(
-    `course-update/${courseId}/`,
-    { is_deleted: true },
-  );
-  if (response && response.status >= 200 && response.status < 300) {
-    return response.data;
+  try {
+    const response = await privateAxiosInstance.patch(
+      `course-update/${courseId}/`,
+      { is_deleted: true },
+    );
+    if (response.status === 200) {
+      toast.success("Course deleted successfully");
+      return response.data;
+    }
+  } catch (error) {
+    if (!error.response) {
+      toast.error(
+        "Unable to connect to server. Please check your internet connection.",
+      );
+      return null;
+    }
+
+    const status = error.response?.status;
+    const errorMessage =
+      error.response?.data?.message || error.response?.data?.error;
+
+    switch (status) {
+      case 400:
+        if (errorMessage && !errorMessage.includes("token")) {
+          toast.error(errorMessage || "Invalid request");
+        }
+        break;
+
+      case 403:
+        toast.error("You don't have permission to delete this course");
+        break;
+
+      case 404:
+        toast.error("Course not found");
+        break;
+
+      case 500:
+        toast.error("Internal server error. Please try again later.");
+        break;
+
+      default:
+        if (status >= 500) {
+          toast.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    console.error("Error deleting course:", {
+      status,
+      message: errorMessage,
+      error: error,
+      courseId,
+    });
+
+    return null;
   }
 };
 
