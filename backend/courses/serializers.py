@@ -105,10 +105,9 @@ class LessonCompletionSerializer(ModelSerializer):
         write_only_fields = ["completed"]
 
 
-class LessonSerializer(ModelSerializer):
+class LessonUpdateCreateSerializer(ModelSerializer):
     """
-    Used for creating lessons and retrieving lessons for purchased courses.
-    * Only used for retrieval if the course is purchased or free.
+    Serializer only used for updating existing lessons and creating new lessons.
     * Used for updating and creating Lessons for courses by mentors.
     """
 
@@ -124,7 +123,7 @@ class LessonSerializer(ModelSerializer):
             "order",
         ]
         extra_kwargs = {
-            "course": {"write_only": True},  # Making `course` field write-only
+            "course": {"write_only": True},
         }
 
     def validate(self, attrs):
@@ -152,6 +151,28 @@ class LessonSerializer(ModelSerializer):
             raise ValidationError(errors)
 
         return super().validate(attrs)
+
+
+class LessonSerializer(ModelSerializer):
+    """
+    Serializer for creating lessons while course creation.
+    * Used as Nested serializer.
+    * All the validations are done in course list create serializer.
+
+    Used for creating lessons and retrieving lessons for purchased courses.
+    * Only used for retrieval if the course is purchased or free.
+    """
+
+    class Meta:
+        model = Lesson
+        fields = [
+            "id",
+            "title",
+            "content",
+            "video_file",
+            "completed",
+            "order",
+        ]
 
 
 class CourseListCreateSerializer(ModelSerializer):
@@ -189,6 +210,7 @@ class CourseListCreateSerializer(ModelSerializer):
         ]
 
     def validate(self, data):
+        print("Data: ", data)
         """
         Calling the custom validate function to validate the course data.
         """

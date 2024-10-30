@@ -32,6 +32,7 @@ from .serializers import (
     LessonSerializer,
     LessonCompletionSerializer,
     CourseEnrollementSerializer,
+    LessonUpdateCreateSerializer,
 )
 
 # Create your views here.
@@ -267,6 +268,10 @@ class CourseDetailView(RetrieveAPIView):
                 raise PermissionDenied("This course is not available.")
 
         else:
+            if Enrollment.objects.filter(
+                user=user, course__id=course_id, is_active=True
+            ).exists():
+                return Course.objects.get(id=course_id)
             # General users can access approved courses with active categories
             queryset = Course.objects.filter(status="approved")
             course = get_object_or_404(queryset, pk=course_id)
@@ -363,10 +368,9 @@ class AddNewLessonsView(APIView):
     """
 
     permission_classes = [MentorOnlyPermission]
-    serializer_class = LessonSerializer
+    serializer_class = LessonUpdateCreateSerializer
 
     def post(self, request):
-        print("Data: ", request.data)
         course_id = request.data.get("course_id")
 
         lessons_data = []  # For appending all the lessons for a single course
@@ -448,6 +452,11 @@ class CourseSuggestionUpdateView(UpdateAPIView):
 
 
 class EnrolledCoursesListView(ListAPIView):
+    """
+    Listing the enrolled courses for liggined users.
+    * Using custom permission to check whether the user purchased the course or not.
+    """
+
     serializer_class = CourseEnrollementSerializer
     permission_classes = [IsAuthenticated, IsCoursePurchased]
 
