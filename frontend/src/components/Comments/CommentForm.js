@@ -5,13 +5,14 @@ import { Button } from "../common";
 import CommentList from "./CommentList";
 import { CloseIcon } from "../common/Icons";
 
-const CommentForm = ({ courseId }) => {
+const CommentForm = ({ courseId, selectedItem = "", setSelectedItem }) => {
   const { accessToken } = useSelector((state) => state.auth);
   const [comment, setComment] = useState("");
   const [ws, setWs] = useState(null); // Store WebSocket connection
   const wsRef = useRef(null);
   const [parentComment, setParentComment] = useState(null);
   const commentInputRef = useRef(null);
+  const role = useSelector((state) => state.user.role);
 
   useEffect(() => {
     if (accessToken) {
@@ -67,7 +68,7 @@ const CommentForm = ({ courseId }) => {
 
   return (
     <>
-      <div className="mx-auto w-full max-w-2xl rounded-lg bg-white p-6 shadow-md">
+      <div className=" mx-auto w-full max-w-2xl rounded-lg bg-white p-6 shadow-md">
         <h4 className="mb-4 text-lg font-semibold text-gray-800">
           Write your comment here
         </h4>
@@ -103,6 +104,36 @@ const CommentForm = ({ courseId }) => {
           </div>
         )}
       </div>
+
+      {role !== "student" && (
+        <div className="mt-10">
+          {/* Fields for chosing between lessons and course details*/}
+          {selectedItem === "comments" && (
+            <div className="text-md my-8 flex cursor-pointer justify-around font-bold text-gray-400">
+              <h4
+                className={`${selectedItem === "courseDetails" && "border-b-2 border-gray-800 text-gray-800"} cursor-pointer`}
+                onClick={() => setSelectedItem("courseDetails")}
+              >
+                Course Details
+              </h4>
+
+              <h4
+                className={`${selectedItem === "lessons" && "border-b-2 border-gray-800 text-gray-800"} cursor-pointer`}
+                onClick={() => setSelectedItem("lessons")}
+              >
+                Lessons
+              </h4>
+
+              <h4
+                className={`${selectedItem === "comments" && "border-b-2 border-gray-800 text-gray-800"} cursor-pointer`}
+                onClick={() => setSelectedItem("comments")}
+              >
+                Comments
+              </h4>
+            </div>
+          )}
+        </div>
+      )}
 
       <CommentList
         courseId={courseId}

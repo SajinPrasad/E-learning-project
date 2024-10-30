@@ -60,7 +60,7 @@ const HomeLayout = () => {
       <Banner />
 
       {/** Courses */}
-      {enrolledCourses && (
+      {isAuthenticated && enrolledCourses && (
         <div className="m-3 mt-3 rounded border border-gray-200 p-3 md:p-8">
           <div
             onClick={() => navigate("/enrolled-courses")}

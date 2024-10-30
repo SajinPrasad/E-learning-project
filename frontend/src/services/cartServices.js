@@ -2,6 +2,11 @@ import { toast } from "react-toastify";
 
 import privateAxiosInstance from "../api/axiosInstance";
 
+/**
+ * Adding items to cart
+ * @param {number} courseId
+ * @returns Object of added course cart item
+ */
 const createCartItems = async (courseId) => {
   try {
     const response = await privateAxiosInstance.post(`/cartitems/`, {
@@ -21,25 +26,53 @@ const createCartItems = async (courseId) => {
 const getCartItems = async () => {
   try {
     const response = await privateAxiosInstance.get("/cartitems/");
-    if (response.status >= 200 && response.status < 300) {
-      return response.data; // Return the response data
-    } else {
-      toast.error("Unexpected error!");
+    if (response.status === 200) {
+      return response.data;
     }
   } catch (error) {
-    if (error.response.status === 401) {
-      // Unauthorized access
-      toast.error("Unauthorized.");
-    } else if (error.response.status === 403) {
-      // Forbidden access
-      toast.error("You do not have permission to perform this action.");
-    } else if (error.response.status === 404) {
-      // Resource not found
-      toast.error("The requested resource was not found.");
-    } else if (error.response.status === 500) {
-      // Internal server error
-      toast.error("Server error. Please try again later.");
+    if (!error.response) {
+      toast.error(
+        "Unable to connect to server. Please check your internet connection.",
+      );
+      return null;
     }
+
+    const status = error.response?.status;
+    const errorMessage =
+      error.response?.data?.message || error.response?.data?.error;
+
+    switch (status) {
+      case 400:
+        if (errorMessage && !errorMessage.includes("token")) {
+          toast.error(errorMessage || "Invalid request");
+        }
+        break;
+
+      case 403:
+        toast.error("You don't have permission to view enrolled courses");
+        break;
+
+      case 404:
+        toast.error("No enrolled courses found");
+        break;
+
+      case 500:
+        toast.error("Internal server error. Please try again later.");
+        break;
+
+      default:
+        if (status >= 500) {
+          toast.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    console.error("Error fetching enrolled courses:", {
+      status,
+      message: errorMessage,
+      error: error,
+    });
+
+    return null;
   }
 };
 
@@ -99,9 +132,6 @@ const handleError = (error) => {
           ? error.response.data.non_field_errors[0]
           : "Validation error. Please check your input.",
       );
-    } else if (error.response.status === 401) {
-      // Unauthorized access
-      toast.error("Unauthorized.");
     } else if (error.response.status === 403) {
       // Forbidden access
       toast.error("You do not have permission to perform this action.");

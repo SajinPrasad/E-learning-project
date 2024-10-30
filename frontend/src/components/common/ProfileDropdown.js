@@ -28,27 +28,29 @@ const ProfileDropdown = ({ role }) => {
   const handleLogout = async () => {
     setIsLoading(true);
     const loggedOut = await userLogoutService(refreshToken);
-
+  
     if (loggedOut) {
-      // Clearing all states and navigating to home
-
-      dispatch(clearUserInfo());
-      dispatch(clearToken());
-      dispatch(clearCartItems());
-      dispatch(clearCoursesState());
-      dispatch(clearTempUser());
-      dispatch(clearEnrolledCoursesState());
-      dispatch(clearProfileInfo());
+      // Clearing all states and then navigating
+      await Promise.all([
+        dispatch(clearUserInfo()),
+        dispatch(clearToken()),
+        dispatch(clearCartItems()),
+        dispatch(clearCoursesState()),
+        dispatch(clearTempUser()),
+        dispatch(clearEnrolledCoursesState()),
+        dispatch(clearProfileInfo())
+      ]);
+  
       navigate("/");
       setIsLoading(false);
     }
   };
+  
 
   const handleNavigate = () => {
     if (role == "student") {
       navigate("/profile");
     } else if (role === "mentor") {
-      console.log("YEs ist");
       navigate("/mentor/profile");
     }
   };
@@ -88,7 +90,7 @@ const ProfileDropdown = ({ role }) => {
           >
             <IconProfile />
 
-            <a href="">Your Profile</a>
+            <p>Your Profile</p>
           </li>
 
           <li className="flex gap-2 hover:text-theme-primary">

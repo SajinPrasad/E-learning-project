@@ -22,6 +22,7 @@ import { styles } from "../common";
 import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
 import { ListReviews } from "../Reviews";
 import Lessons from "./Lessons";
+import { CommentForm } from "../Comments";
 
 /**
  * @param {*} newStatus - The updated status.
@@ -657,11 +658,19 @@ const CourseDetail = ({ role }) => {
           >
             Course Details
           </h4>
+
           <h4
             className={`${selectedItem === "lessons" && "border-b-2 border-gray-800 text-gray-800"} cursor-pointer`}
             onClick={() => setSelectedItem("lessons")}
           >
             Lessons
+          </h4>
+
+          <h4
+            className={`${selectedItem === "comments" && "border-b-2 border-gray-800 text-gray-800"} cursor-pointer`}
+            onClick={() => setSelectedItem("comments")}
+          >
+            Comments
           </h4>
         </div>
       )}
@@ -844,6 +853,16 @@ const CourseDetail = ({ role }) => {
             lessons={course.lessons}
             courseId={id}
             selectedItem={selectedItem}
+            setSelectedItem={setSelectedItem}
+          />
+        </div>
+      )}
+
+      {selectedItem === "comments" && (
+        <div className="mt-10">
+          <CommentForm
+            courseId={id}
+            selectedItem={"comments"}
             setSelectedItem={setSelectedItem}
           />
         </div>

@@ -363,11 +363,19 @@ const Lessons = ({ courseId, lessons, selectedItem, setSelectedItem }) => {
           >
             Course Details
           </h4>
+
           <h4
             className={`${selectedItem === "lessons" && "border-b-2 border-gray-800 text-gray-800"} cursor-pointer`}
             onClick={() => setSelectedItem("lessons")}
           >
             Lessons
+          </h4>
+
+          <h4
+            className={`${selectedItem === "comments" && "border-b-2 border-gray-800 text-gray-800"} cursor-pointer`}
+            onClick={() => setSelectedItem("comments")}
+          >
+            Comments
           </h4>
         </div>
       )}
