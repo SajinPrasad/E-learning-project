@@ -2,7 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-import { Banner, ContentHeading, Header } from "../../components/common";
+import {
+  Banner,
+  ContentHeading,
+  Footer,
+  Header,
+} from "../../components/common";
 import {
   getActiveCourses,
   getCoursesForAuthenticatedUser,
@@ -59,8 +64,10 @@ const HomeLayout = () => {
       setIsLoading(true);
       try {
         if (isAuthenticated) {
-          const fetchedCourses =
-            await getCoursesForAuthenticatedUser(setIsLoading, page);
+          const fetchedCourses = await getCoursesForAuthenticatedUser(
+            setIsLoading,
+            page,
+          );
           if (fetchedCourses) {
             setCourses(fetchedCourses);
             dispatch(setCoursesState(fetchedCourses));
@@ -241,6 +248,8 @@ const HomeLayout = () => {
             [...Array(5)].map((_, index) => <CourseCardSkeleton key={index} />)}
         </div>
       </div>
+      
+      <Footer />
     </>
   );
 };

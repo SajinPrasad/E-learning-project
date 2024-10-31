@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Header } from "../../common";
+import { Footer, Header } from "../../common";
 import AdminSidebar from "./AdminSidebar";
 
 /**
@@ -10,6 +10,7 @@ import AdminSidebar from "./AdminSidebar";
  */
 const AdminLayout = ({ children }) => {
   return (
+    <>
     <div className="flex h-screen flex-col">
       {/* Header with higher z-index */}
       <div className="sticky top-0 z-10 w-full">
@@ -26,6 +27,8 @@ const AdminLayout = ({ children }) => {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 };
 

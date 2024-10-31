@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { setEnrolledCoursesState } from "../../features/course/enrolledCoursesState";
 import { useNavigate } from "react-router-dom";
 import { EnrolledCoursesSkeleton } from "../Skeletons";
+import { Footer, Header } from "../common";
 
 const EnrolledCourses = () => {
   const [enrolledCourses, setEnrolledCourses] = useState([]);
@@ -33,6 +34,7 @@ const EnrolledCourses = () => {
 
   return (
     <>
+      <Header />
       <h1 className="m-6 text-xl font-bold md:text-2xl">Your Courses</h1>
       <div className="mt-3 grid grid-cols-1 gap-3 p-6 md:grid-cols-2 lg:grid-cols-3">
         {isLoading ? (
@@ -57,6 +59,8 @@ const EnrolledCourses = () => {
           ))
         )}
       </div>
+
+      <Footer />
     </>
   );
 };

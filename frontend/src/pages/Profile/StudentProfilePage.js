@@ -1,15 +1,16 @@
-import React from 'react'
+import React from "react";
 
-import { Header } from '../../components/common'
-import { StudentProfileForm } from '../../components/Profile'
+import { Footer, Header } from "../../components/common";
+import { StudentProfileForm } from "../../components/Profile";
 
 const StudentProfilePage = () => {
   return (
     <>
-    <Header />
-    <StudentProfileForm />
+      <Header />
+      <StudentProfileForm />
+      <Footer />
     </>
-  )
-}
+  );
+};
 
-export default StudentProfilePage
+export default StudentProfilePage;

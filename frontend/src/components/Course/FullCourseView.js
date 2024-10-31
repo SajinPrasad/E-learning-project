@@ -6,12 +6,13 @@ import {
   updateLessonCompletionStatus,
 } from "../../services/courseServices/courseService";
 import { useParams } from "react-router-dom";
-import { ReviewForm, CourseRating, ListReviews, Rating } from "../Reviews";
+import { ReviewForm, ListReviews } from "../Reviews";
 import CourseOverview from "./CourseOverview";
 import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
 import { toast } from "react-toastify";
 import { LessonSkeleton, VideoSkeleton } from "../Skeletons";
 import { CommentsPage } from "../../pages/Comments";
+import { Footer } from "../common";
 
 /**
  * @returns The component which renders the full course view (Including videos).
@@ -171,159 +172,167 @@ const FullCourseView = () => {
   }, [currentLessonIndex]);
 
   return (
-    <div className="w-full">
-      {/* Video Container */}
-      <div className="relative mb-3 w-full">
-        {isVideoLoading || !currentLesson?.video_file ? (
-          <VideoSkeleton />
-        ) : (
-          <video
-            controls
-            src={currentLesson?.video_file}
-            className="h-auto max-h-[75vh] w-full rounded border border-gray-300 shadow-lg"
-            ref={videoRef}
-          />
+    <>
+      <div className="w-full">
+        {/* Video Container */}
+        <div className="relative mb-3 w-full">
+          {isVideoLoading || !currentLesson?.video_file ? (
+            <VideoSkeleton />
+          ) : (
+            <video
+              controls
+              src={currentLesson?.video_file}
+              className="h-auto max-h-[75vh] w-full rounded border border-gray-300 shadow-lg"
+              ref={videoRef}
+            />
+          )}
+
+          {/* Previous and Next Arrows */}
+          {showArrows && (
+            <>
+              <button
+                onClick={handlePreviousLesson}
+                disabled={currentLessonIndex === 0}
+                className={`absolute left-2 top-1/2 -translate-y-1/2 transform rounded bg-gray-800 p-3 text-2xl text-white shadow-lg ${
+                  currentLessonIndex === 0 && "cursor-not-allowed opacity-50"
+                }`}
+              >
+                &larr; {/* Left Arrow */}
+              </button>
+              <button
+                onClick={handleNextLesson}
+                disabled={
+                  currentLessonIndex === courseDetails.lessons?.length - 1 ||
+                  !currentLesson.completed
+                }
+                className={`absolute right-2 top-1/2 -translate-y-1/2 transform rounded ${currentLesson.completed ? "bg-gray-800" : "bg-gray-700"} p-3 text-2xl text-white shadow-lg ${
+                  !currentLesson.completed ||
+                  (currentLessonIndex === courseDetails.lessons?.length - 1 &&
+                    "cursor-not-allowed opacity-50")
+                }`}
+              >
+                &rarr; {/* Right Arrow */}
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* About the Lesson */}
+        <div className="mb-4 mt-1 p-2 md:mx-auto md:w-2/3">
+          <h2 className="text-md mb-2 font-bold md:text-xl">
+            About the lesson
+          </h2>
+          <h5 className="text-gray-700">
+            {/* Show limited content initially, expand when "See more" is clicked */}
+            {showMore
+              ? currentLesson?.content || ""
+              : displayLimitedWords(currentLesson?.content || "", 5)}
+            {!showMore && currentLesson?.content?.split(" ").length > 5 && (
+              <span
+                className="cursor-pointer text-xs font-semibold text-blue-400"
+                onClick={() => setShowMore(true)}
+              >
+                {" "}
+                See more
+              </span>
+            )}
+            {showMore && (
+              <span
+                className="cursor-pointer text-xs font-semibold text-blue-400"
+                onClick={() => setShowMore(false)}
+              >
+                {" "}
+                See less
+              </span>
+            )}
+          </h5>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="mx-5 mb-5 flex justify-evenly border-b-2 border-gray-300 pb-3 font-semibold text-gray-400">
+          <h3
+            onClick={() => setSelected("overview")}
+            className={`cursor-pointer ${selected === "overview" && "text-gray-600"}`}
+          >
+            Overview
+          </h3>
+
+          <h3
+            onClick={() => setSelected("comments")}
+            className={`cursor-pointer ${selected === "comments" && "text-gray-600"}`}
+          >
+            Comments
+          </h3>
+
+          <h3
+            onClick={() => setSelected("reviews")}
+            className={`cursor-pointer ${selected === "reviews" && "text-gray-600"}`}
+          >
+            Reviews
+          </h3>
+
+          <h3
+            onClick={() => setSelected("lessons")}
+            className={`cursor-pointer ${selected === "lessons" && "text-gray-600"}`}
+          >
+            Lessons
+          </h3>
+        </div>
+
+        {/* Lessons Container */}
+        {selected === "lessons" && (
+          <div className="mx-auto mb-10 grid w-full max-w-4xl grid-cols-1 gap-0">
+            {isLessonLoading ? (
+              <LessonSkeleton />
+            ) : (
+              courseDetails.lessons?.map((lesson, index) => (
+                <div
+                  onClick={() => handleChangingLessons(lesson.id, index)}
+                  key={lesson.title}
+                  className={`flex cursor-pointer items-center justify-between border ${currentLessonIndex === index ? "bg-indigo-200" : "bg-slate-50"} border-gray-300 p-4 hover:bg-purple-50 ${
+                    index === courseDetails.lessons.length - 1
+                      ? ""
+                      : "border-b-0"
+                  } shadow-md`}
+                >
+                  <h1 className="text-md font-semibold text-gray-700 hover:text-blue-950">
+                    {lesson.title}
+                  </h1>
+                </div>
+              ))
+            )}
+          </div>
         )}
 
-        {/* Previous and Next Arrows */}
-        {showArrows && (
+        {/* Course Overview */}
+        {selected === "overview" && <CourseOverview course={courseDetails} />}
+
+        {/* Course Review */}
+        {selected === "reviews" && (
           <>
-            <button
-              onClick={handlePreviousLesson}
-              disabled={currentLessonIndex === 0}
-              className={`absolute left-2 top-1/2 -translate-y-1/2 transform rounded bg-gray-800 p-3 text-2xl text-white shadow-lg ${
-                currentLessonIndex === 0 && "cursor-not-allowed opacity-50"
-              }`}
-            >
-              &larr; {/* Left Arrow */}
-            </button>
-            <button
-              onClick={handleNextLesson}
-              disabled={
-                currentLessonIndex === courseDetails.lessons?.length - 1 ||
-                !currentLesson.completed
-              }
-              className={`absolute right-2 top-1/2 -translate-y-1/2 transform rounded ${currentLesson.completed ? "bg-gray-800" : "bg-gray-700"} p-3 text-2xl text-white shadow-lg ${
-                !currentLesson.completed ||
-                (currentLessonIndex === courseDetails.lessons?.length - 1 &&
-                  "cursor-not-allowed opacity-50")
-              }`}
-            >
-              &rarr; {/* Right Arrow */}
-            </button>
+            <ReviewForm
+              reviewUpdated={reviewUpdated}
+              size={80}
+              courseRating={courseRating}
+              setReviewUpdated={setReviewUpdated}
+              courseId={courseDetails.id}
+            />
+            <div className="mx-auto w-2/3">
+              <ListReviews courseId={courseDetails.id} />
+            </div>
+          </>
+        )}
+
+        {/* Comments */}
+        {selected === "comments" && (
+          <>
+            <CommentsPage courseId={courseDetails.id} />
           </>
         )}
       </div>
 
-      {/* About the Lesson */}
-      <div className="mb-4 mt-1 p-2 md:mx-auto md:w-2/3">
-        <h2 className="text-md mb-2 font-bold md:text-xl">About the lesson</h2>
-        <h5 className="text-gray-700">
-          {/* Show limited content initially, expand when "See more" is clicked */}
-          {showMore
-            ? currentLesson?.content || ""
-            : displayLimitedWords(currentLesson?.content || "", 5)}
-          {!showMore && currentLesson?.content?.split(" ").length > 5 && (
-            <span
-              className="cursor-pointer text-xs font-semibold text-blue-400"
-              onClick={() => setShowMore(true)}
-            >
-              {" "}
-              See more
-            </span>
-          )}
-          {showMore && (
-            <span
-              className="cursor-pointer text-xs font-semibold text-blue-400"
-              onClick={() => setShowMore(false)}
-            >
-              {" "}
-              See less
-            </span>
-          )}
-        </h5>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="mx-5 mb-5 flex justify-evenly border-b-2 border-gray-300 pb-3 font-semibold text-gray-400">
-        <h3
-          onClick={() => setSelected("overview")}
-          className={`cursor-pointer ${selected === "overview" && "text-gray-600"}`}
-        >
-          Overview
-        </h3>
-
-        <h3
-          onClick={() => setSelected("comments")}
-          className={`cursor-pointer ${selected === "comments" && "text-gray-600"}`}
-        >
-          Comments
-        </h3>
-
-        <h3
-          onClick={() => setSelected("reviews")}
-          className={`cursor-pointer ${selected === "reviews" && "text-gray-600"}`}
-        >
-          Reviews
-        </h3>
-
-        <h3
-          onClick={() => setSelected("lessons")}
-          className={`cursor-pointer ${selected === "lessons" && "text-gray-600"}`}
-        >
-          Lessons
-        </h3>
-      </div>
-
-      {/* Lessons Container */}
-      {selected === "lessons" && (
-        <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-0">
-          {isLessonLoading ? (
-            <LessonSkeleton />
-          ) : (
-            courseDetails.lessons?.map((lesson, index) => (
-              <div
-                onClick={() => handleChangingLessons(lesson.id, index)}
-                key={lesson.title}
-                className={`flex cursor-pointer items-center justify-between border ${currentLessonIndex === index ? "bg-indigo-200" : "bg-slate-50"} border-gray-300 p-4 hover:bg-purple-50 ${
-                  index === courseDetails.lessons.length - 1 ? "" : "border-b-0"
-                } shadow-md`}
-              >
-                <h1 className="text-md font-semibold text-gray-700 hover:text-blue-950">
-                  {lesson.title}
-                </h1>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-
-      {/* Course Overview */}
-      {selected === "overview" && <CourseOverview course={courseDetails} />}
-
-      {/* Course Review */}
-      {selected === "reviews" && (
-        <>
-          <ReviewForm
-            reviewUpdated={reviewUpdated}
-            size={80}
-            courseRating={courseRating}
-            setReviewUpdated={setReviewUpdated}
-            courseId={courseDetails.id}
-          />
-          <div className="mx-auto w-2/3">
-            <ListReviews courseId={courseDetails.id} />
-          </div>
-        </>
-      )}
-
-      {/* Comments */}
-      {selected === "comments" && (
-        <>
-          <CommentsPage courseId={courseDetails.id} />
-        </>
-      )}
-    </div>
+      <Footer />
+    </>
   );
 };
 export default FullCourseView;

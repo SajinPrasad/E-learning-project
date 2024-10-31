@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "react-router-dom";
 
-import { ContentHeading, Header } from "../common";
+import { ContentHeading, Footer, Header } from "../common";
 import { CourseCardSkeleton } from "../Skeletons";
 import CourseCard from "./CourseCard";
 import {
@@ -125,6 +125,8 @@ const Courses = () => {
         </div>
         </div>
       </div>
+
+      <Footer />
     </>
   );
 };

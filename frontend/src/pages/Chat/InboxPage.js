@@ -1,5 +1,5 @@
 import React from "react";
-import { Header } from "../../components/common";
+import { Footer, Header } from "../../components/common";
 import { Inbox } from "../../components/Chat";
 
 const InboxPage = () => {
@@ -9,6 +9,7 @@ const InboxPage = () => {
       <div className="flex flex-grow">
         <Inbox />
       </div>
+      <Footer />
     </div>
   );
 };

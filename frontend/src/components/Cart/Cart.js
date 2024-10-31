@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { getCartItems, removeCartItem } from "../../services/cartServices";
-import { Header } from "../common";
+import { Footer, Header } from "../common";
 import { CartSkeleton } from "../Skeletons";
 
 const Cart = () => {
@@ -61,6 +61,8 @@ const Cart = () => {
             Please login to access cart
           </p>
         </div>
+
+        <Footer />
       </>
     );
   }
@@ -70,6 +72,7 @@ const Cart = () => {
       <>
         <Header />
         <CartSkeleton />
+        <Footer />
       </>
     );
   }
@@ -171,6 +174,8 @@ const Cart = () => {
           )}
         </div>
       </div>
+
+      <Footer />
     </>
   );
 };

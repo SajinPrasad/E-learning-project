@@ -1,9 +1,8 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
-import { Header, Loading, PayPalButton } from "../common";
+import { Footer, Header, Loading, PayPalButton } from "../common";
 import { getCartItems, removeCartItem } from "../../services/cartServices";
-import { deleteCartItem } from "../../features/cartItem/cartItemSlice";
 
 const ConfirmOrder = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -136,6 +135,8 @@ const ConfirmOrder = () => {
           )}
         </div>
       </div>
+
+      <Footer />
     </>
   );
 };
