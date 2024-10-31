@@ -9,7 +9,7 @@ services:
   db:
     image: "postgres:alpine"
     ports:
-      - '5434:5432'
+      - "5434:5432"
     env_file:
       - .env
     volumes:
@@ -25,7 +25,7 @@ services:
   redis:
     image: "redis:alpine"
     ports:
-      - '6380:6379'
+      - "6380:6379"
     networks:
       - app-network
 
@@ -34,7 +34,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - '3000:3000'
+      - "3000:3000"
     volumes:
       - ./frontend:/app/frontend
     depends_on:
@@ -52,7 +52,7 @@ services:
       - DB_HOST=db
       - DB_PORT=5432
     ports:
-      - '8000:8000'
+      - "8000:8000"
     volumes:
       - ./backend:/app/backend
     networks:
@@ -66,99 +66,32 @@ services:
       timeout: 5s
       retries: 5
 
-# version: "3"
-# networks:
-#   app-network:
-#     driver: bridge
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A backend worker --loglevel=info
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app/backend
+    depends_on:
+      - redis
+      - backend
+    networks:
+      - app-network
 
-# volumes:
-#   postgres_data:
-#   elasticsearch_data: # Volume for Elasticsearch
-
-# services:
-#   db:
-#     image: "postgres:alpine"
-#     ports:
-#       - "5434:5432"
-#     env_file:
-#       - .env
-#     volumes:
-#       - postgres_data:/var/lib/postgresql/data
-#     healthcheck:
-#       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-#       interval: 5s
-#       timeout: 5s
-#       retries: 5
-#     networks:
-#       - app-network
-
-#   redis:
-#     image: "redis:alpine"
-#     ports:
-#       - "6380:6379"
-#     networks:
-#       - app-network
-
-#   elasticsearch:
-#     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
-#     environment:
-#       - discovery.type=single-node
-#       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-#       - "network.host=0.0.0.0"
-#       - "indices.recovery.max_bytes_per_sec=50mb"
-#       - "action.auto_create_index=true"
-#     ports:
-#       - "9200:9200"
-#     volumes:
-#       - elasticsearch_data:/usr/share/elasticsearch/data
-#     networks:
-#       - app-network
-#     healthcheck:
-#       test:
-#         [
-#           "CMD-SHELL",
-#           'curl -s http://localhost:9200/_cluster/health | grep -qo ''"status":"green"''',
-#         ]
-#       interval: 10s
-#       timeout: 5s
-#       retries: 10
-
-#   frontend:
-#     build:
-#       context: ./frontend
-#       dockerfile: Dockerfile
-#     ports:
-#       - "3000:3000"
-#     volumes:
-#       - ./frontend:/app/frontend
-#     depends_on:
-#       - backend
-#     networks:
-#       - app-network
-
-#   backend:
-#     build:
-#       context: ./backend
-#       dockerfile: Dockerfile
-#     env_file:
-#       - .env
-#     environment:
-#       - DB_HOST=db
-#       - DB_PORT=5432
-#       - ELASTICSEARCH_HOST=elasticsearch # Add Elasticsearch host
-#     ports:
-#       - "8000:8000"
-#     volumes:
-#       - ./backend:/app/backend
-#     networks:
-#       - app-network
-#     depends_on:
-#       db:
-#         condition: service_healthy
-#       elasticsearch:
-#         condition: service_healthy
-#     healthcheck:
-#       test: ["CMD-SHELL", "curl --fail http://localhost:8000 || exit 1"]
-#       interval: 10s
-#       timeout: 5s
-#       retries: 5
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A backend beat --loglevel=info
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app/backend
+    depends_on:
+      - redis
+      - backend
+    networks:
+      - app-network

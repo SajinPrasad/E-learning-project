@@ -100,6 +100,21 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+# Celery settings
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+CELERY_BEAT_SCHEDULE = {
+    'log-time-every-10-seconds': {
+        'task': 'users.tasks.log_time',
+        'schedule': timedelta(seconds=10),
+    },
+}
+
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
