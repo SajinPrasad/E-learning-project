@@ -19,3 +19,51 @@ section {
 .gray {
   fill: rgb(106, 104, 104);
 }
+
+.scrollbarHide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbarHide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollContainer {
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollItem {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+}
+
+.scrollButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  border-radius: 9999px;
+  background-color: rgb(229, 231, 235);
+  padding: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.scrollButton:hover {
+  background-color: rgb(209, 213, 219);
+}
+
+.scrollButtonLeft {
+  left: 0;
+}
+
+.scrollButtonRight {
+  right: 0;
+}

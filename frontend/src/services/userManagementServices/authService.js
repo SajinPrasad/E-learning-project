@@ -1,14 +1,8 @@
 import { toast } from "react-toastify";
+
 import privateAxiosInstance, {
   publicAxiosInstance,
 } from "../../api/axiosInstance";
-import { clearToken } from "../../features/auth/authSlice";
-import { clearUserInfo } from "../../features/tempUser/userSlice";
-import { clearTempUser } from "../../features/tempUser/tempUserSlice";
-import { clearCartItems } from "../../features/cartItem/cartItemSlice";
-import { clearCategory } from "../../features/course/categorySlice";
-import { clearCoursesState } from "../../features/course/courseSlice";
-import { clearEnrolledCoursesState } from "../../features/course/enrolledCoursesState";
 
 /**
  * Registers a new user by sending the registration data to the server.
