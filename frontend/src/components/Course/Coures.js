@@ -21,20 +21,24 @@ const Courses = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [courses, setCourses] = useState([]);
   const dispatch = useDispatch();
+  const [page, setPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     const fetchCourses = async () => {
       setIsLoading(true);
       try {
         if (isAuthenticated) {
-          const fetchedCourses =
-            await getCoursesForAuthenticatedUser(setIsLoading);
+          const fetchedCourses = await getCoursesForAuthenticatedUser(
+            setIsLoading,
+            page,
+          );
           if (fetchedCourses) {
             setCourses(fetchedCourses);
             dispatch(setCoursesState(fetchedCourses));
           }
         } else {
-          const fetchedCourses = await getActiveCourses(setIsLoading);
+          const fetchedCourses = await getActiveCourses(setIsLoading, page);
           if (fetchedCourses) {
             setCourses(fetchedCourses);
             dispatch(setCoursesState(fetchedCourses));
@@ -71,6 +75,23 @@ const Courses = () => {
     }
   }, [category, queryParams]);
 
+  const hanldeLoadMoreCourses = async () => {
+    setLoadingMore(true);
+    const nextPage = page + 1;
+    setPage(nextPage);
+
+    const fetchedMoreCourses = await getActiveCourses(setIsLoading, nextPage);
+    if (fetchedMoreCourses) {
+      // Filter out any courses already in the list to prevent duplicates
+      const newUniqueCourses = fetchedMoreCourses.filter(
+        (newCourse) => !courses.some((course) => course.id === newCourse.id),
+      );
+      setCourses([...courses, ...newUniqueCourses]);
+    }
+
+    setLoadingMore(false);
+  };
+
   return (
     <>
       <Header />
@@ -88,6 +109,20 @@ const Courses = () => {
                   ))
                 : null}
           </div>
+
+          <div className="flex justify-center">
+          <button
+            onClick={hanldeLoadMoreCourses}
+            className="mx-auto mt-3 cursor-pointer rounded-xl border border-gray-500 p-1 text-center text-xs font-semibold text-gray-500"
+          >
+            Load more
+          </button>
+        </div>
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {loadingMore &&
+            [...Array(5)].map((_, index) => <CourseCardSkeleton key={index} />)}
+        </div>
         </div>
       </div>
     </>

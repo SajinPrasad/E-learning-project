@@ -9,11 +9,11 @@ import {
  * @param {function} setIsLoading - State for handling loading
  * @returns List - Active Courses
  */
-const getActiveCourses = async (setIsLoading) => {
+const getActiveCourses = async (setIsLoading, page = 1) => {
   try {
-    const response = await publicAxiosInstance.get("/courses/");
+    const response = await publicAxiosInstance.get(`/courses/?page=${page}`);
     if (response.status === 200) {
-      return response.data;
+      return response.data.results;
     }
   } catch (error) {
     // Handle different types of errors appropriately
@@ -213,11 +213,11 @@ const getCourses = async (setIsLoading) => {
  * @param {function} setIsLoading - Handling the loading status
  * @returns - Array of fetched courses
  */
-const getCoursesForAuthenticatedUser = async (setIsLoading) => {
+const getCoursesForAuthenticatedUser = async (setIsLoading, page) => {
   try {
-    const response = await privateAxiosInstance.get("courses-authenticated/");
+    const response = await privateAxiosInstance.get(`/courses-authenticated/?page=${page}`);
     if (response.status === 200) {
-      return response.data;
+      return response.data.results;
     }
   } catch (error) {
     // Handle different types of errors appropriately
@@ -1043,6 +1043,63 @@ const courseDeleteService = async (courseId) => {
   }
 };
 
+/**
+ * Fetching enrolled courses for loginned users.
+ * @returns Array of enrolled courses
+ */
+const getPopularCourses = async () => {
+  try {
+    const response = await publicAxiosInstance.get("/popular-courses/");
+    if (response.status === 200) {
+      return response.data;
+    }
+  } catch (error) {
+    if (!error.response) {
+      toast.error(
+        "Unable to connect to server. Please check your internet connection.",
+      );
+      return null;
+    }
+
+    const status = error.response?.status;
+    const errorMessage =
+      error.response?.data?.message || error.response?.data?.error;
+
+    switch (status) {
+      case 400:
+        if (errorMessage && !errorMessage.includes("token")) {
+          toast.error(errorMessage || "Invalid request");
+        }
+        break;
+
+      case 403:
+        toast.error("You don't have permission to view enrolled courses");
+        break;
+
+      case 404:
+        toast.error("No enrolled courses found");
+        break;
+
+      case 500:
+        toast.error("Internal server error. Please try again later.");
+        break;
+
+      default:
+        if (status >= 500) {
+          toast.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    console.error("Error fetching enrolled courses:", {
+      status,
+      message: errorMessage,
+      error: error,
+    });
+
+    return null;
+  }
+};
+
 // Separate function to handle different error cases
 const handleError = (error) => {
   if (error.response) {
@@ -1082,4 +1139,5 @@ export {
   courseDeleteService,
   updateLessonService,
   addNewLessonsService,
+  getPopularCourses,
 };

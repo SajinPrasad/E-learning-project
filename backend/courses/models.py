@@ -192,6 +192,11 @@ class Enrollment(models.Model):
         return f"{self.course.title} purchased by {self.user.username}"
 
     @property
+    def total_enrollments(self):
+        """Returns the number of times this course has been purchased."""
+        return self.enrollments.count()
+
+    @property
     def is_completed(self):
         # Logic to implement couse completion (For later use)
         pass

@@ -14,6 +14,8 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 import logging
 from rest_framework.exceptions import PermissionDenied, NotFound
 from django.db.models import Q
+from django.db.models import Count
+from rest_framework.pagination import PageNumberPagination
 
 from .permissions import (
     MentorOnlyPermission,
@@ -38,6 +40,11 @@ from .serializers import (
 # Create your views here.
 
 logger = logging.getLogger(__name__)
+
+
+class CoursePagination(PageNumberPagination):
+    page_size = 15  # Number of courses per page
+    page_size_query_param = "page_size"
 
 
 class ParentCategoryViewSet(ModelViewSet):
@@ -174,6 +181,7 @@ class CourseListView(ListAPIView):
 
     permission_classes = [AllowAny]
     serializer_class = CourseListCreateSerializer
+    pagination_class = CoursePagination
 
     def get_queryset(self):
         queryset = Course.objects.filter(status="approved", is_deleted=False)
@@ -190,6 +198,7 @@ class AuthenticatedCourseListView(ListAPIView):
 
     permission_classes = [IsAuthenticated]
     serializer_class = CourseListCreateSerializer
+    pagination_class = CoursePagination
 
     def get_queryset(self):
         user = self.request.user
@@ -616,3 +625,25 @@ class CourseCategoryFilterView(ListAPIView):
             ]
         else:
             return Course.objects.none()
+
+
+class PopularCoursesListView(ListAPIView):
+    """
+    View for filtering the popular courses.
+    Fetching the top 10 courses only.
+    """
+
+    permission_classes = [AllowAny]
+    serializer_class = CourseListCreateSerializer
+
+    def get_queryset(self):
+        # Filter out courses that are not approved or deleted
+        queryset = Course.objects.filter(status="approved", is_deleted=False)
+
+        # Filter based on active categories by ensuring the category or any ancestor is active
+        queryset = queryset.filter(category__is_active=True)
+
+        # Annotate with enrollment count and order by it in descending order, limiting to top 10
+        return queryset.annotate(total_enrollments=Count("enrollments")).order_by(
+            "-total_enrollments"
+        )[:10]
