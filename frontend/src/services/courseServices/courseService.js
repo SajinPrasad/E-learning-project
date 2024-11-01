@@ -46,8 +46,7 @@ const getActiveCourses = async (setIsLoading, page = 1) => {
 
       case 404:
         // Not Found
-        toast.error("Courses not found");
-        break;
+        return false;
 
       case 500:
         // Server error
@@ -178,8 +177,7 @@ const getCourses = async (setIsLoading) => {
 
       case 404:
         // Not Found
-        toast.error("Courses not found");
-        break;
+        return false;
 
       case 500:
         // Server error
@@ -215,7 +213,9 @@ const getCourses = async (setIsLoading) => {
  */
 const getCoursesForAuthenticatedUser = async (setIsLoading, page) => {
   try {
-    const response = await privateAxiosInstance.get(`/courses-authenticated/?page=${page}`);
+    const response = await privateAxiosInstance.get(
+      `/courses-authenticated/?page=${page}`,
+    );
     if (response.status === 200) {
       return response.data.results;
     }
@@ -250,8 +250,7 @@ const getCoursesForAuthenticatedUser = async (setIsLoading, page) => {
 
       case 404:
         // Not Found
-        toast.error("Courses not found");
-        break;
+        return false;
 
       case 500:
         // Server error

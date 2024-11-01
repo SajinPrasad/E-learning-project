@@ -86,7 +86,7 @@ const ProfileDropdown = ({ role }) => {
           </li>
           <li
             onClick={handleNavigate}
-            className="flex gap-2 hover:text-theme-primary"
+            className="flex gap-2 hover:text-theme-primary cursor-pointer"
           >
             <IconProfile />
 

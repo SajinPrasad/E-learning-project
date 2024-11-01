@@ -34,6 +34,7 @@ const HomeLayout = () => {
   const scrollContainerRef = useRef(null);
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [noMoreCoursesLeft, setNoMoreCoursesLeft] = useState(false);
 
   const checkScroll = () => {
     if (scrollContainerRef.current) {
@@ -121,6 +122,8 @@ const HomeLayout = () => {
         (newCourse) => !courses.some((course) => course.id === newCourse.id),
       );
       setCourses([...courses, ...newUniqueCourses]);
+    } else {
+      setNoMoreCoursesLeft(true);
     }
 
     setLoadingMore(false);
@@ -234,21 +237,23 @@ const HomeLayout = () => {
               ))}
         </div>
 
-        <div className="flex justify-center">
-          <button
-            onClick={hanldeLoadMoreCourses}
-            className="mx-auto mt-3 cursor-pointer rounded-xl border border-gray-500 p-1 text-center text-xs font-semibold text-gray-500"
-          >
-            Load more
-          </button>
-        </div>
-
         <div className="mt-6 grid gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {loadingMore &&
             [...Array(5)].map((_, index) => <CourseCardSkeleton key={index} />)}
         </div>
+
+        {!noMoreCoursesLeft && (
+          <div className="flex justify-center">
+            <button
+              onClick={hanldeLoadMoreCourses}
+              className="mx-auto mt-3 cursor-pointer rounded-xl border border-gray-500 p-1 text-center text-xs font-semibold text-gray-500"
+            >
+              Load more
+            </button>
+          </div>
+        )}
       </div>
-      
+
       <Footer />
     </>
   );
