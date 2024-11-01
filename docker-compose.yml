@@ -4,6 +4,7 @@ networks:
 
 volumes:
   postgres_data:
+  celery_data: 
 
 services:
   db:
@@ -75,6 +76,7 @@ services:
       - .env
     volumes:
       - ./backend:/app/backend
+      - celery_data:/app/celery_data
     depends_on:
       - redis
       - backend
@@ -90,6 +92,7 @@ services:
       - .env
     volumes:
       - ./backend:/app/backend
+      - celery_data:/app/celery_data
     depends_on:
       - redis
       - backend

@@ -109,9 +109,9 @@ CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 
 CELERY_BEAT_SCHEDULE = {
-    'log-time-every-10-seconds': {
-        'task': 'users.tasks.log_time',
-        'schedule': timedelta(seconds=10),
+    "remove-expired-otps": {
+        "task": "users.tasks.remove_expired_otps",
+        "schedule": timedelta(hours=1),  # Runs every hour
     },
 }
 
