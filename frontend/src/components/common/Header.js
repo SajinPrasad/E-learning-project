@@ -21,6 +21,8 @@ const Header = (cartItemNumbers = 0) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [cartItems, setCartItems] = useState([]);
 
+  console.log("Profile picture: ", profilePicture);
+
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
   };
@@ -163,7 +165,7 @@ const Header = (cartItemNumbers = 0) => {
                 onClick={toggleDropdown}
               >
                 <img
-                  src={`http://localhost:8000${profilePicture}`}
+                  src={profilePicture}
                   className="h-full w-full rounded-full object-cover"
                 />
               </div>

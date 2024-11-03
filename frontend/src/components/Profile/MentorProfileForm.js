@@ -71,7 +71,11 @@ const MentorProfileForm = () => {
     }
 
     setIsLoading(true);
-    await updateProfileInformation(profileId, name, profile[name]);
+    const updatedProfile = await updateProfileInformation(
+      profileId,
+      name,
+      profile[name],
+    );
     setEditingField(""); // Reset the editing field after update
     setCurrentProfile(profile);
 
@@ -92,9 +96,9 @@ const MentorProfileForm = () => {
     dispatch(
       setProfileInfo({
         profileId: profileId,
-        bio: profile["bio"],
-        profilePicture: profile["profile_picture"],
-        dateOfBirth: profile["date_of_birth"],
+        bio: updatedProfile["bio"],
+        profilePicture: updatedProfile["profile_picture"],
+        dateOfBirth: updatedProfile["date_of_birth"],
       }),
     );
 

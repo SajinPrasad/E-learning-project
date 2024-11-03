@@ -30,7 +30,7 @@ const MentorProfileBox = ({ profile, is_enrolled = false }) => {
         {/* Larger Mentor Image */}
         {profile.profile_picture ? (
           <img
-            src={`http://localhost:8000/${profile.profile_picture}`}
+            src={profile.profile_picture}
             className="mb-4 h-32 w-32 rounded-full border-4 border-gray-300 object-cover shadow-md md:mb-0"
           />
         ) : (

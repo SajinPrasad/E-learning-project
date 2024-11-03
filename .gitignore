@@ -19,6 +19,9 @@ backend/media/
 # Migrations
 backend/**/migrations/
 
+# Celery
+backend/celerybeat-schedule
+
 
 # Environment variables
 .env

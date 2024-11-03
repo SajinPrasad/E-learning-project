@@ -125,7 +125,7 @@ const CommentList = ({ courseId, ws, setParentComment }) => {
             <div className="flex-shrink-0">
               {comment.user_profile_picture ? (
                 <img
-                  src={`http://localhost:8000${comment.user_profile_picture}`}
+                  src={comment.user_profile_picture}
                   className="h-8 w-8 rounded-full object-cover"
                   alt={comment.user_fullname}
                 />

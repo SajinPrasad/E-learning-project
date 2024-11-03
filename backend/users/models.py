@@ -11,6 +11,10 @@ from django.dispatch import receiver
 from django.utils.text import slugify
 import hashlib
 import logging
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
+
+from users.tasks import delete_s3_file
 
 # Create your models here.
 
@@ -181,6 +185,18 @@ class StudentProfile(ProfileBase):
     expected_graduation_date = models.DateField(blank=True, null=True)
 
 
+@receiver(pre_save, sender=StudentProfile)
+def delete_old_profile_picture(sender, instance, **kwargs):
+    # Check if the instance already exists in the database (i.e., an update)
+    if instance.pk:
+        old_instance = StudentProfile.objects.get(pk=instance.pk)
+        if (
+            old_instance.profile_picture
+            and old_instance.profile_picture != instance.profile_picture
+        ):
+            delete_s3_file.delay(old_instance.profile_picture.url)
+
+
 class MentorProfile(ProfileBase):
     """
     Mentor-specific profile extending the base profile.
@@ -209,6 +225,18 @@ class MentorProfile(ProfileBase):
     average_rating = models.DecimalField(
         max_digits=3, decimal_places=1, blank=True, null=True
     )
+
+
+@receiver(pre_save, sender=MentorProfile)
+def delete_old_profile_picture(sender, instance, **kwargs):
+    # Check if the instance already exists in the database (i.e., an update)
+    if instance.pk:
+        old_instance = MentorProfile.objects.get(pk=instance.pk)
+        if (
+            old_instance.profile_picture
+            and old_instance.profile_picture != instance.profile_picture
+        ):
+            delete_s3_file.delay(old_instance.profile_picture.url)
 
 
 @receiver(post_save, sender=CustomUser)
