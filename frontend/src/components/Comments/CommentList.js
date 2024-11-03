@@ -9,6 +9,7 @@ import {
 } from "../../services/CommentServices/commentServices";
 
 const CommentList = ({ courseId, ws, setParentComment }) => {
+  const { isAuthenticated } = useSelector((state) => state.user);
   const [comments, setComments] = useState([]);
   const [replies, setReplies] = useState({});
   const commentsEndRef = useRef(null);
@@ -66,8 +67,9 @@ const CommentList = ({ courseId, ws, setParentComment }) => {
         setComments((prevComments) => [...prevComments, completeComment]);
       }
 
-      if (role === "student") {scrollToBottom();}
-      
+      if (role === "student") {
+        scrollToBottom();
+      }
     } catch (error) {
       console.error("Error processing new comment:", error);
     }
@@ -78,7 +80,9 @@ const CommentList = ({ courseId, ws, setParentComment }) => {
       const fetchedComments = await getParentCommentsService(courseId);
       if (fetchedComments) {
         setComments(fetchedComments);
-        if (role === "student") {scrollToBottom();}
+        if (role === "student") {
+          scrollToBottom();
+        }
       }
     };
 
@@ -150,12 +154,14 @@ const CommentList = ({ courseId, ws, setParentComment }) => {
             </div>
           </div>
           <div className="flex gap-5">
-            <p
-              onClick={() => setParentComment(comment)}
-              className="w-fit cursor-pointer text-xs text-gray-400 hover:text-gray-600"
-            >
-              Reply
-            </p>
+            {isAuthenticated && (
+              <p
+                onClick={() => setParentComment(comment)}
+                className="w-fit cursor-pointer text-xs text-gray-400 hover:text-gray-600"
+              >
+                Reply
+              </p>
+            )}
             {comment.replay_count > 0 && (
               <i
                 onClick={() => handleFetchingReplayComments(comment.id)}

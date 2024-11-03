@@ -120,7 +120,7 @@ const Courses = () => {
               ))}
           </div>
 
-          {!noMoreCoursesLeft && (
+          {!noMoreCoursesLeft && !category && !queryParams && (
             <div className="flex justify-center">
               <button
                 onClick={hanldeLoadMoreCourses}

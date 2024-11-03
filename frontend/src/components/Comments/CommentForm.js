@@ -7,6 +7,7 @@ import { CloseIcon } from "../common/Icons";
 
 const CommentForm = ({ courseId, selectedItem = "", setSelectedItem }) => {
   const { accessToken } = useSelector((state) => state.auth);
+  const { isAuthenticated } = useSelector((state) => state.user);
   const [comment, setComment] = useState("");
   const [ws, setWs] = useState(null); // Store WebSocket connection
   const wsRef = useRef(null);
@@ -68,42 +69,44 @@ const CommentForm = ({ courseId, selectedItem = "", setSelectedItem }) => {
 
   return (
     <>
-      <div className=" mx-auto w-full max-w-2xl rounded-lg bg-white p-6 shadow-md">
-        <h4 className="mb-4 text-lg font-semibold text-gray-800">
-          Write your comment here
-        </h4>
-        <div className="flex flex-col space-y-4">
-          <textarea
-            ref={commentInputRef}
-            name="comment"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Enter..."
-            className="h-24 w-full rounded-md border border-gray-300 px-4 py-2 placeholder-gray-400 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
-          />
-          <div className="flex justify-end">
-            <span onClick={handlePostingComment} className="inline-block">
-              <Button text={"Post"} />
-            </span>
-          </div>
-        </div>
-        {parentComment && (
-          <div className="my-2 w-1/3 border border-gray-200">
-            <div className="flex gap-2">
-              <p className="text-sm">Replaying to</p>
-              <span
-                className="cursor-pointer"
-                onClick={() => setParentComment(null)}
-              >
-                <CloseIcon />
+      {isAuthenticated && (
+        <div className="mx-auto w-full max-w-2xl rounded-lg bg-white p-6 shadow-md">
+          <h4 className="mb-4 text-lg font-semibold text-gray-800">
+            Write your comment here
+          </h4>
+          <div className="flex flex-col space-y-4">
+            <textarea
+              ref={commentInputRef}
+              name="comment"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Enter..."
+              className="h-24 w-full rounded-md border border-gray-300 px-4 py-2 placeholder-gray-400 outline-none transition-colors focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+            />
+            <div className="flex justify-end">
+              <span onClick={handlePostingComment} className="inline-block">
+                <Button text={"Post"} />
               </span>
             </div>
-            <p className="text-xs font-semibold text-gray-600">
-              @{parentComment.user_fullname}
-            </p>
           </div>
-        )}
-      </div>
+          {parentComment && (
+            <div className="my-2 w-1/3 border border-gray-200">
+              <div className="flex gap-2">
+                <p className="text-sm">Replaying to</p>
+                <span
+                  className="cursor-pointer"
+                  onClick={() => setParentComment(null)}
+                >
+                  <CloseIcon />
+                </span>
+              </div>
+              <p className="text-xs font-semibold text-gray-600">
+                @{parentComment.user_fullname}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {role !== "student" && (
         <div className="mt-10">

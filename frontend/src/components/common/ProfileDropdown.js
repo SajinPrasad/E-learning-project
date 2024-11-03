@@ -28,7 +28,7 @@ const ProfileDropdown = ({ role }) => {
   const handleLogout = async () => {
     setIsLoading(true);
     const loggedOut = await userLogoutService(refreshToken);
-  
+
     if (loggedOut) {
       // Clearing all states and then navigating
       await Promise.all([
@@ -38,14 +38,14 @@ const ProfileDropdown = ({ role }) => {
         dispatch(clearCoursesState()),
         dispatch(clearTempUser()),
         dispatch(clearEnrolledCoursesState()),
-        dispatch(clearProfileInfo())
+        dispatch(clearProfileInfo()),
       ]);
-  
-      navigate("/");
+
+      // Navigate to home and reload the page
+      window.location.href = "/";
       setIsLoading(false);
     }
   };
-  
 
   const handleNavigate = () => {
     if (role == "student") {
@@ -86,7 +86,7 @@ const ProfileDropdown = ({ role }) => {
           </li>
           <li
             onClick={handleNavigate}
-            className="flex gap-2 hover:text-theme-primary cursor-pointer"
+            className="flex cursor-pointer gap-2 hover:text-theme-primary"
           >
             <IconProfile />
 

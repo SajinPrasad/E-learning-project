@@ -12,6 +12,7 @@ import {
 const getActiveCourses = async (setIsLoading, page = 1) => {
   try {
     const response = await publicAxiosInstance.get(`/courses/?page=${page}`);
+    
     if (response.status === 200) {
       return response.data.results;
     }
@@ -284,7 +285,7 @@ const getCoursesForAuthenticatedUser = async (setIsLoading, page) => {
  */
 const getCourseDetails = async (id) => {
   try {
-    const response = await privateAxiosInstance.get(`/course/${id}/`);
+    const response = await publicAxiosInstance.get(`/course/${id}/`);
     // Check if the response indicates a successful retreval
     if (response.status === 200) {
       return response.data;
@@ -410,7 +411,7 @@ const validateVideoFile = ({ file, setIsLoading }) => {
 
 const getLessonContent = async (lessonId, courseId) => {
   try {
-    const response = await privateAxiosInstance.get(
+    const response = await publicAxiosInstance.get(
       `/lesson-content/${lessonId}?course_id=${courseId}`,
     );
     // Check if the response indicates a successful retreval
@@ -470,7 +471,7 @@ const getFullLessonData = async (lessonId, courseId) => {
 
       case 404:
         // Not Found
-        toast.error("Courses not found");
+        toast.error("Not found");
         break;
 
       case 500:
