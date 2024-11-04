@@ -183,8 +183,9 @@ const CommentList = ({ courseId, ws, setParentComment }) => {
   return (
     <div className="mx-auto my-8 h-[calc(100vh-16rem)] w-2/3 overflow-y-auto">
       {comments.length === 0 ? (
-        <p className="py-8 text-center text-gray-500">
-          No comments yet. Be the first to comment!
+        <p className="py-8 flex text-center text-gray-500">
+          No comments yet. {" "}
+          {isAuthenticated && <span>Be the first to comment!</span>}
         </p>
       ) : (
         <div className="space-y-4">
