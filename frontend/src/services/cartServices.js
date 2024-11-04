@@ -66,11 +66,7 @@ const getCartItems = async () => {
         }
     }
 
-    console.error("Error fetching enrolled courses:", {
-      status,
-      message: errorMessage,
-      error: error,
-    });
+    console.error("Error fetching enrolled courses");
 
     return null;
   }
@@ -104,7 +100,6 @@ const checkoutService = async (cartItems) => {
     );
 
     if (response.status >= 200 && response.status < 300) {
-      console.log(response);
       return response;
     } else {
       throw new Error(`Order creation failed with status: ${response.status}`); // Handle non-2xx responses as errors
@@ -118,12 +113,6 @@ const checkoutService = async (cartItems) => {
 const handleError = (error) => {
   if (error.response) {
     // Server responded with a status code outside the range of 2xx
-    console.error("Error Response:", {
-      status: error.response.status,
-      headers: error.response.headers,
-      data: error.response.data,
-    });
-
     // Handle specific status codes
     if (error.response.status === 400) {
       // Validation errors or bad request
@@ -149,11 +138,9 @@ const handleError = (error) => {
     }
   } else if (error.request) {
     // Request was made but no response received
-    console.error("Error Request:", error.request);
     toast.error("No response from the server. Please check your network.");
   } else {
     // Something else happened while setting up the request
-    console.error("Error Message:", error.message);
     toast.error("An unexpected error occurred: " + error.message);
   }
 };

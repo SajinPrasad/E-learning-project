@@ -65,7 +65,6 @@ const LoginForm = ({ role }) => {
 
   // Function to set user state and tokens
   const handleSetUserState = (response) => {
-    console.log("The response: ", response)
     dispatch(
       setUserInfo({
         firstName: response.user.first_name,

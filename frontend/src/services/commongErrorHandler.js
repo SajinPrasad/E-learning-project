@@ -46,11 +46,7 @@ export const handleCommonError = (error) => {
   }
 
   // Log error for debugging
-  console.error("Error fetching courses:", {
-    status,
-    message: errorMessage,
-    error: error,
-  });
+  console.error("Error fetching courses");
 
   return null;
 };

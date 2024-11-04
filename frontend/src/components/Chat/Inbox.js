@@ -58,7 +58,6 @@ const Inbox = () => {
       // Event handler for receiving messages via WebSocket.
       websocketRef.current.onmessage = function (event) {
         const data = JSON.parse(event.data); // Parse the incoming data as JSON.
-        console.log("Received message:", data);
 
         // Append the new message to the existing messages array.
         setMessages((prevMessages) => [

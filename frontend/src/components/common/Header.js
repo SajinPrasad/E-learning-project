@@ -21,8 +21,6 @@ const Header = (cartItemNumbers = 0) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [cartItems, setCartItems] = useState([]);
 
-  console.log("Profile picture: ", profilePicture);
-
   const toggleDropdown = () => {
     setIsDropdownOpen((prev) => !prev);
   };

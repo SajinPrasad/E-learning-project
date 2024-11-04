@@ -33,7 +33,7 @@ const ReviewCard = ({ review }) => {
           {profile_picture ? (
             <img
               className="h-11 w-11 rounded-full object-cover"
-              src={`http://localhost:8000${profile_picture}`}
+              src={profile_picture}
             />
           ) : (
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-500 font-bold text-white">
@@ -83,7 +83,7 @@ const ReviewCard = ({ review }) => {
                 {profile_picture ? (
                   <img
                     className="h-11 w-11 rounded-full object-cover"
-                    src={`http://localhost:8000${profile_picture}`}
+                    src={profile_picture}
                   />
                 ) : (
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-500 font-bold text-white">

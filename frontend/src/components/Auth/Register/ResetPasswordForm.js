@@ -52,7 +52,6 @@ const ResetPasswordForm = () => {
             setLoading(true);
             try {
               const response = await resetPasswordService(values);
-              console.log("Response from the server: ", response.role);
 
               // Navigating according to the role.
               if (response.role === "student") {

@@ -1,27 +1,7 @@
-import { toast } from "react-toastify";
-
 import privateAxiosInstance, {
   publicAxiosInstance,
 } from "../../api/axiosInstance";
-
-export const postCommentService = async (courseId, comment) => {
-  try {
-    const response = await privateAxiosInstance.post(
-      `/comments/?course_id=${courseId}`,
-      {
-        course: courseId, // Pass the course ID from the frontend
-        comment: comment, // The actual comment text
-      },
-    );
-
-    if (response.status >= 200 && response.status < 301) {
-      toast.success("Added comment");
-      return response.data;
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
+import { handleCommonError } from "../commongErrorHandler";
 
 export const getCommentsService = async (courseId) => {
   try {
@@ -33,7 +13,7 @@ export const getCommentsService = async (courseId) => {
       return response.data;
     }
   } catch (error) {
-    console.error(error);
+    handleCommonError(error);
   }
 };
 
@@ -47,7 +27,7 @@ export const getProfilePictureService = async (userId) => {
       return response.data;
     }
   } catch (error) {
-    console.error(error);
+    handleCommonError(error);
   }
 };
 
@@ -61,7 +41,7 @@ export const getParentCommentsService = async (courseId) => {
       return response.data;
     }
   } catch (error) {
-    console.error(error);
+    handleCommonError(error);
   }
 };
 
@@ -75,6 +55,6 @@ export const getReplayCommentsService = async (courseId, parentId) => {
       return response.data;
     }
   } catch (error) {
-    console.error(error);
+    handleCommonError(error);
   }
 };

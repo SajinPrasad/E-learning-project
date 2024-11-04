@@ -12,7 +12,7 @@ import {
 const getActiveCourses = async (setIsLoading, page = 1) => {
   try {
     const response = await publicAxiosInstance.get(`/courses/?page=${page}`);
-    
+
     if (response.status === 200) {
       return response.data.results;
     }
@@ -62,11 +62,7 @@ const getActiveCourses = async (setIsLoading, page = 1) => {
     }
 
     // Log error for debugging
-    console.error("Error fetching courses:", {
-      status,
-      message: errorMessage,
-      error: error,
-    });
+    console.error("Error fetching courses:");
 
     return null;
   } finally {
@@ -129,10 +125,7 @@ const createCourse = async (courseData) => {
       }
     } else if (error.request) {
       toast.error("An error occurred during course creation.");
-    } else {
-      console.log(error);
     }
-    throw error;
   }
 };
 
@@ -193,11 +186,7 @@ const getCourses = async (setIsLoading) => {
     }
 
     // Log error for debugging
-    console.error("Error fetching courses:", {
-      status,
-      message: errorMessage,
-      error: error,
-    });
+    console.error("Error fetching courses:");
 
     return null;
   } finally {
@@ -266,11 +255,7 @@ const getCoursesForAuthenticatedUser = async (setIsLoading, page) => {
     }
 
     // Log error for debugging
-    console.error("Error fetching courses:", {
-      status,
-      message: errorMessage,
-      error: error,
-    });
+    console.error("Error fetching courses:");
 
     return null;
   } finally {
@@ -323,11 +308,7 @@ const getCourseDetails = async (id) => {
         }
     }
 
-    console.error("Error searching courses:", {
-      status,
-      message: errorMessage,
-      error: error,
-    });
+    console.error("Error searching courses:");
 
     return null;
   }
@@ -487,12 +468,6 @@ const getFullLessonData = async (lessonId, courseId) => {
     }
 
     // Log error for debugging
-    console.error("Error fetching courses:", {
-      status,
-      message: errorMessage,
-      error: error,
-    });
-
     return null;
   }
 };
@@ -514,7 +489,6 @@ const updateLessonCompletionStatus = async (courseId, lessonId, status) => {
     // Handle specific error cases
     if (error.response) {
       // Server responded with a status other than 2xx
-      console.error("error:", error.response.data);
       toast.error(
         `Error: ${error.response.data.detail || "Something went wrong."}`,
       );
@@ -697,22 +671,17 @@ const updateCourseStatus = async (id, newStatus) => {
       return null;
     }
   } catch (error) {
-    console.error("Error in updateCourseStatus:", error);
-
     // Handle specific error cases
     if (error.response) {
       // Server responded with a status other than 2xx
-      console.error("Server responded with error:", error.response.data);
       toast.error(
         `Error: ${error.response.data.detail || "Something went wrong."}`,
       );
     } else if (error.request) {
       // Request was made but no response received
-      console.error("No response received:", error.request);
       toast.error("No response received from server.");
     } else {
       // Something else happened in setting up the request
-      console.error("Error setting up request:", error.message);
       toast.error(`Request error: ${error.message}`);
     }
 
@@ -769,7 +738,6 @@ const updateCreateCourseSuggestion = async (method, suggestion, courseId) => {
  */
 const mentorChangingSuggestionStatus = async (suggestion) => {
   const { id, is_done } = suggestion;
-  console.log("Recieved in service: ", suggestion);
   const formData = new FormData();
   formData.append("is_done", is_done.toString());
 
@@ -785,7 +753,6 @@ const mentorChangingSuggestionStatus = async (suggestion) => {
         },
       );
       if (response && response.status >= 200 && response.status < 300) {
-        console.log(response.data);
         if (response.data.is_done) {
           toast.success("Successfully marked the suggestions as done.");
         } else {
@@ -798,10 +765,6 @@ const mentorChangingSuggestionStatus = async (suggestion) => {
         return null;
       }
     } catch (error) {
-      console.error(
-        "Error:",
-        error.response ? error.response.data : error.message,
-      );
       handleError(error);
       return null;
     }
@@ -857,12 +820,6 @@ const getEnrolledCourses = async () => {
         }
     }
 
-    console.error("Error fetching enrolled courses:", {
-      status,
-      message: errorMessage,
-      error: error,
-    });
-
     return null;
   }
 };
@@ -913,12 +870,7 @@ const filterCourseWithCategoryService = async (category) => {
         }
     }
 
-    console.error("Error filtering courses by category:", {
-      status,
-      message: errorMessage,
-      error: error,
-      category,
-    });
+    console.error("Error filtering courses by category");
 
     return null;
   }
@@ -970,12 +922,7 @@ const searchCourseService = async (queryParams) => {
         }
     }
 
-    console.error("Error searching courses:", {
-      status,
-      message: errorMessage,
-      error: error,
-      queryParams,
-    });
+    console.error("Error searching courses");
 
     return null;
   }
@@ -1032,12 +979,7 @@ const courseDeleteService = async (courseId) => {
         }
     }
 
-    console.error("Error deleting course:", {
-      status,
-      message: errorMessage,
-      error: error,
-      courseId,
-    });
+    console.error("Error deleting course");
 
     return null;
   }
@@ -1090,11 +1032,7 @@ const getPopularCourses = async () => {
         }
     }
 
-    console.error("Error fetching enrolled courses:", {
-      status,
-      message: errorMessage,
-      error: error,
-    });
+    console.error("Error fetching enrolled courses:");
 
     return null;
   }
@@ -1104,17 +1042,14 @@ const getPopularCourses = async () => {
 const handleError = (error) => {
   if (error.response) {
     // Server responded with a status other than 2xx
-    console.log("Error Response Data: ", error.response.data);
     toast.error(
       error.response.data.detail || "Something went wrong with the request!",
     );
   } else if (error.request) {
     // Request was made, but no response was received
-    console.log("Error Request: ", error.request);
     toast.error("No response from the server. Please try again later.");
   } else {
     // Something else happened while setting up the request
-    console.log("Error Message: ", error.message);
     toast.error("An unexpected error occurred: " + error.message);
   }
 };

@@ -66,7 +66,7 @@ const UserListCard = ({ user }) => {
         )}
         {profile_picture ? (
           <img
-            src={`http://localhost:8000${profile_picture}`}
+            src={profile_picture}
             className="h-14 w-14 rounded-full md:h-16 md:w-16 lg:h-20 lg:w-20"
           />
         ) : (
@@ -94,7 +94,7 @@ const UserListCard = ({ user }) => {
               <div className="h-32 w-32 flex-shrink-0 sm:h-40 sm:w-40">
                 {profile_picture ? (
                   <img
-                    src={`http://localhost:8000${profile_picture}`}
+                    src={profile_picture}
                     className="h-full w-full rounded-full object-cover"
                   />
                 ) : (

@@ -2,7 +2,6 @@ import React from "react";
 import { MentorProfileBox } from "../Profile";
 
 const CourseOverview = ({ course }) => {
-  console.log("Course Provided: ", course);
 
   return (
     <div>

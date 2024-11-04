@@ -29,7 +29,7 @@ const ProfileDropdown = ({ role }) => {
   };
 
   const handleNavigate = () => {
-    if (role == "student") {
+    if (role === "student") {
       navigate("/profile");
     } else if (role === "mentor") {
       navigate("/mentor/profile");
@@ -49,7 +49,8 @@ const ProfileDropdown = ({ role }) => {
               {profilePicture ? (
                 <img
                   className="h-6 w-6 rounded-lg"
-                  src={`http://localhost:8000${profilePicture}`}
+                  src={profilePicture}
+                  alt={"Profile"}
                 />
               ) : (
                 <div className="flex aspect-square w-8 cursor-pointer items-center justify-center rounded-full bg-theme-primary text-white">

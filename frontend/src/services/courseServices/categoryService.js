@@ -173,7 +173,6 @@ const getSubCategories = async (setIsLoading) => {
 };
 
 const updateCategory = async ({ categoryId, field, value, url }) => {
-  console.log("Field:", field, "Value: ", value);
   try {
     // Create a dynamic object using computed property names
     const payload = { [field]: value };

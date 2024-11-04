@@ -75,12 +75,14 @@ privateAxiosInstance.interceptors.response.use(
 
         return privateAxiosInstance(originalRequest);
       } catch (err) {
+        console.error("Error refreshing token:", err.response || err.message);
         // store.dispatch(clearToken());
         // window.location.href = "/login";
         return Promise.reject(err);
       }
     }
 
+    console.error("Request failed:", error.response || error.message);
     return Promise.reject(error);
   },
 );

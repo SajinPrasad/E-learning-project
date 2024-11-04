@@ -77,10 +77,8 @@ const PayPalButton = ({ cartItems }) => {
           onApprove: async (data, actions) => {
             try {
               setError(null);
-              console.log("Payment approved:", data);
 
               const result = await executePayment(data.paymentID, data.payerID);
-              console.log("Payment execution result:", result);
 
               dispatch(clearCartItems());
               window.location.href = "/enrolled-courses";

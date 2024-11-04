@@ -66,11 +66,11 @@ const AdminMentorCouseDetail = ({ role }) => {
         ...suggestion,
         is_done: suggestionStatus,
       };
-      console.log("Suggestion after update: ", suggestion, suggestionStatus);
+
       try {
         await mentorChangingSuggestionStatus(updatedSuggestion);
       } catch (error) {
-        console.log("Error while updating the suggestion status: ", error);
+        console.log("Error while updating the suggestion status: ");
       }
     };
     
@@ -149,17 +149,6 @@ const AdminMentorCouseDetail = ({ role }) => {
 
   const handleSuggestionStatusChange = async () => {
     setSuggestionStatus((prev) => !prev);
-    // console.log("Suggestion before update: ", suggestion, suggestionStatus);
-    // const updatedSuggestion = {
-    //   ...suggestion,
-    //   is_done: !suggestion.is_done,
-    // };
-    // console.log("Suggestion after update: ", suggestion, suggestionStatus);
-    // try {
-    //   await mentorChangingSuggestionStatus(updatedSuggestion);
-    // } catch (error) {
-    //   console.log("Error while updating the suggestion status: ", error);
-    // }
   };
 
   const handleLessonToggle = async (lessonId) => {

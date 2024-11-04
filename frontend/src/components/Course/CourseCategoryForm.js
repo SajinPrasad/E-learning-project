@@ -24,7 +24,6 @@ const CourseCategoryForm = ({
   const handleSubmission = async (e) => {
     e.preventDefault();
     try {
-      console.log("Category type: ", parentCategoryID)
       if (parentCategoryID === "Parent") {
         await createParentCategories(name, description);
       } else {
@@ -33,7 +32,7 @@ const CourseCategoryForm = ({
       refreshCategories();
       setIsCategoryForm(false); // Hiding the category form
     } catch (error) {
-      console.log(error);
+      console.log("Error while creating category");
     }
   };
 

@@ -82,8 +82,6 @@ const MentorCourses = () => {
     setAddCourse((prevState) => !prevState);
   };
 
-  console.log("Role fetched: ", role);
-
   return (
     <>
       <div className="ml-1 flex-1 justify-center overflow-auto md:ml-0">

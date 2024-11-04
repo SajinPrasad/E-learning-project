@@ -47,8 +47,6 @@ const Cart = () => {
     setIsLoading(false);
   };
 
-  console.log("Cart Items: ", cartItems);
-
   if (!isAuthenticated) {
     return (
       <>

@@ -51,7 +51,6 @@ export const createReviewService = async ({
     } else {
       toast.error("An unexpected error occurred. Please try again.");
     }
-    console.log(error); // For logging the complete error object to the console
   }
 };
 
@@ -91,8 +90,6 @@ export const updateReviewService = async ({
       { review_text: reviewText, rating: reviewRating, course: courseId },
     );
 
-    console.log("Update response: ", response);
-
     if (response.status >= 200 && response.status <= 301) {
       toast.success("Review updated");
       return response.data;
@@ -121,8 +118,6 @@ export const updateReviewService = async ({
     } else {
       toast.error("An unexpected error occurred. Please try again.");
     }
-
-    console.log(error); // Log the error for debugging purposes
   }
 };
 

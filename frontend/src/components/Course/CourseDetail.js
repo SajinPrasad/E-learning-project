@@ -252,7 +252,7 @@ const CourseDetail = ({ role }) => {
     try {
       await mentorChangingSuggestionStatus(suggestion);
     } catch (error) {
-      console.log("Error while updating the suggestion status: ", error);
+      console.log("Error while updating the suggestion status");
     }
   };
 

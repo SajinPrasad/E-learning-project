@@ -71,15 +71,12 @@ const AddLessonForm = ({
   // Adding the lessons to state, before submiting to the backend.
   const handleAddLesson = (e) => {
     e.preventDefault(); // Prevent default form submission
-    console.log("Before validation: ", lesson); // Check lesson state
 
     // Validation check
     if (!lesson.title.trim()) {
       toast.error("Please enter a lesson title");
       return;
     }
-
-    console.log("Adding lesson: ", lesson); // Confirm function execution
 
     setLessons((prevLessons) => [...prevLessons, lesson]);
     setLesson({

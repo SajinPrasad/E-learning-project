@@ -167,10 +167,7 @@ const loginService = async (formData) => {
     } else if (error.request) {
       // Handle errors where the server did not respond
       toast.error("An error occurred during verification.");
-    } else {
-      console.log(error);
     }
-    throw error;
   }
 };
 
@@ -210,10 +207,7 @@ const otpResendService = async (email) => {
     } else if (error.request) {
       // Handle errors where the server did not respond
       toast.error("An error occurred.");
-    } else {
-      console.log(error);
     }
-    throw error;
   }
 };
 
@@ -254,9 +248,7 @@ const resetPasswordService = async (formData) => {
     } else {
       // Handle any other errors (such as network issues)
       toast.error("An error occurred during password reset.");
-      console.log(error);
     }
-    throw error; // Optionally re-throw the error if you want to handle it elsewhere
   }
 };
 
@@ -267,13 +259,10 @@ const resetPasswordService = async (formData) => {
  * @returns {Object | undefined} - Response data if any, or undefined
  */
 const userLogoutService = async (refreshToken) => {
-  console.log("Executing logout");
   try {
     const response = await privateAxiosInstance.post(`/logout/`, {
       refresh: refreshToken,
     });
-
-    console.log("Response: ", response);
 
     // No data is expected, but just in case the backend returns a success message
     if (response.status >= 200 && response.status < 301) {
@@ -284,8 +273,6 @@ const userLogoutService = async (refreshToken) => {
       toast.error("Network error: Please check your connection.");
     } else if (error.response.status >= 500) {
       toast.error("Internal server error: ", error.response.statusText);
-    } else {
-      console.log("Error: ", error.response.data || "Something went wrong.");
     }
   }
 };
