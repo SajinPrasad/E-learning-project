@@ -42,7 +42,9 @@ const Header = (cartItemNumbers = 0) => {
       }
     };
 
-    fetchCartItems();
+    if (isAuthenticated) {
+      fetchCartItems();
+    }
   }, [cartItemNumbers]);
 
   useEffect(() => {

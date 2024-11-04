@@ -19,7 +19,7 @@ backend/media/
 # Migrations
 backend/**/migrations/
 
-# Celery
+# Celery beat schedule
 backend/celerybeat-schedule
 
 

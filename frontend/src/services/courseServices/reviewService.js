@@ -1,5 +1,7 @@
 import { toast } from "react-toastify";
+
 import privateAxiosInstance from "../../api/axiosInstance";
+import { handleCommonError } from "../commongErrorHandler";
 
 /**
  * Creates a new review for a specified course.
@@ -59,28 +61,11 @@ export const getOwnersReviewService = async (courseId) => {
       `/reviews/?course_id=${courseId}`,
     );
 
-    if (response.status >= 200 && response.status < 300) {
-      return response.data;
+    if (response.status === 200) {
+      return response.data.results;
     }
   } catch (error) {
-    // Check if the error is a response from the server
-    if (error.response) {
-      const statusCode = error.response.status;
-      const backendMessage = error.response.data?.detail;
-
-      // Handle errors based on status code
-      if (statusCode === 500) {
-        toast.error("Internal Server Error. Please try again later.");
-      } else {
-        // Display backend message if available
-        toast.error(backendMessage || "An error occurred. Please try again.");
-      }
-    } else if (error.request) {
-      // If the error is related to network issues
-      toast.error("Please check your internet connection.");
-    }
-
-    console.error("Error fetching review:", error); // Log the error for debugging
+    handleCommonError(error);
   }
 };
 
@@ -156,24 +141,7 @@ export const getAverageCourseRatingService = async (courseId) => {
       return response.data;
     }
   } catch (error) {
-    // Check if the error is a response from the server
-    if (error.response) {
-      const statusCode = error.response.status;
-      const backendMessage = error.response.data?.detail;
-
-      // Handle errors based on status code
-      if (statusCode === 500) {
-        toast.error("Internal Server Error. Please try again later.");
-      } else {
-        // Display backend message if available
-        toast.error(backendMessage || "An error occurred. Please try again.");
-      }
-    } else if (error.request) {
-      // If the error is related to network issues
-      toast.error("Please check your internet connection.");
-    }
-
-    console.error("Error fetching review:", error); // Log the error for debugging
+    handleCommonError(error);
   }
 };
 
@@ -187,23 +155,6 @@ export const getReviewListService = async (courseId) => {
       return response.data;
     }
   } catch (error) {
-    // Check if the error is a response from the server
-    if (error.response) {
-      const statusCode = error.response.status;
-      const backendMessage = error.response.data?.detail;
-
-      // Handle errors based on status code
-      if (statusCode === 500) {
-        toast.error("Internal Server Error. Please try again later.");
-      } else {
-        // Display backend message if available
-        toast.error(backendMessage || "An error occurred. Please try again.");
-      }
-    } else if (error.request) {
-      // If the error is related to network issues
-      toast.error("Please check your internet connection.");
-    }
-
-    console.error("Error fetching review:", error); // Log the error for debugging
+    handleCommonError(error);
   }
 };

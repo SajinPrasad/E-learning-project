@@ -17,7 +17,7 @@ const CourseCategories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       setIsLoading(true);
-      const categoriesData = await getParentCategories(setIsLoading);
+      const categoriesData = await getParentCategories();
       if (categoriesData) {
         setCategories(categoriesData);
       }

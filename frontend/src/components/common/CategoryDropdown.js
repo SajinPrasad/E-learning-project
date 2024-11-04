@@ -79,7 +79,7 @@ const CategoryDropdown = ({
           } rounded-md bg-white shadow-lg`}
         >
           <ul className="py-1 text-sm text-gray-700">
-            {parentCategories.map((parent) => (
+            {parentCategories?.map((parent) => (
               <li
                 key={parent.id}
                 className="relative cursor-pointer px-4 py-2 hover:bg-purple-100"

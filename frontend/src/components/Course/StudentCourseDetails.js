@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
   getCourseDetails,
@@ -9,7 +9,7 @@ import { Loading, ReactStarsWrapper } from "../common";
 import { DropDownArrow, DropUpArrow } from "../common/Icons";
 import { createCartItems } from "../../services/cartServices";
 import { addItemToCart } from "../../features/cartItem/cartItemSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getAverageCourseRatingService } from "../../services/courseServices/reviewService";
 import { ListReviews } from "../Reviews";
 import { MentorProfileBox } from "../Profile";
@@ -26,6 +26,10 @@ const StudentCourseDetails = () => {
   const dispatch = useDispatch();
   const [courseRating, setCourseRating] = useState({});
   const [selectedItem, setSelectedItem] = useState("reviews");
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  const navigate = useNavigate();
+
+  console.log("Is auth: ", isAuthenticated);
 
   useEffect(() => {
     const fetchCourseDetail = async () => {
@@ -175,12 +179,23 @@ const StudentCourseDetails = () => {
           <div className="text-center text-2xl font-bold text-gray-900 md:text-3xl">
             <span className="text-xl md:text-2xl">₹</span> {course.price.amount}
           </div>
-          <button
-            type="submit"
-            className="mt-5 h-12 w-full bg-theme-primary text-center font-bold text-white"
-          >
-            Add to cart
-          </button>
+
+          {isAuthenticated ? (
+            <button
+              type="submit"
+              onClick={handleAddCartItem}
+              className="mt-5 h-12 w-full bg-theme-primary text-center font-bold text-white"
+            >
+              Add to cart
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate("/login")}
+              className="mt-5 h-12 w-full bg-theme-primary text-center font-bold text-white"
+            >
+              Login to purchase course
+            </button>
+          )}
         </div>
       </div>
 
@@ -283,18 +298,16 @@ const StudentCourseDetails = () => {
 
             {/* Comments */}
             {selectedItem === "comments" && (
-            <div className="mb-5 bg-white p-8 shadow-md">
-              <h2 className="mb-3 text-lg font-bold md:text-2xl">
-                Reviews and rating
-              </h2>
-              <div className="mt-8">
-                <CommentsPage courseId={id} />
+              <div className="mb-5 bg-white p-8 shadow-md">
+                <h2 className="mb-3 text-lg font-bold md:text-2xl">
+                  Comments
+                </h2>
+                <div className="mt-8">
+                  <CommentsPage courseId={id} />
+                </div>
               </div>
-            </div>
-          )}
+            )}
           </div>
-
-          
 
           {/* Right side: Fixed Add to Cart Box */}
           <div className="sticky col-span-1 hidden flex-col md:mr-4 md:mt-2 md:block">
@@ -305,13 +318,24 @@ const StudentCourseDetails = () => {
                 <span className="text-xl md:text-2xl">₹</span>{" "}
                 {course.price.amount}
               </div>
-              <button
-                type="submit"
-                className="mt-5 h-12 w-full bg-theme-primary text-center font-bold text-white"
-                onClick={handleAddCartItem}
-              >
-                Add to cart
-              </button>
+
+              {isAuthenticated ? (
+                <button
+                  type="submit"
+                  className="mt-5 h-12 w-full bg-theme-primary text-center font-bold text-white"
+                  onClick={handleAddCartItem}
+                >
+                  Add to cart
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="mt-5 h-12 w-full bg-theme-primary text-center font-bold text-white"
+                  onClick={() => navigate("/login")}
+                >
+                  Login to purchase course
+                </button>
+              )}
             </div>
 
             {/* Mentor profile details */}

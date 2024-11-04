@@ -3,15 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 import { IconProfile, Logout, Settings } from "./Icons";
-import { clearUserInfo } from "../../features/tempUser/userSlice";
-import { clearToken } from "../../features/auth/authSlice";
-import { clearCartItems } from "../../features/cartItem/cartItemSlice";
-import { userLogoutService } from "../../services/userManagementServices/authService";
-import { clearCoursesState } from "../../features/course/courseSlice";
-import { clearTempUser } from "../../features/tempUser/tempUserSlice";
-import { clearEnrolledCoursesState } from "../../features/course/enrolledCoursesState";
-import { clearProfileInfo } from "../../features/tempUser/profileSlice";
 import Loading from "./Loading";
+import { logoutUser } from "../../features/auth/authActuion";
 
 /**
  * Renders the dropdown from the profile icon on header.
@@ -21,31 +14,19 @@ const ProfileDropdown = ({ role }) => {
   const { profilePicture } = useSelector((state) => state.profile);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const refreshToken = useSelector((state) => state.auth.refreshToken);
   const [isLoading, setIsLoading] = useState(false);
 
   // Function to handle logout.
   const handleLogout = async () => {
     setIsLoading(true);
-    const loggedOut = await userLogoutService(refreshToken);
-  
+
+    const loggedOut = await dispatch(logoutUser());
+
     if (loggedOut) {
-      // Clearing all states and then navigating
-      await Promise.all([
-        dispatch(clearUserInfo()),
-        dispatch(clearToken()),
-        dispatch(clearCartItems()),
-        dispatch(clearCoursesState()),
-        dispatch(clearTempUser()),
-        dispatch(clearEnrolledCoursesState()),
-        dispatch(clearProfileInfo())
-      ]);
-  
+      // Navigate to home only after successful logout
       navigate("/");
-      setIsLoading(false);
     }
   };
-  
 
   const handleNavigate = () => {
     if (role == "student") {
@@ -86,7 +67,7 @@ const ProfileDropdown = ({ role }) => {
           </li>
           <li
             onClick={handleNavigate}
-            className="flex gap-2 hover:text-theme-primary cursor-pointer"
+            className="flex cursor-pointer gap-2 hover:text-theme-primary"
           >
             <IconProfile />
 
