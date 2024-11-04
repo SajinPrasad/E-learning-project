@@ -93,18 +93,6 @@ class FullURLImageField(ImageField):
         )
 
 
-class LessonCompletionSerializer(ModelSerializer):
-    """
-    For updating the completion status for lessons.
-    * Only accessible by users who are purchased the course.
-    """
-
-    class Meta:
-        model = Lesson
-        fields = ["completed"]
-        write_only_fields = ["completed"]
-
-
 class LessonUpdateCreateSerializer(ModelSerializer):
     """
     Serializer only used for updating existing lessons and creating new lessons.
@@ -119,7 +107,6 @@ class LessonUpdateCreateSerializer(ModelSerializer):
             "title",
             "content",
             "video_file",
-            "completed",
             "order",
         ]
         extra_kwargs = {
@@ -170,7 +157,6 @@ class LessonSerializer(ModelSerializer):
             "title",
             "content",
             "video_file",
-            "completed",
             "order",
         ]
 

@@ -97,11 +97,6 @@ const StudentCourseDetails = () => {
     return <Loading />; // Optional loading component
   }
 
-  // Handle case when course is not yet available
-  if (!course) {
-    return <p>Course details not available.</p>;
-  }
-
   return (
     <>
       {/* Title section */}
@@ -139,15 +134,15 @@ const StudentCourseDetails = () => {
               <a href="#reviews">
                 <ReactStarsWrapper
                   edit={false}
-                  value={courseRating.average_rating}
+                  value={courseRating?.average_rating}
                   size={22}
                 />
               </a>
               <span className="self-center text-xs text-blue-100">
                 <a href="#reviews">
                   (
-                  {courseRating.total_reviews
-                    ? `${courseRating.total_reviews} ratings`
+                  {courseRating?.total_reviews
+                    ? `${courseRating?.total_reviews} ratings`
                     : "No ratings yet"}
                   )
                 </a>
@@ -273,19 +268,19 @@ const StudentCourseDetails = () => {
                 <div className="flex items-center gap-2">
                   <ReactStarsWrapper
                     size={50}
-                    value={courseRating.average_rating}
+                    value={courseRating?.average_rating}
                     edit={false}
                   />
                   <span className="text-sm text-blue-500">
                     (
-                    {courseRating.total_reviews
-                      ? `${courseRating.total_reviews} ratings`
+                    {courseRating?.total_reviews
+                      ? `${courseRating?.total_reviews} ratings`
                       : "No ratings yet"}
                     )
                   </span>
                 </div>
                 <h2 className="text-xl font-bold text-yellow-700 sm:text-2xl md:text-3xl">
-                  {courseRating.average_rating} Course Ratings
+                  {courseRating?.average_rating} Course Ratings
                 </h2>
 
                 <div className="mt-8">

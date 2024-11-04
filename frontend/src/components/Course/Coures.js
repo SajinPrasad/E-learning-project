@@ -11,7 +11,6 @@ import {
   getCoursesForAuthenticatedUser,
   searchCourseService,
 } from "../../services/courseServices/courseService";
-import { setCoursesState } from "../../features/course/courseSlice";
 
 const Courses = () => {
   const [searchParams] = useSearchParams();
@@ -36,13 +35,11 @@ const Courses = () => {
           );
           if (fetchedCourses) {
             setCourses(fetchedCourses);
-            dispatch(setCoursesState(fetchedCourses));
           }
         } else {
           const fetchedCourses = await getActiveCourses(setIsLoading, page);
           if (fetchedCourses) {
             setCourses(fetchedCourses);
-            dispatch(setCoursesState(fetchedCourses));
           }
         }
       } catch (error) {

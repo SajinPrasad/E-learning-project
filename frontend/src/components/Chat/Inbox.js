@@ -147,7 +147,7 @@ const Inbox = () => {
             >
               {user.profile_picture ? (
                 <img
-                  src={`http://127.0.0.1:8000${user.profile_picture}`}
+                  src={user.profile_picture}
                   className="h-10 w-10 rounded-full object-cover"
                 />
               ) : (

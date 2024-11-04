@@ -27,8 +27,6 @@ const FullCourseView = () => {
   const [showMore, setShowMore] = useState(false); // State to manage "see more"
   const [showArrows, setShowArrows] = useState(true); // State to manage arrow visibility
   const [courseRating, setCourseRating] = useState({});
-  const [currentTime, setCurrentTime] = useState(0); // State for current video time
-  const [duration, setDuration] = useState(0); // State for video duration
   const videoRef = useRef(null); // Ref to control video events
   let hideArrowsTimeout; // Timeout for hiding arrows
   const [reviewUpdated, setReviewUpdated] = useState(false);
@@ -66,39 +64,16 @@ const FullCourseView = () => {
     if (videoRef.current) {
       // Event listener to update current time continuously
       const timeUpdateHandler = () => {
-        setCurrentTime(videoRef.current.currentTime);
         if (videoRef.current.currentTime >= videoRef.current.duration - 1) {
-          const updateLessonCompleted = async () => {
-            // Mark the lesson as completed
-            const lessonCompleted = await updateLessonCompletionStatus(
-              id,
-              currentLesson.id,
-              true,
-            );
-          };
-          updateLessonCompleted();
           handleNextLesson(); // Navigate to the next lesson automatically
         }
       };
 
-      // Set the video duration when metadata is loaded
-      const loadedMetadataHandler = () => {
-        setDuration(videoRef.current.duration);
-      };
-
       videoRef.current.addEventListener("timeupdate", timeUpdateHandler);
-      videoRef.current.addEventListener(
-        "loadedmetadata",
-        loadedMetadataHandler,
-      );
 
       return () => {
         if (videoRef.current) {
           videoRef.current.removeEventListener("timeupdate", timeUpdateHandler);
-          videoRef.current.removeEventListener(
-            "loadedmetadata",
-            loadedMetadataHandler,
-          );
         }
       };
     }
@@ -113,17 +88,9 @@ const FullCourseView = () => {
   };
 
   const handleNextLesson = () => {
-    if (videoRef.current) {
-      const duration = videoRef.current.duration; // Total length of the video
-      const currentTime = videoRef.current.currentTime; // Current playing time
-      if (currentLesson.completed || currentTime >= duration - 1) {
-        if (currentLessonIndex < courseDetails.lessons.length - 1) {
-          const nextLesson = courseDetails.lessons[currentLessonIndex + 1];
-          handleChangingLessons(nextLesson.id, currentLessonIndex + 1);
-        } else {
-          toast.info("You have completed all lessons in this course.");
-        }
-      }
+    if (currentLessonIndex < courseDetails.lessons.length - 1) {
+      const nextLesson = courseDetails.lessons[currentLessonIndex + 1];
+      handleChangingLessons(nextLesson.id, currentLessonIndex + 1);
     }
   };
 
@@ -202,11 +169,9 @@ const FullCourseView = () => {
               <button
                 onClick={handleNextLesson}
                 disabled={
-                  currentLessonIndex === courseDetails.lessons?.length - 1 ||
-                  !currentLesson.completed
+                  currentLessonIndex === courseDetails.lessons?.length - 1
                 }
                 className={`absolute right-2 top-1/2 -translate-y-1/2 transform rounded ${currentLesson.completed ? "bg-gray-800" : "bg-gray-700"} p-3 text-2xl text-white shadow-lg ${
-                  !currentLesson.completed ||
                   (currentLessonIndex === courseDetails.lessons?.length - 1 &&
                     "cursor-not-allowed opacity-50")
                 }`}

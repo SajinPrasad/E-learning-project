@@ -13,7 +13,6 @@ from .views import (
     CourseSuggestionUpdateView,
     EnrolledCoursesListView,
     AuthenticatedCourseListView,
-    LessonCompletionUpdateView,
     CourseSearchView,
     CourseCategoryFilterView,
     AddNewLessonsView,
@@ -54,11 +53,6 @@ urlpatterns = [
         name="lesson-data",
     ),
     path("enrolledcourses/", EnrolledCoursesListView.as_view(), name="enrolledcourses"),
-    path(
-        "lesson-completion/<int:pk>/",
-        LessonCompletionUpdateView.as_view(),
-        name="lesson-completion",
-    ),
     path("course/search/", CourseSearchView.as_view(), name="course-search"),
     path(
         "course/category/filter/",

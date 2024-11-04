@@ -21,7 +21,7 @@ const MentorProfileBox = ({ profile, is_enrolled = false }) => {
       className={`my-8 rounded bg-white p-8 ${is_enrolled ? "shadow-sm" : "shadow-lg"} `}
     >
       {is_enrolled ? (
-        <h2 className="mb-2 text-lg font-bold md:text-2xl">Mentor Profile</h2>
+        <h2 className="mb-6 text-lg font-bold md:text-2xl">Mentor Profile</h2>
       ) : (
         <h2 className="mb-6 text-2xl font-bold md:text-3xl">Mentor Profile</h2>
       )}

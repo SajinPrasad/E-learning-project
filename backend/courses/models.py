@@ -99,8 +99,6 @@ class Lesson(models.Model):
         null=True,
         validators=[FileExtensionValidator(["mp4"])],
     )
-    # Mark as true when the user finished watching the lesson
-    completed = models.BooleanField(default=False)
     # For sequential order of each lesson
     order = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)

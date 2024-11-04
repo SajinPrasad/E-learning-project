@@ -341,11 +341,6 @@ const CourseDetail = ({ role }) => {
     return <Loading />; // Optional loading component
   }
 
-  // Handle case when course is not yet available
-  if (!course) {
-    return <p>Course details not available.</p>;
-  }
-
   return (
     <>
       {/* Course details */}

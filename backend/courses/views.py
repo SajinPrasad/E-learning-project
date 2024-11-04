@@ -32,7 +32,6 @@ from .serializers import (
     CourseSuggestionSerializer,
     LessonContentSerializer,
     LessonSerializer,
-    LessonCompletionSerializer,
     CourseEnrollementSerializer,
     LessonUpdateCreateSerializer,
 )
@@ -312,21 +311,6 @@ class LessonContentView(RetrieveAPIView):
 
     permission_classes = [AllowAny]
     serializer_class = LessonContentSerializer
-
-    # Filtering the course only for the purticular course
-    def get_queryset(self):
-        course_id = self.request.query_params.get("course_id")
-        return Lesson.objects.filter(course__id=course_id)
-
-
-class LessonCompletionUpdateView(UpdateAPIView):
-    """
-    View for updating the course completion status.
-    Only accessed by users who are purchased the course.
-    """
-
-    permission_classes = [IsCoursePurchased]  # Custom permission
-    serializer_class = LessonCompletionSerializer
 
     # Filtering the course only for the purticular course
     def get_queryset(self):

@@ -15,8 +15,6 @@ import {
   getPopularCourses,
 } from "../../services/courseServices/courseService";
 import { CourseCard } from "../../components/Course";
-import { setCoursesState } from "../../features/course/courseSlice";
-import { setEnrolledCoursesState } from "../../features/course/enrolledCoursesState";
 import { CourseCardSkeleton } from "../Skeletons";
 import { LeftIcon, RightIcon } from "../common/Icons";
 import { styles } from "../../components/common";
@@ -71,18 +69,15 @@ const HomeLayout = () => {
           );
           if (fetchedCourses) {
             setCourses(fetchedCourses);
-            dispatch(setCoursesState(fetchedCourses));
           }
           const fetchedEnrolledCourses = await getEnrolledCourses();
           if (fetchedEnrolledCourses) {
             setEnrolledCourses(fetchedEnrolledCourses);
-            dispatch(setEnrolledCoursesState(fetchedEnrolledCourses));
           }
         } else {
           const fetchedCourses = await getActiveCourses(setIsLoading, page);
           if (fetchedCourses) {
             setCourses(fetchedCourses);
-            dispatch(setCoursesState(fetchedCourses));
           }
         }
       } catch (error) {
