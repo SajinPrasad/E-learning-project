@@ -285,7 +285,7 @@ const getCoursesForAuthenticatedUser = async (setIsLoading, page) => {
  */
 const getCourseDetails = async (id) => {
   try {
-    const response = await publicAxiosInstance.get(`/course/${id}/`);
+    const response = await privateAxiosInstance.get(`/course/${id}/`);
     // Check if the response indicates a successful retreval
     if (response.status === 200) {
       return response.data;

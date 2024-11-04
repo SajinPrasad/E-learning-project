@@ -91,7 +91,7 @@ class Lesson(models.Model):
     """
 
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons")
-    title = models.CharField(max_length=255, unique=True)
+    title = models.CharField(max_length=255)
     content = models.TextField()
     video_file = models.FileField(
         upload_to="videos/",
@@ -107,8 +107,15 @@ class Lesson(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ("course", "order")
         ordering = ["order"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["course", "order"], name="unique_course_order"
+            ),
+            models.UniqueConstraint(
+                fields=["course", "title"], name="unique_course_lesson_title"
+            ),
+        ]
 
     def __str__(self):
         return self.title

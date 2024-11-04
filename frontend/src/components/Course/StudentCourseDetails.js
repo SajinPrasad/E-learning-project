@@ -29,12 +29,11 @@ const StudentCourseDetails = () => {
   const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
   const navigate = useNavigate();
 
-  console.log("Is auth: ", isAuthenticated);
-
   useEffect(() => {
     const fetchCourseDetail = async () => {
       try {
         const courseDetails = await getCourseDetails(id);
+        console.log("Fetched coure: ", courseDetails)
         setCourse(courseDetails);
       } catch (error) {
         console.error("Error fetching course details:", error);
