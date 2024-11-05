@@ -33,9 +33,11 @@ const StudentCourseDetails = () => {
     const fetchCourseDetail = async () => {
       try {
         const courseDetails = await getCourseDetails(id);
-        setCourse(courseDetails);
+        if (courseDetails) {
+          setCourse(courseDetails);
+        }
       } catch (error) {
-        console.error("Error fetching course details:", error);
+        console.error("Error fetching course details");
       } finally {
         setIsLoading(false); // Make sure loading state is updated
       }
@@ -43,7 +45,9 @@ const StudentCourseDetails = () => {
 
     const fetchCourseRating = async () => {
       const fetchedRating = await getAverageCourseRatingService(id);
-      setCourseRating(fetchedRating);
+      if (fetchedRating) {
+        setCourseRating(fetchedRating);
+      }
     };
 
     fetchCourseDetail();
@@ -86,7 +90,7 @@ const StudentCourseDetails = () => {
           }));
           setExpandedLessonIds([...expandedLessonIds, lessonId]);
         } catch (error) {
-          console.error("Error fetching lesson details:", error);
+          console.error("Error fetching lesson details");
         }
       }
     }
@@ -292,9 +296,7 @@ const StudentCourseDetails = () => {
             {/* Comments */}
             {selectedItem === "comments" && (
               <div className="mb-5 bg-white p-8 shadow-md">
-                <h2 className="mb-3 text-lg font-bold md:text-2xl">
-                  Comments
-                </h2>
+                <h2 className="mb-3 text-lg font-bold md:text-2xl">Comments</h2>
                 <div className="mt-8">
                   <CommentsPage courseId={id} />
                 </div>

@@ -79,7 +79,7 @@ const AdminReports = () => {
       const pdfBlob = pdf.output("bloburl");
       window.open(pdfBlob);
     } catch (error) {
-      console.error("PDF generation failed:", error);
+      console.error("PDF generation failed");
     } finally {
       setIsGeneratingPDF(false);
     }

@@ -43,7 +43,7 @@ const Courses = () => {
           }
         }
       } catch (error) {
-        console.error("Error in useEffect while fetching courses:", error);
+        console.error("Error in useEffect while fetching courses");
       } finally {
         setIsLoading(false);
       }

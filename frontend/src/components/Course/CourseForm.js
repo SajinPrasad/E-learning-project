@@ -129,7 +129,7 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
         }
       } catch (error) {
         // Handle error response
-        console.error("Error submitting course:", error);
+        console.error("Error submitting course");
         setIsLoading(false);
       } finally {
         setIsLoading(false);

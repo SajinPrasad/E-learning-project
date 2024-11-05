@@ -133,15 +133,11 @@ const CourseDetail = ({ role }) => {
     const fetchCourseDetail = async () => {
       try {
         const courseDetails = await getCourseDetails(id);
-        setCourse(courseDetails);
-        if (courseDetails.suggestions) {
-          setSuggestion(courseDetails.suggestions);
-          setSuggestionText(courseDetails.suggestions.suggestion_text); // Setting the initial
-
-          setSuggestionStatus(courseDetails.suggestions.is_done);
+        if (courseDetails) {
+          setCourse(courseDetails);
         }
       } catch (error) {
-        console.error("Error fetching course details:", error);
+        console.error("Error fetching course details");
       } finally {
         setIsLoading(false); // Make sure loading state is updated
       }
@@ -149,7 +145,10 @@ const CourseDetail = ({ role }) => {
 
     const fetchCourseRating = async () => {
       const fetchedRating = await getAverageCourseRatingService(id);
-      setCourseRating(fetchedRating);
+      if (fetchedRating) {
+        setCourseRating(fetchedRating);
+      }
+      
     };
 
     fetchCourseDetail();
@@ -192,7 +191,7 @@ const CourseDetail = ({ role }) => {
           toast.error("Failed to update course status.");
         }
       } catch (error) {
-        console.error("Error updating course status:", error);
+        console.error("Error updating course status");
       }
     }
     handleCloseStatusChange();
@@ -236,7 +235,7 @@ const CourseDetail = ({ role }) => {
       }
       setSuggestion(updatedSuggestion);
     } catch (error) {
-      console.error("Error updating course suggestion:", error);
+      console.error("Error updating course suggestion");
     }
   };
 
@@ -335,6 +334,8 @@ const CourseDetail = ({ role }) => {
       }
     }
   };
+
+  console.log("course: ", course);
 
   // Handle loading state
   if (isLoading) {

@@ -55,7 +55,7 @@ const AdminMentorCouseDetail = ({ role }) => {
           setSuggestionStatus(courseDetails.suggestions.is_done);
         }
       } catch (error) {
-        console.error("Error fetching course details:", error);
+        console.error("Error fetching course details");
       } finally {
         setIsLoading(false);
       }
@@ -116,7 +116,7 @@ const AdminMentorCouseDetail = ({ role }) => {
           toast.error("Failed to update course status.");
         }
       } catch (error) {
-        console.error("Error updating course status:", error);
+        console.error("Error updating course status");
       }
     }
 
@@ -143,7 +143,7 @@ const AdminMentorCouseDetail = ({ role }) => {
       }
       setSuggestion(updatedSuggestion);
     } catch (error) {
-      console.error("Error updating course suggestion:", error);
+      console.error("Error updating course suggestion");
     }
   };
 
@@ -180,7 +180,7 @@ const AdminMentorCouseDetail = ({ role }) => {
           }));
           setExpandedLessonIds([...expandedLessonIds, lessonId]);
         } catch (error) {
-          console.error("Error fetching lesson details:", error);
+          console.error("Error fetching lesson details");
         }
       }
     }

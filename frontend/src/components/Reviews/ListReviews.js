@@ -21,7 +21,7 @@ const ListReviews = ({ courseId }) => {
         setReviews(fetchedReviews);
       } catch (err) {
         setError("Failed to fetch reviews. Please try again later.");
-        console.error("Error fetching reviews:", err);
+        console.error("Error fetching reviews");
       } finally {
         setIsLoading(false);
       }

@@ -16,7 +16,7 @@ const executePayment = async (paymentId, PayerID) => {
 
     return response.data;
   } catch (error) {
-    console.error("Error executing payment:", error);
+    console.error("Error executing payment");
     throw error;
   }
 };
@@ -83,18 +83,18 @@ const PayPalButton = ({ cartItems }) => {
               dispatch(clearCartItems());
               window.location.href = "/enrolled-courses";
             } catch (err) {
-              console.error("Error finalizing payment:", err);
+              console.error("Error finalizing payment");
               setError("An error occurred while finalizing the payment.");
             }
           },
           onError: (err) => {
-            console.error("PayPal error:", err);
+            console.error("PayPal error");
             setError("An error occurred while processing the payment.");
           },
         })
         .render(paypalRef.current)
         .catch((renderError) => {
-          console.error("Error rendering PayPal buttons:", renderError);
+          console.error("Error rendering PayPal buttons");
           setError("Failed to render PayPal buttons.");
         });
     }
