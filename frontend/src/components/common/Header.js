@@ -188,18 +188,19 @@ const Header = (cartItemNumbers = 0) => {
             )}
           </div>
         ) : (
-          <div className="ml-5 inline-flex items-center space-x-6 lg:justify-end">
+          <div className="ml-5 mt-5 inline-flex items-center space-x-6 md:mt-0 lg:justify-end">
             <a
               onClick={() => navigate("/login")}
               className="whitespace-no-wrap cursor-pointer text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out hover:text-gray-900"
             >
-              Sign in
+              Login
             </a>
+            <span className="h-5 border border-gray-200" />
             <a
               onClick={() => navigate("/register")}
-              className="whitespace-no-wrap inline-flex cursor-pointer items-center justify-center rounded-md border-2 border-transparent bg-theme-primary px-4 py-2 text-base font-medium leading-6 text-white shadow-sm hover:border-theme-primary hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2"
+              className="whitespace-no-wrap cursor-pointer text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out hover:text-gray-900"
             >
-              Sign up
+              Sign Up
             </a>
           </div>
         )}

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { store } from "../store/store";
-import { setToken } from "../features/auth/authSlice";
+import { clearToken, setToken } from "../features/auth/authSlice";
 
 // Base URL for the API
 const API_URL = "http://127.0.0.1:8000";
@@ -25,10 +25,22 @@ export const privateAxiosInstance = axios.create({
 });
 
 // Add a request interceptor to the private instance to include JWT token
+let isRefreshing = false; // Flag to prevent multiple refreshes
+let refreshSubscribers = []; // Queue to retry original requests
+
+const onRefreshed = (accessToken) => {
+  refreshSubscribers.forEach((callback) => callback(accessToken));
+  refreshSubscribers = [];
+};
+
+const addRefreshSubscriber = (callback) => {
+  refreshSubscribers.push(callback);
+};
+
 privateAxiosInstance.interceptors.request.use(
   (config) => {
     const state = store.getState();
-    const token = state.auth.accessToken; // Fetching the access token from state.
+    const token = state.auth.accessToken;
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
@@ -37,8 +49,6 @@ privateAxiosInstance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-
-// Response interceptor to handle token expiration and refresh
 privateAxiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -49,17 +59,27 @@ privateAxiosInstance.interceptors.response.use(
       error.response.status === 401 &&
       !originalRequest._retry
     ) {
+      if (isRefreshing) {
+        // Queue requests while token is being refreshed
+        return new Promise((resolve) => {
+          addRefreshSubscriber((accessToken) => {
+            originalRequest.headers["Authorization"] = `Bearer ${accessToken}`;
+            resolve(privateAxiosInstance(originalRequest));
+          });
+        });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
-        const state = await store.getState();
-        const refreshToken = state.auth.refreshToken; // Fetching the refresh token from state.
+        const state = store.getState();
+        const refreshToken = state.auth.refreshToken;
 
         const response = await axios.post(`${API_URL}/token/refresh/`, {
           refresh: refreshToken,
         });
 
-        // Update the token in Redux store
         store.dispatch(
           setToken({
             accessToken: response.data.access,
@@ -67,17 +87,19 @@ privateAxiosInstance.interceptors.response.use(
           }),
         );
 
-        // Update the token in the request header
         privateAxiosInstance.defaults.headers["Authorization"] =
           `Bearer ${response.data.access}`;
         originalRequest.headers["Authorization"] =
           `Bearer ${response.data.access}`;
 
+        onRefreshed(response.data.access);
+        isRefreshing = false;
+
         return privateAxiosInstance(originalRequest);
       } catch (err) {
-        console.error("Error refreshing token:", err.response || err.message);
-        // store.dispatch(clearToken());
-        // window.location.href = "/login";
+        isRefreshing = false;
+        store.dispatch(clearToken());
+        window.location.href = "/login";
         return Promise.reject(err);
       }
     }

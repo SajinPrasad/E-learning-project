@@ -17,6 +17,7 @@ from .views import (
     CourseCategoryFilterView,
     AddNewLessonsView,
     PopularCoursesListView,
+    AdminMentorCourseDetailView,
 )
 
 router = DefaultRouter()
@@ -61,4 +62,9 @@ urlpatterns = [
     ),
     path("create-lessons/", AddNewLessonsView.as_view(), name="create-lesson"),
     path("popular-courses/", PopularCoursesListView.as_view(), name="popular-course"),
+    path(
+        "admin-mentor-course/<int:pk>/",
+        AdminMentorCourseDetailView.as_view(),
+        name="admin-mentor-coursedetail",
+    ),
 ]
