@@ -249,7 +249,7 @@ class CourseUpdateView(UpdateAPIView):
 class CourseDetailView(RetrieveAPIView):
     """
     View only for retrieving the course details.
-    Common for all users.
+    For students only.
     """
 
     permission_classes = [AllowAny]
@@ -257,16 +257,34 @@ class CourseDetailView(RetrieveAPIView):
 
     def get_object(self):
         course_id = self.kwargs.get("pk")
+
+        queryset = Course.objects.filter(is_deleted=False, status="approved")
+        course = get_object_or_404(queryset, pk=course_id)
+
+        return course
+
+
+class AdminMentorCourseDetailView(RetrieveAPIView):
+    """
+    View only for retrieving the course details.
+    Only for admins and mentors.
+    """
+
+    serializer_class = CourseDetailSerializer
+    permission_classes = [MentorOrAdminPermission]
+
+    def get_object(self):
+        course_id = self.kwargs.get("pk")
         user = self.request.user
 
-        # print("User: ", user.role)
-        if not user.is_authenticated:
-            print("Yes user is not authenticated")
-            # If user is not authenticated
-            queryset = Course.objects.filter(is_deleted=False, status="approved")
+        if user.is_superuser:
+            # Admins can access any course but it must have active categories
+            queryset = Course.objects.filter(is_deleted=False)
             course = get_object_or_404(queryset, pk=course_id)
+            if not course.category.is_active_recursive():
+                raise PermissionDenied("This course is not available.")
 
-        elif user.is_authenticated and user.role == "mentor":
+        elif user.role == "mentor":
             # Mentor can only access their own courses if the category is active
             print("Yes user is a mentor")
             queryset = Course.objects.filter(mentor=user)
@@ -275,29 +293,6 @@ class CourseDetailView(RetrieveAPIView):
                 raise PermissionDenied(
                     "You don't have permission to access this course."
                 )
-
-        elif user.is_superuser:
-            # Admins can access any course but it must have active categories
-            queryset = Course.objects.filter(is_deleted=False)
-            course = get_object_or_404(queryset, pk=course_id)
-            if not course.category.is_active_recursive():
-                raise PermissionDenied("This course is not available.")
-
-        elif user.is_authenticated and user.role == "student":
-            print("Yes user is a student")
-            # If the user is a student, if the course is enroled it will be available
-            # even is it's rejected
-            if Enrollment.objects.filter(
-                user=user, course__id=course_id, is_active=True
-            ).exists():
-                return Course.objects.get(id=course_id)
-
-            # General users can access approved courses with active categories
-            queryset = Course.objects.filter(is_deleted=False, status="approved")
-            course = get_object_or_404(queryset, pk=course_id)
-
-            if not course.category.is_active_recursive():
-                raise PermissionDenied("This course is not available.")
 
         return course
 

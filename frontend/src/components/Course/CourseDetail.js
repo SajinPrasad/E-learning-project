@@ -13,6 +13,7 @@ import {
   getFullLessonData,
   courseDeleteService,
   updateCourse,
+  getCourseDetailsForAdminMentor,
 } from "../../services/courseServices/courseService";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Loading, ReactStarsWrapper } from "../common";
@@ -132,14 +133,13 @@ const CourseDetail = ({ role }) => {
   useEffect(() => {
     const fetchCourseDetail = async () => {
       try {
-        const courseDetails = await getCourseDetails(id);
+        const courseDetails = await getCourseDetailsForAdminMentor(id);
         if (courseDetails) {
           setCourse(courseDetails);
+          setIsLoading(false)
         }
       } catch (error) {
         console.error("Error fetching course details");
-      } finally {
-        setIsLoading(false); // Make sure loading state is updated
       }
     };
 
@@ -148,7 +148,6 @@ const CourseDetail = ({ role }) => {
       if (fetchedRating) {
         setCourseRating(fetchedRating);
       }
-      
     };
 
     fetchCourseDetail();

@@ -264,13 +264,66 @@ const getCoursesForAuthenticatedUser = async (setIsLoading, page) => {
 };
 
 /**
- * Fetching the course details only for admins and mentors.
+ * Fetching the course details only for students.
  * Contains additional information like suggestion and status.
  * @param {number} id - Id of the course
  */
 const getCourseDetails = async (id) => {
   try {
-    const response = await privateAxiosInstance.get(`/course/${id}/`);
+    const response = await publicAxiosInstance.get(`/course/${id}/`);
+    // Check if the response indicates a successful retreval
+    if (response.status === 200) {
+      return response.data;
+    }
+  } catch (error) {
+    if (!error.response) {
+      toast.error(
+        "Unable to connect to server. Please check your internet connection.",
+      );
+      return null;
+    }
+
+    const status = error.response?.status;
+    const errorMessage =
+      error.response?.data?.message || error.response?.data?.error;
+
+    switch (status) {
+      case 400:
+        if (errorMessage && !errorMessage.includes("token")) {
+          toast.error(errorMessage || "Invalid search query");
+        }
+        break;
+
+      case 404:
+        toast.error("No courses found matching your search");
+        break;
+
+      case 500:
+        toast.error("Internal server error. Please try again later.");
+        break;
+
+      default:
+        if (status >= 500) {
+          toast.error("Something went wrong. Please try again later.");
+        }
+    }
+
+    console.error("Error searching courses:");
+
+    return null;
+  }
+};
+
+/**
+ * Fetching the course details only for admins and mentors.
+ * Contains additional information like suggestion and status.
+ * @param {number} id - Id of the course
+ */
+const getCourseDetailsForAdminMentor = async (id) => {
+  try {
+    const response = await privateAxiosInstance.get(
+      `/admin-mentor-course/${id}/`,
+    );
     // Check if the response indicates a successful retreval
     if (response.status === 200) {
       return response.data;
@@ -1075,4 +1128,5 @@ export {
   updateLessonService,
   addNewLessonsService,
   getPopularCourses,
+  getCourseDetailsForAdminMentor,
 };
