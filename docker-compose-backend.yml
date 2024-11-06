@@ -65,7 +65,7 @@ services:
   celery-beat:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.production
     command: celery -A backend beat --loglevel=info
     env_file:
       - .env
