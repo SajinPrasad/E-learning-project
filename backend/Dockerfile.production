@@ -1,0 +1,43 @@
+# Stage 1: Build stage (for compiling dependencies)
+FROM python:3.10-slim AS build
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app/backend
+
+# Copy requirements.txt
+COPY requirements.txt ./
+
+# Install build dependencies and Python packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc python3-dev libpq-dev curl libmagic1 libmagic-dev && \
+    pip install --no-cache-dir -r requirements.txt \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*  # Clean up package lists to reduce image size
+
+# Stage 2: Production stage (minimal runtime image)
+FROM python:3.10-slim
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /app/backend
+
+# Copy only necessary files from the build stage (without build dependencies)
+COPY --from=build /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+COPY --from=build /usr/local/bin /usr/local/bin
+
+# Copy the application code
+COPY . .
+
+# Collect static files (this will put static files into the `staticfiles` folder for production use)
+RUN python manage.py collectstatic --noinput
+
+# Expose the application port
+EXPOSE 8000
+
+# Start Daphne server
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "backend.asgi:application"]

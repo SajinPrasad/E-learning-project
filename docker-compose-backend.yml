@@ -1,0 +1,85 @@
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  celery_data:
+
+services:
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.production
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=${RDS_HOST}          # Amazon RDS Host
+      - DB_PORT=5432                 # Standard PostgreSQL port
+      - POSTGRES_USER=${RDS_USER}    # RDS User
+      - POSTGRES_PASSWORD=${RDS_PASSWORD} # RDS Password
+      - POSTGRES_DB=${RDS_DB}        # Database name
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app/backend
+    networks:
+      - app-network
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:8000 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.production
+    command: celery -A backend worker --loglevel=info
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=${RDS_HOST}
+      - DB_PORT=5432
+      - POSTGRES_USER=${RDS_USER}
+      - POSTGRES_PASSWORD=${RDS_PASSWORD}
+      - POSTGRES_DB=${RDS_DB}
+    volumes:
+      - ./backend:/app/backend
+      - celery_data:/app/celery_data
+    depends_on:
+      - redis
+      - backend
+    networks:
+      - app-network
+
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A backend beat --loglevel=info
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=${RDS_HOST}
+      - DB_PORT=5432
+      - POSTGRES_USER=${RDS_USER}
+      - POSTGRES_PASSWORD=${RDS_PASSWORD}
+      - POSTGRES_DB=${RDS_DB}
+    volumes:
+      - ./backend:/app/backend
+      - celery_data:/app/celery_data
+    depends_on:
+      - redis
+      - backend
+    networks:
+      - app-network

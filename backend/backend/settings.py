@@ -114,10 +114,6 @@ CELERY_BEAT_SCHEDULE = {
         "task": "users.tasks.remove_expired_otps",
         "schedule": timedelta(hours=1),  # Runs every hour
     },
-    # "clean-up-orphaned-files": {
-    #     "task": "users.tasks.clean_up_orphaned_files",
-    #     "schedule": timedelta(hours=22),
-    # },
 }
 
 # Database
@@ -172,13 +168,13 @@ USE_TZ = True
 
 # SMTP server settings for sending Gmails
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "sajinprasad777@gmail.com"
-EMAIL_HOST_PASSWORD = "wumzrmqdlausuvps"
-EMAIL_USE_SSL = False
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL")
 
 
 # AWS settings
@@ -248,7 +244,7 @@ CORS_ALLOWED_HEADERS = [
 
 PHONENUMBER_DEFAULT_REGION = "IN"
 
-DEFAULT_FROM_EMAIL = "sajinprasad52@gmail.com"
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -257,15 +253,9 @@ REST_FRAMEWORK = {
     ],
 }
 
-# ELASTICSEARCH_DSL = {
-#     'default': {
-#         'hosts': 'elasticsearch:9200'
-#     },
-# }
-
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": False,
@@ -287,8 +277,8 @@ SIMPLE_JWT = {
     "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
     "JTI_CLAIM": "jti",
     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
-    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
-    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+    "SLIDING_TOKEN_LIFETIME": timedelta(days=1),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=7),
     "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
     "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
@@ -297,13 +287,9 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
 
-PAYPAL_MODE = "sandbox"
-PAYPAL_CLIENT_ID = (
-    "AegV4jdwpguvPZaGFthgRFbNKZ-F7SsYAm0MomkehiL-BLyaOdEiZfbPw0dUxTn0tGs1gIQ8gKQJXv8x"
-)
-PAYPAL_CLIENT_SECRET = (
-    "EL8V2TiDZSPQXMV9AyeNCwiiX8vptVfMOn4OW6buC5IePch_eMQU2j_ZT1j6OZKOL72NV-tO9LgLtk0k"
-)
+PAYPAL_MODE = os.getenv("PAYPAL_MODE")
+PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
+PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 
 LOGGING = {
     "version": 1,
