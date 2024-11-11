@@ -12,19 +12,18 @@ services:
       - "6379:6379"
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.production
+      dockerfile: Dockerfile
     env_file:
-      - .env
-    environment:
-      - DB_HOST=${RDS_HOST}          # Amazon RDS Host
-      - DB_PORT=5432                 # Standard PostgreSQL port
-      - POSTGRES_USER=${RDS_USER}    # RDS User
-      - POSTGRES_PASSWORD=${RDS_PASSWORD} # RDS Password
-      - POSTGRES_DB=${RDS_DB}        # Database name
+      - ./backend/.env  # Updated path to the .env file
     ports:
       - "8000:8000"
     volumes:
@@ -43,16 +42,10 @@ services:
   celery:
     build:
       context: ./backend
-      dockerfile: Dockerfile.production
+      dockerfile: Dockerfile
     command: celery -A backend worker --loglevel=info
     env_file:
-      - .env
-    environment:
-      - DB_HOST=${RDS_HOST}
-      - DB_PORT=5432
-      - POSTGRES_USER=${RDS_USER}
-      - POSTGRES_PASSWORD=${RDS_PASSWORD}
-      - POSTGRES_DB=${RDS_DB}
+      - ./backend/.env  # Updated path to the .env file
     volumes:
       - ./backend:/app/backend
       - celery_data:/app/celery_data
@@ -68,18 +61,25 @@ services:
       dockerfile: Dockerfile
     command: celery -A backend beat --loglevel=info
     env_file:
-      - .env
-    environment:
-      - DB_HOST=${RDS_HOST}
-      - DB_PORT=5432
-      - POSTGRES_USER=${RDS_USER}
-      - POSTGRES_PASSWORD=${RDS_PASSWORD}
-      - POSTGRES_DB=${RDS_DB}
+      - ./backend/.env  # Updated path to the .env file
     volumes:
       - ./backend:/app/backend
       - celery_data:/app/celery_data
     depends_on:
       - redis
+      - backend
+    networks:
+      - app-network
+  
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
       - backend
     networks:
       - app-network

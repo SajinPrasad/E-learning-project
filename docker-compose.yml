@@ -4,7 +4,7 @@ networks:
 
 volumes:
   postgres_data:
-  celery_data: 
+  celery_data:
 
 services:
   db:
