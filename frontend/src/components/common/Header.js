@@ -43,7 +43,7 @@ const Header = (cartItemNumbers = 0) => {
     if (isAuthenticated) {
       fetchCartItems();
     }
-  }, [cartItemNumbers]);
+  }, [cartItemNumbers, isAuthenticated]);
 
   useEffect(() => {
     if (selectedCategory) {
@@ -58,7 +58,7 @@ const Header = (cartItemNumbers = 0) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isDropdownOpen, selectedCategory]);
+  }, [isDropdownOpen, selectedCategory, navigate]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -78,7 +78,7 @@ const Header = (cartItemNumbers = 0) => {
         navigate(`/courses/?category=${selectedCategory}`);
       }
     }
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedCategory, isAuthenticated, navigate, role]);
 
   const handleHomeNavigation = () => {
     if (role === "mentor") {
@@ -166,6 +166,7 @@ const Header = (cartItemNumbers = 0) => {
               >
                 <img
                   src={profilePicture}
+                  alt={"Profile"}
                   className="h-full w-full rounded-full object-cover"
                 />
               </div>
@@ -189,19 +190,19 @@ const Header = (cartItemNumbers = 0) => {
           </div>
         ) : (
           <div className="ml-5 mt-5 inline-flex items-center space-x-6 md:mt-0 lg:justify-end">
-            <a
+            <p
               onClick={() => navigate("/login")}
               className="whitespace-no-wrap cursor-pointer text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out hover:text-gray-900"
             >
               Login
-            </a>
+            </p>
             <span className="h-5 border border-gray-200" />
-            <a
+            <p
               onClick={() => navigate("/register")}
               className="whitespace-no-wrap cursor-pointer text-base font-medium leading-6 text-gray-600 transition duration-150 ease-in-out hover:text-gray-900"
             >
               Sign Up
-            </a>
+            </p>
           </div>
         )}
       </div>
