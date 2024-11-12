@@ -1,0 +1,28 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+env/
+
+# Django secret keys, environment variables
+.env
+*.env
+
+# SQLite database files (if using SQLite locally)
+*.sqlite3
+
+# Static and media files (if you're mounting volumes instead)
+static/
+media/
+
+# Logs
+*.log
+
+# Ignore Docker-related files
+Dockerfile
+Dockerfile.production
+docker-compose.yml

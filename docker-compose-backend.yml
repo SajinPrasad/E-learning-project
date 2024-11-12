@@ -1,32 +1,18 @@
+# This docker file is used for production only.
+#Not included db service, as we are using AWS RDS.
+
 networks:
   app-network:
     driver: bridge
 
 volumes:
   celery_data:
-  postgres_data:
   backend:
   backend_static:
   daphne_socket:
   backend_media:
 
 services:
-  db:
-    image: "postgres:alpine"
-    ports:
-      - "5434:5432"
-    env_file:
-      - .env
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - app-network
-
   redis:
     image: "redis:alpine"
     ports:
@@ -43,8 +29,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.production
+    environment:
+      - SERVICE_TYPE=backend
     env_file:
-      - ./backend/.env # Updated path to the .env file
+      - ./backend/.env
     ports:
       - "8000:8000"
     volumes:
@@ -69,17 +57,18 @@ services:
       ]
     healthcheck:
       test: ["CMD-SHELL", "curl --fail http://localhost:8000 || exit 1"]
-      interval: 30s # Increased interval for slower startup times
-      timeout: 10s # Give more time for response
+      interval: 30s
+      timeout: 10s
       retries: 3
 
   celery:
     build:
       context: ./backend
       dockerfile: Dockerfile.production
-    command: celery -A backend worker --loglevel=info
+    environment:
+      - SERVICE_TYPE=celery
     env_file:
-      - ./backend/.env # Updated path to the .env file
+      - ./backend/.env
     volumes:
       - backend:/app/backend
       - backend_static:/backend/staticfiles
@@ -95,9 +84,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.production
-    command: celery -A backend beat --loglevel=info
+    environment:
+      - SERVICE_TYPE=celery-beat
     env_file:
-      - ./backend/.env # Updated path to the .env file
+      - ./backend/.env
     volumes:
       - backend:/app/backend
       - backend_static:/backend/staticfiles
@@ -121,6 +111,6 @@ services:
       - daphne_socket:/tmp/daphne # Daphne socket
     depends_on:
       backend:
-        condition: service_healthy # Ensures backend is ready
+        condition: service_healthy
     networks:
       - app-network
