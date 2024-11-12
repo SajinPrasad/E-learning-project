@@ -5,8 +5,6 @@ from django.conf import settings
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
-from users.tasks import delete_s3_file
-
 # Create your models here.
 
 
@@ -117,15 +115,6 @@ class Lesson(models.Model):
 
     def __str__(self):
         return self.title
-
-
-@receiver(pre_save, sender=Lesson)
-def delete_old_lesson_video(sender, instance, **kwargs):
-    # Check if the instance already exists in the database (i.e., an update)
-    if instance.pk:
-        old_instance = Lesson.objects.get(pk=instance.pk)
-        if old_instance.video_file and old_instance.video_file != instance.video_file:
-            delete_s3_file.delay(old_instance.video_file.url)
 
 
 class CourseRequirement(models.Model):
