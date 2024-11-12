@@ -1,3 +1,5 @@
+# Docker compose file for development.
+
 networks:
   app-network:
     driver: bridge

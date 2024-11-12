@@ -7,6 +7,9 @@ __pycache__/
 venv/
 .venv/
 
+# Docker
+docker-compose-backend-local-testing.yml
+
 # Local database files
 backend/*.sqlite3
 
@@ -61,5 +64,8 @@ yarn-error.log*
 
 # Ignore data directory
 data/
+
+# Nginx
+nginx/nginx.conf
 
 
