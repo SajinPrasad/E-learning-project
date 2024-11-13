@@ -73,7 +73,9 @@ class Course(models.Model):
         null=True,
     )
     # User (Mentor) submitted the course.
-    mentor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    mentor = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True
+    )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -88,7 +90,9 @@ class Lesson(models.Model):
     Model for storing lessons of each course.
     """
 
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons")
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE, related_name="lessons", null=True
+    )
     title = models.CharField(max_length=255)
     content = models.TextField()
     video_file = models.FileField(
@@ -143,7 +147,10 @@ class Suggestion(models.Model):
         Course, on_delete=models.CASCADE, related_name="suggestions"
     )
     admin = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="suggestions"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="suggestions",
+        null=True,
     )
     suggestion_text = models.TextField()
     is_done = models.BooleanField(default=False)
@@ -181,10 +188,13 @@ class Enrollment(models.Model):
     """
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="enrollments"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="enrollments",
+        null=True,
     )
     course = models.ForeignKey(
-        Course, on_delete=models.CASCADE, related_name="enrollments"
+        Course, on_delete=models.CASCADE, related_name="enrollments", null=True
     )
     purchased_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)

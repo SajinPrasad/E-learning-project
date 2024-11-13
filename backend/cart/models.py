@@ -40,8 +40,10 @@ class CartItem(models.Model):
     allowing multiple courses to be added to a single cart.
     """
 
-    cart = models.ForeignKey(Cart, related_name="items", on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    cart = models.ForeignKey(
+        Cart, related_name="items", on_delete=models.CASCADE, null=True
+    )
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     is_active = models.BooleanField(default=True)
     added_at = models.DateTimeField(auto_now_add=True)
@@ -55,5 +57,3 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f"{self.course.title} in cart for {self.cart.user.username}"
-
-

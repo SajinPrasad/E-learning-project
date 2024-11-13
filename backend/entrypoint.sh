@@ -49,10 +49,10 @@ fi
 # Run migrations (only for backend and first-run services)
 if [ "$SERVICE_TYPE" = "backend" ] || [ "$SERVICE_TYPE" = "celery" ]; then
     echo "Making migrations..."
-    /py/bin/python manage.py makemigrations
+    /py/bin/python manage.py makemigrations --noinput
 
     echo "Running migrations..."
-    /py/bin/python manage.py migrate
+    /py/bin/python manage.py migrate --noinput
 fi
 
 # Start the appropriate service based on SERVICE_TYPE

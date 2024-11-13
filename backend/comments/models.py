@@ -13,9 +13,10 @@ class Comment(models.Model):
     Comment model for storing comments.
     Self referencing the comments for replies
     """
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     course = models.ForeignKey(
-        Course, on_delete=models.CASCADE, related_name="comments"
+        Course, on_delete=models.CASCADE, related_name="comments", null=True
     )
     comment = models.CharField(max_length=300)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -74,7 +75,7 @@ class Comment(models.Model):
             thread.append(current.parent)
             current = current.parent
         return thread[::-1]  # Reverse to get chronological order
-    
+
     def get_replies(self):
         """Method to get all replies for a comment"""
         return self.replies.all()

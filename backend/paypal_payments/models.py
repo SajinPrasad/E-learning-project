@@ -1,9 +1,8 @@
 from django.db import models
 from django.core.validators import MinValueValidator
 from decimal import Decimal
-from django.core.validators import MinValueValidator
 from decimal import Decimal
-from django.db.models import Sum
+from rest_framework.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.dispatch import receiver
 from django.db.models.signals import post_save
@@ -72,6 +71,11 @@ class AdminWallet(WalletBase):
         verbose_name = "Admin Wallet"
         verbose_name_plural = "Admin Wallet"
 
+    def save(self, *args, **kwargs):
+        if AdminWallet.objects.exists() and not self.pk:
+            raise ValidationError("Only one AdminWallet instance is allowed.")
+        super().save(*args, **kwargs)
+
 
 class MentorWallet(WalletBase):
     """
@@ -94,7 +98,7 @@ class CourseProfit(models.Model):
     Model to track individual profit entries for courses
     """
 
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True)
     number_of_purchases = models.IntegerField(default=0)
     admin_profit = models.DecimalField(
         max_digits=10,
