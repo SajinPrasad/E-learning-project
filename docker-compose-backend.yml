@@ -104,11 +104,16 @@ services:
     container_name: nginx
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - backend_static:/backend/staticfiles
       - backend_media:/backend/media
       - daphne_socket:/tmp/daphne # Daphne socket
+      # Mount the SSL certificates directly from the host
+      - /etc/letsencrypt/live/api.brainbridgelearning.shop/fullchain.pem:/etc/letsencrypt/live/api.brainbridgelearning.shop/fullchain.pem:ro
+      - /etc/letsencrypt/live/api.brainbridgelearning.shop/privkey.pem:/etc/letsencrypt/live/api.brainbridgelearning.shop/privkey.pem:ro
+      - /etc/letsencrypt/archive/api.brainbridgelearning.shop:/etc/letsencrypt/archive/api.brainbridgelearning.shop:ro
     depends_on:
       backend:
         condition: service_healthy
