@@ -17,8 +17,8 @@ class Review(models.Model):
 
     rating = models.DecimalField(max_digits=2, decimal_places=1, default=0.0)
     review_text = models.TextField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True)
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
 
