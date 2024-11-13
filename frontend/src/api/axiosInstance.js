@@ -4,7 +4,7 @@ import { store } from "../store/store";
 import { clearToken, setToken } from "../features/auth/authSlice";
 
 // Base URL for the API
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://api.brainbridgelearning.shop";
 
 // Public Axios Instance (No Authentication)
 export const publicAxiosInstance = axios.create({

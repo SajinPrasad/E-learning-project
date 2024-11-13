@@ -19,7 +19,7 @@ const CommentForm = ({ courseId, selectedItem = "", setSelectedItem }) => {
     if (accessToken) {
       // Create WebSocket connection when the component mounts
       const socket = new WebSocket(
-        `ws://localhost:8000/ws/comments/course/${courseId}/?token=${accessToken}`,
+        `ws://api.brainbridgelearning.shop/ws/comments/course/${courseId}/?token=${accessToken}`,
       );
       wsRef.current = socket; // Store WebSocket reference
 
