@@ -36,9 +36,9 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - backend:/techmentor/backend
-      - backend_static:/backend/staticfiles
-      - backend_media:/backend/media
+      - backend:/app/backend
+      - backend_static:/app/backend/staticfiles
+      - backend_media:/app/backend/media
     networks:
       - app-network
     depends_on:
@@ -70,10 +70,10 @@ services:
     env_file:
       - ./backend/.env
     volumes:
-      - backend:/app/backend
-      - backend_static:/backend/staticfiles
-      - backend_media:/app/backend/media
-      - celery_data:/app/celery_data
+      - backend:/celery/backend
+      - backend_static:/celery/staticfiles
+      - backend_media:/celery/media
+      - celery_data:/celery/celery_data
     depends_on:
       - redis
       - backend
@@ -89,10 +89,10 @@ services:
     env_file:
       - ./backend/.env
     volumes:
-      - backend:/app/backend
-      - backend_static:/backend/staticfiles
-      - backend_media:/app/backend/media
-      - celery_data:/app/celery_data
+      - backend:/celery/backend
+      - backend_static:/celery/staticfiles
+      - backend_media:/celery/media
+      - celery_data:/celery/celery_data
     depends_on:
       - redis
       - backend
