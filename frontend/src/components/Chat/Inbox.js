@@ -47,7 +47,7 @@ const Inbox = () => {
 
       // Create a new WebSocket connection to the chat server.
       websocketRef.current = new WebSocket(
-        `ws://localhost:8000/ws/chat/${receiverId}/?token=${accessToken}`,
+        `ws://api.brainbridgelearning.shop/ws/chat/${receiverId}/?token=${accessToken}`,
       );
 
       // Event handler for successful WebSocket connection.
