@@ -25,6 +25,7 @@ async function showConfirmCategoryStatusAlert(status) {
   }).then((result) => result.isConfirmed);
 }
 
+{/* Card for categories. */}
 const Card = ({
   id,
   title,
