@@ -667,7 +667,6 @@ const addNewLessonsService = async (courseId, lessons) => {
     );
 
     if (response.status >= 200 && response.status < 301) {
-      toast.success("New lessons added");
       return response.data;
     }
   } catch (error) {
@@ -1044,7 +1043,7 @@ const courseDeleteService = async (courseId) => {
  */
 const getPopularCourses = async () => {
   try {
-    const response = await publicAxiosInstance.get("/popular-courses/");
+    const response = await privateAxiosInstance.get("/popular-courses/");
     if (response.status === 200) {
       return response.data;
     }

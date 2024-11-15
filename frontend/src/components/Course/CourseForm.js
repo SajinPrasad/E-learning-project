@@ -541,7 +541,8 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
         </div>
 
         <div className="mb-6 w-full">
-          <label className="flex items-center space-x-2">
+          {/* Work on later... */}
+          {/* <label className="flex items-center space-x-2">
             <input
               type="checkbox"
               checked={isFreeCourse}
@@ -551,7 +552,8 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
             <span className="text-blue-gray-800 text-lg font-medium">
               Add as Free course
             </span>
-          </label>
+          </label> */}
+
           <label
             className={`text-blue-gray-800 ${isFreeCourse ? "text-gray-400" : ""} mb-2 text-sm font-medium`}
           >

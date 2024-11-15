@@ -406,6 +406,7 @@ const Lessons = ({ courseId, lessons, selectedItem, setSelectedItem }) => {
             handleUpdateLessonList={handleUpdateLessonList}
             setIsAddingNewLesson={setIsAddingNewLesson}
             setIsVideoLoading={setIsVideoLoading}
+            setIsLessonLoading={setIsLessonLoading}
           />
         )}
       </div>

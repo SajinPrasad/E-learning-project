@@ -43,6 +43,7 @@ const confirmAddingLessons = () => {
  * @param {function} setIsAddingNewLesson - Function which sets the state of showing the
       form to add lessons
  * @param {function} setIsVideoLoading - Function for setting the video loading state.
+    @param {function} setIsLessonLoading - Function for setting the lesson loading state.
  * @returns 
  */
 const AddLessonForm = ({
@@ -50,6 +51,7 @@ const AddLessonForm = ({
   handleUpdateLessonList,
   setIsAddingNewLesson,
   setIsVideoLoading,
+  setIsLessonLoading,
 }) => {
   const [lesson, setLesson] = useState({
     title: "",
@@ -93,6 +95,7 @@ const AddLessonForm = ({
     if (file) {
       try {
         setIsVideoLoading(true); // Add loading state
+        setIsLessonLoading(true);
         await validateVideoFile({ file, setIsLoading: setIsVideoLoading });
 
         const previewUrl = URL.createObjectURL(file);
@@ -107,6 +110,7 @@ const AddLessonForm = ({
         e.target.value = "";
       } finally {
         setIsVideoLoading(false);
+        setIsLessonLoading(false);
       }
     }
   };
@@ -123,7 +127,8 @@ const AddLessonForm = ({
         toast.error("Please add at least one lesson");
         return;
       }
-
+      setIsVideoLoading(true);
+      setIsLessonLoading(true);
       const confirmed = await confirmAddingLessons();
 
       if (confirmed) {
@@ -138,6 +143,9 @@ const AddLessonForm = ({
       }
     } catch (error) {
       toast.error(error.message || "Error adding lessons");
+    } finally {
+      setIsVideoLoading(false);
+      setIsLessonLoading(false);
     }
   };
 

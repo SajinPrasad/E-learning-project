@@ -28,7 +28,7 @@ const LoginSchema = Yup.object().shape({
  * @param {*} navigate Function to navigate to appropreate login page
  * @param {*} role Role of the requesting user to display
  */
-function showUnauthorizedAlert(navigate, role) {
+async function showUnauthorizedAlert(navigate, role) {
   Swal.fire({
     title: "Access Denied!",
     text: "You are not authorized to access this page. Please login with the correct role.",
@@ -131,19 +131,19 @@ const LoginForm = ({ role }) => {
                 role === "mentor"
               ) {
                 setLoading(false);
-                showUnauthorizedAlert(navigate, response.user.role);
+                await showUnauthorizedAlert(navigate, response.user.role);
               } else if (
                 response.user.role === "mentor" &&
                 role === "student"
               ) {
                 setLoading(false);
-                showUnauthorizedAlert(navigate, response.user.role);
+                await showUnauthorizedAlert(navigate, response.user.role);
               } else if (
                 response.user.role === "student" ||
                 (response.user.role === "mentor" && role === "admin")
               ) {
                 setLoading(false);
-                showUnauthorizedAlert(navigate, response.user.role);
+                await showUnauthorizedAlert(navigate, response.user.role);
               }
             } catch (error) {
               throw error;
