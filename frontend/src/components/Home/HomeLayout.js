@@ -24,11 +24,10 @@ const HomeLayout = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [courses, setCourses] = useState([]);
-  const [enrolledCourses, setEnrolledCourses] = useState(null);
-  const [popularCourses, setPopularCourses] = useState(null);
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
+  const [popularCourses, setPopularCourses] = useState([]);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-  const dispatch = useDispatch();
   const scrollContainerRef = useRef(null);
   const [page, setPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -141,7 +140,7 @@ const HomeLayout = () => {
       <Header />
       <Banner />
 
-      {isAuthenticated && enrolledCourses && (
+      {isAuthenticated && enrolledCourses.length > 0 && (
         <div className="m-3 mt-3 rounded border border-gray-200 p-3 md:p-8">
           <div
             onClick={() => navigate("/enrolled-courses")}
@@ -198,7 +197,7 @@ const HomeLayout = () => {
       )}
 
       {/* Popular Courses */}
-      {popularCourses && (
+      {popularCourses.length > 0 && (
         <div className="m-3 mt-3 rounded border border-gray-200 p-3 md:p-8">
           <span>
             <ContentHeading text={"Popular Courses"} />

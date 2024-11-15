@@ -629,11 +629,19 @@ class PopularCoursesListView(ListAPIView):
     serializer_class = CourseListCreateSerializer
 
     def get_queryset(self):
-        # Filter out courses that are not approved or deleted
-        queryset = Course.objects.filter(status="approved", is_deleted=False)
+        # Filter out courses that are not approved, deleted, or have no enrollments
+        queryset = Course.objects.filter(
+            status="approved", is_deleted=False, enrollments__isnull=False
+        ).distinct()
 
         # Filter based on active categories by ensuring the category or any ancestor is active
         queryset = queryset.filter(category__is_active=True)
+
+        # Exclude courses that the authenticated user has already purchased
+        user = self.request.user
+        if user.is_authenticated:
+            print("User is authenticated")
+            queryset = queryset.exclude(enrollments__user=user)
 
         # Annotate with enrollment count and order by it in descending order, limiting to top 10
         return queryset.annotate(total_enrollments=Count("enrollments")).order_by(

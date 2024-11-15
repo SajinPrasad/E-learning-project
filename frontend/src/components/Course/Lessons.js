@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { LessonSkeleton, VideoSkeleton } from "../Skeletons";
 import {
   getCourseDetails,
+  getCourseDetailsForAdminMentor,
   getFullLessonData,
   updateLessonService,
   validateVideoFile,
@@ -10,6 +11,7 @@ import {
 import { toast } from "react-toastify";
 import { EditIcon, PlusIcon } from "../common/Icons";
 import AddLessonForm from "./AddLessonForm";
+import { useSelector } from "react-redux";
 
 /**
  *
@@ -19,6 +21,7 @@ import AddLessonForm from "./AddLessonForm";
  * @returns
  */
 const Lessons = ({ courseId, lessons, selectedItem, setSelectedItem }) => {
+  const role = useSelector((state) => state.user.role);
   const [currentLesson, setCurrentLesson] = useState({});
   const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
@@ -36,7 +39,14 @@ const Lessons = ({ courseId, lessons, selectedItem, setSelectedItem }) => {
     const fetchLessonContent = async () => {
       setIsLessonLoading(true);
       setIsVideoLoading(true);
-      const response = await getCourseDetails(courseId);
+
+      let response;
+      if (role === "student") {
+        response = await getCourseDetails(courseId);
+      } else {
+        response = await getCourseDetailsForAdminMentor(courseId);
+      }
+
       if (response) {
         const firstLessonData = await getFullLessonData(
           response.lessons[0].id,
@@ -396,6 +406,7 @@ const Lessons = ({ courseId, lessons, selectedItem, setSelectedItem }) => {
             handleUpdateLessonList={handleUpdateLessonList}
             setIsAddingNewLesson={setIsAddingNewLesson}
             setIsVideoLoading={setIsVideoLoading}
+            setIsLessonLoading={setIsLessonLoading}
           />
         )}
       </div>
