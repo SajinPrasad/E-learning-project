@@ -223,7 +223,14 @@ MAX_PROFILE_PIC_SIZE = 5 * 1048576  # 5 MB
 
 # For testing purpose, video max size is 20MB and min size is 100KB
 MIN_VIDEO_FILE_SIZE = 100 * 1024  # 100 KB
-MAX_VIDEO_FILE_SIZE = 20 * 1024 * 1024  # 20 MB
+MAX_VIDEO_FILE_SIZE = 3 * 1024 * 1024 * 1024  # 20 MB
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 3 * 1024 * 1024 * 1024  # 3 GB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 3 * 1024 * 1024 * 1024  # 3 GB
+
+FILE_UPLOAD_HANDLERS = [
+    "django.core.files.uploadhandler.TemporaryFileUploadHandler",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
