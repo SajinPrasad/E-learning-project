@@ -682,10 +682,10 @@ const addNewLessonsService = async (courseId, lessons) => {
         for (const [field, messages] of Object.entries(backendErrors)) {
           if (Array.isArray(messages)) {
             messages.forEach((msg) => {
-              toast.error(`${field}: ${msg}`);
+              toast.error(`${msg}`);
             });
           } else {
-            toast.error(`${field}: ${backendErrors[field]}`);
+            toast.error(`${backendErrors[field]}`);
           }
         }
       } else {

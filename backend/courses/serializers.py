@@ -114,6 +114,7 @@ class LessonUpdateCreateSerializer(ModelSerializer):
         }
 
     def validate(self, attrs):
+        course_id = attrs.get("course")
         lesson_video = attrs.get("video_file", None)
         lesson_title = attrs.get("title", "")
         lesson_content = attrs.get("content", "")
@@ -125,9 +126,9 @@ class LessonUpdateCreateSerializer(ModelSerializer):
                 validate_lesson_video(lesson_video)
             except ValidationError as e:
                 errors["video_file"] = str(e)
-
+        
         if lesson_title:
-            if Lesson.objects.filter(title=lesson_title).exists():
+            if Lesson.objects.filter(title=lesson_title, course=course_id).exists():
                 raise ValidationError("Lesson title must be unique")
 
         if lesson_content:
