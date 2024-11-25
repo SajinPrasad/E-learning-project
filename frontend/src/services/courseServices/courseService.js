@@ -395,7 +395,7 @@ const validateVideoFile = ({ file, setIsLoading }) => {
 
     // Check file size (example: between 100KB and 20MB)
     const minSize = 100 * 1024; // 100KB in bytes
-    const maxSize = 20 * 1024 * 1024; // 20MB in bytes
+    const maxSize = 3 * 1024 * 1024 * 1024; // 3GB in bytes
     if (file.size < minSize || file.size > maxSize) {
       toast.error(
         `File size must be between ${minSize / (1024 * 1024)}MB and ${maxSize / (1024 * 1024)}MB.`,
