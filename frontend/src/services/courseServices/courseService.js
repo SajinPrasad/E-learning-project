@@ -883,7 +883,7 @@ const getEnrolledCourses = async () => {
  */
 const filterCourseWithCategoryService = async (category) => {
   try {
-    const response = await publicAxiosInstance.get(
+    const response = await privateAxiosInstance.get(
       `/course/category/filter/?category=${category}`,
     );
     if (response.status === 200) {
@@ -935,7 +935,7 @@ const filterCourseWithCategoryService = async (category) => {
  */
 const searchCourseService = async (queryParams) => {
   try {
-    const response = await publicAxiosInstance.get(
+    const response = await privateAxiosInstance.get(
       `/course/search/?q=${queryParams}`,
     );
     if (response.status === 200) {

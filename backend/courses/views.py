@@ -286,7 +286,6 @@ class AdminMentorCourseDetailView(RetrieveAPIView):
 
         elif user.role == "mentor":
             # Mentor can only access their own courses if the category is active
-            print("Yes user is a mentor")
             queryset = Course.objects.filter(mentor=user)
             course = get_object_or_404(queryset, pk=course_id)
             if not course.category.is_active_recursive():
@@ -640,7 +639,6 @@ class PopularCoursesListView(ListAPIView):
         # Exclude courses that the authenticated user has already purchased
         user = self.request.user
         if user.is_authenticated:
-            print("User is authenticated")
             queryset = queryset.exclude(enrollments__user=user)
 
         # Annotate with enrollment count and order by it in descending order, limiting to top 10
