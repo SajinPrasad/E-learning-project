@@ -61,6 +61,13 @@ const AddLessonForm = ({
   });
   const [lessons, setLessons] = useState([]);
   const [videoPreview, setVideoPreview] = useState("");
+  const [updatingLessonIndex, setUpdatingLessonIndex] = useState(null);
+  const [updatingLesson, setUpdatingLesson] = useState({
+    title: "",
+    content: "",
+    lesson_preview: "",
+    video_file: null,
+  });
 
   const handleLessonInputChange = (e) => {
     const { name, value } = e.target;
@@ -68,6 +75,43 @@ const AddLessonForm = ({
       ...prevLesson,
       [name]: value,
     }));
+  };
+
+  /**
+   * Setting the states lesson index and lesson.
+   * @param {number} index - Index of the lesson going to update
+   * @param {object} lesson - Lesson object which is going to update
+   */
+  const handleSetUpdatingLesson = (index, lesson) => {
+    setUpdatingLessonIndex(index);
+    setUpdatingLesson(lesson);
+  };
+
+  // Updating the state of updating lesson
+  const handleLessonUpdate = (e) => {
+    const { name, value } = e.target;
+    setUpdatingLesson((prevLesson) => ({
+      ...prevLesson,
+      [name]: value,
+    }));
+  };
+
+  // Saving the updated lesson to the lessons list. (Final stage of updation)
+  const handleSaveUpdatedLesson = (index) => {
+    // Replace the lesson at the given index with the updated lesson
+    setLessons((prevLessons) =>
+      prevLessons.map((lesson, i) => (i === index ? updatingLesson : lesson)),
+    );
+
+    // Clear the states after updating
+    setUpdatingLessonIndex(null);
+
+    setUpdatingLesson({
+      title: "",
+      content: "",
+      lesson_preview: "",
+      video_file: null,
+    });
   };
 
   // Adding the lessons to state, before submiting to the backend.
@@ -122,6 +166,11 @@ const AddLessonForm = ({
 
   // Function to add new lessons, calling the service function.
   const handleAddNewLessons = async () => {
+    if (updatingLessonIndex !== null) {
+      toast.warning("Save the updated lesson or cancel to submit");
+      return;
+    }
+
     try {
       if (lessons.length === 0) {
         toast.error("Please add at least one lesson");
@@ -161,9 +210,37 @@ const AddLessonForm = ({
                 key={`${lesson.title}-${index}`} // Better key for mapping
               >
                 <div className="flex justify-between">
-                  <span className="text-xs text-gray-500">
-                    Lesson {index + 1}
-                  </span>
+                  <div className="my-1 mb-1 flex justify-between gap-4">
+                    <span className="text-xs text-gray-500">
+                      New Lesson {index + 1}
+                    </span>
+
+                    {updatingLessonIndex === index ? (
+                      <div className="flex justify-between gap-3">
+                        <span
+                          onClick={() => handleSaveUpdatedLesson(index)}
+                          className="cursor-pointer text-xs font-semibold text-blue-600"
+                        >
+                          Save
+                        </span>
+
+                        <span
+                          onClick={() => setUpdatingLessonIndex(null)}
+                          className="cursor-pointer text-xs font-semibold text-blue-600"
+                        >
+                          Cancel
+                        </span>
+                      </div>
+                    ) : (
+                      <span
+                        onClick={() => handleSetUpdatingLesson(index, lesson)}
+                        className="cursor-pointer text-xs font-semibold text-blue-600"
+                      >
+                        Update lesson
+                      </span>
+                    )}
+                  </div>
+
                   <span
                     onClick={() => handleDeleteLesson(lesson.title)}
                     className="cursor-pointer"
@@ -186,17 +263,38 @@ const AddLessonForm = ({
                       lesson.lesson_preview ? "col-span-2" : "col-span-3"
                     }`}
                   >
-                    <h3 className="mb-2 text-lg font-semibold">
-                      {lesson.title}
-                    </h3>
-                    <p className="text-sm">{lesson.content}</p>
+                    {updatingLessonIndex === index ? (
+                      <div className="mb-4 flex flex-col gap-2">
+                        <input
+                          name="title"
+                          onChange={(e) => handleLessonUpdate(e)}
+                          value={updatingLesson.title}
+                          className="w-full border border-gray-600 text-lg font-semibold"
+                        />
+                        <textarea
+                          name="content"
+                          onChange={(e) => handleLessonUpdate(e)}
+                          value={updatingLesson.content}
+                          className="h-28 w-full resize-none border border-gray-400 text-sm"
+                        />
+                      </div>
+                    ) : (
+                      <div>
+                        <h3 className="mb-2 text-lg font-semibold">
+                          {lesson.title}
+                        </h3>
+                        <p className="text-sm">{lesson.content}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             ))}
           </div>
-          <div onClick={handleAddNewLessons} className="mb-5 flex justify-end">
-            <Button text="Submit" />
+          <div className="mb-5 flex w-full justify-end">
+            <span onClick={handleAddNewLessons} className="inline-block">
+              <Button text="Submit" />
+            </span>
           </div>
         </>
       )}
