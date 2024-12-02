@@ -1,7 +1,8 @@
 import axios from "axios";
 
 import { store } from "../store/store";
-import { clearToken, setToken } from "../features/auth/authSlice";
+import { setToken } from "../features/auth/authSlice";
+import { logoutUser } from "../features/auth/authActuion";
 
 // Base URL for the API
 const API_URL = "https://api.brainbridgelearning.shop";
@@ -27,6 +28,7 @@ export const privateAxiosInstance = axios.create({
 // Add a request interceptor to the private instance to include JWT token
 let isRefreshing = false; // Flag to prevent multiple refreshes
 let refreshSubscribers = []; // Queue to retry original requests
+let refreshTokenFailed = false;
 
 const onRefreshed = (accessToken) => {
   refreshSubscribers.forEach((callback) => callback(accessToken));
@@ -59,6 +61,11 @@ privateAxiosInstance.interceptors.response.use(
       error.response.status === 401 &&
       !originalRequest._retry
     ) {
+      if (refreshTokenFailed) {
+        // If the refresh token has failed, don't try again, proceed to logout
+        return Promise.reject(error);
+      }
+
       if (isRefreshing) {
         // Queue requests while token is being refreshed
         return new Promise((resolve) => {
@@ -98,8 +105,8 @@ privateAxiosInstance.interceptors.response.use(
         return privateAxiosInstance(originalRequest);
       } catch (err) {
         isRefreshing = false;
-        store.dispatch(clearToken());
-        window.location.href = "/login";
+        refreshTokenFailed = true; // Mark the refresh token as failed
+        await store.dispatch(logoutUser());
         return Promise.reject(err);
       }
     }
