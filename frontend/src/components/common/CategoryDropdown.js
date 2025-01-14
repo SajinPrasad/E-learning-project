@@ -9,6 +9,7 @@ import {
 const CategoryDropdown = ({
   isOpen = false,
   header = false,
+  error = false,
   selectedCategory,
   setSelectedCategory,
   setFieldValue,
@@ -52,7 +53,7 @@ const CategoryDropdown = ({
 
   const buttonStyles = header
     ? "text-gray-600 hover:text-gray-900"
-    : "border-gray-200 h-11 py-2 rounded border hover:bg-gray-50 bg-white px-4";
+    : `${error ? 'border-red-500' : 'border-gray-200'} h-11 py-2 rounded border hover:bg-gray-50 bg-white px-4`;
 
   return (
     <div

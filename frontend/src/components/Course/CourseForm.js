@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useFormik } from "formik";
+import { Field, useFormik } from "formik";
 import * as Yup from "yup";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 
-import { Button, CategoryDropdown, Loading } from "../common";
+import { Button, CategoryDropdown, FieldError, Loading } from "../common";
 import { Camera, CloseIcon, VideoIcon } from "../common/Icons";
 import {
   createCourse,
@@ -91,11 +91,16 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
   );
 
   const [videoPreview, setVideoPreview] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Select category");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [isFreeCourse, setIsFreeCourse] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [videoFile, setVideoFile] = useState(null);
+  const [lessonFieldErrors, setLessonFieldErrors] = useState({
+    lessonTitle: "",
+    lessonContent: "",
+    lessonVideo: "",
+  }); // State for setting lesson field errors
 
   const formik = useFormik({
     initialValues: {
@@ -145,15 +150,25 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
   const handleAddLesson = (e) => {
     e.preventDefault();
     const { lessonTitle, lessonContent } = formik.values;
+    let fieldErrors = false;
+    let newFieldErrors = { ...lessonFieldErrors };
 
     if (!lessonTitle || lessonTitle === "") {
-      toast.error("Please enter valid title for the lesson.");
-      return;
-    } else if (!lessonContent || lessonContent === "") {
-      toast.error("Please enter valid lesson content.");
-      return;
-    } else if (lessonContent.length < 200) {
-      toast.error("Lesson content is too short.");
+      fieldErrors = true;
+      newFieldErrors.lessonTitle = "Lesson title is required";
+    }
+    if (!lessonContent || lessonContent === "") {
+      fieldErrors = true;
+      newFieldErrors.lessonContent = "Lesson content is required";
+    }
+    if (lessonContent && lessonContent.length < 200) {
+      fieldErrors = true;
+      newFieldErrors.lessonContent = "Lesson content is too short";
+    }
+
+    // If field errors found in the lesson form, set the state and return.
+    if (fieldErrors) {
+      setLessonFieldErrors(newFieldErrors);
       return;
     }
 
@@ -301,11 +316,19 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
               Course Category
             </p>
             <CategoryDropdown
+              error={
+                formik.touched.courseCategory && formik.errors.courseCategory
+              }
               categories={categoriesArray}
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
               setFieldValue={formik.setFieldValue}
             />
+            {formik.touched.courseCategory && formik.errors.courseCategory && (
+              <div className="text-sm text-red-500">
+                {formik.errors.courseCategory}
+              </div>
+            )}
           </div>
         </div>
         <div className="flex flex-col gap-4">
@@ -396,7 +419,7 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
                     <Camera />
                   </span>
                 )}
-                {formik.errors.previewImage && (
+                {formik.touched.previewImage && formik.errors.previewImage && (
                   <div className="mt-2 text-sm text-red-500">
                     {formik.errors.previewImage}
                   </div>
@@ -471,16 +494,14 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
                 name="lessonTitle"
                 type="text"
                 placeholder="Python - Basics to advanced..."
-                className="border-t-blue-gray-200 w-full rounded border p-3 text-sm placeholder-opacity-100 focus:border-theme-primary focus:outline-none"
+                className={`${lessonFieldErrors.lessonTitle ? "border-red-500" : "border-gray-200"} border-t-blue-gray-200 w-full rounded border p-3 text-sm placeholder-opacity-100 focus:border-theme-primary focus:outline-none`}
               />
               <span type={"button"} onClick={(e) => handleAddLesson(e)}>
                 <Button bg={false} text={"Add Lesson"} />
               </span>
             </div>
-            {formik.touched.lessonTitle && formik.errors.lessonTitle && (
-              <div className="text-sm text-red-500">
-                {formik.errors.lessonTitle}
-              </div>
+            {lessonFieldErrors.lessonTitle && (
+              <FieldError text={lessonFieldErrors.lessonTitle} />
             )}
           </div>
         </div>
@@ -495,15 +516,15 @@ const CourseForm = ({ setAddCourse, refreshCourses }) => {
               onBlur={formik.handleBlur}
               name="lessonContent"
               placeholder="Enter your lesson content here..."
-              className="border-t-blue-gray-200 h-48 w-full resize-none rounded-lg border p-3 focus:border-theme-primary focus:outline-none"
+              className={`${lessonFieldErrors.lessonContent ? "border-red-500" : "border-gray-200"} border-t-blue-gray-200 h-48 w-full resize-none rounded-lg border p-3 focus:border-theme-primary focus:outline-none`}
             />
-            {formik.touched.lessonContent && formik.errors.lessonContent && (
-              <div className="text-sm text-red-500">
-                {formik.errors.lessonContent}
-              </div>
+            {lessonFieldErrors.lessonContent && (
+              <FieldError text={lessonFieldErrors.lessonContent} />
             )}
           </div>
-          <div className="border-t-blue-gray-200 relative mb-2 h-48 w-full resize-none overflow-hidden rounded-lg border p-3 hover:border-theme-primary hover:bg-gray-100 focus:border-theme-primary focus:outline-none md:w-1/3">
+          <div
+            className={`${lessonFieldErrors.lessonContent ? "mb-6" : "mb-2"} border-t-blue-gray-200 relative h-48 w-full resize-none overflow-hidden rounded-lg border p-3 hover:border-theme-primary hover:bg-gray-100 focus:border-theme-primary focus:outline-none md:w-1/3`}
+          >
             {videoPreview ? (
               <div className="relative h-full w-full">
                 <video

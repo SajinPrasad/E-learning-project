@@ -12,3 +12,4 @@ export { default as ReactStarsWrapper } from "./ReactStarWrapper";
 export { default as SearchBar } from "./SearchBar";
 export { default as InsideSearchBar } from "./InsideSearchBar";
 export { default as Footer } from "./Footer";
+export { default as FieldError } from "./FieldError";
